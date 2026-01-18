@@ -1,7 +1,9 @@
 import { useEffect, useRef } from 'react';
+import { useTheme } from '@/hooks/use-theme';
 
 export function NeuralBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const { theme } = useTheme();
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -14,13 +16,11 @@ export function NeuralBackground() {
     let width = window.innerWidth;
     let height = window.innerHeight;
 
-    // Configuration
-    const particleCount = Math.min(window.innerWidth / 10, 80); // Responsive count (increased density)
+    const particleCount = Math.min(window.innerWidth / 10, 80);
     const connectionDistance = 200;
-    const mouseDistance = 200; // Repulsion radius
+    const mouseDistance = 200;
     
-    // Quantum symbols (expanded list)
-    const symbols = ['ψ', 'φ', 'H', 'U', '|0⟩', '|1⟩', '|+' + '⟩', '|-' + '⟩', '∑', '∫', '∂', '∇', 'Ω', 'X', 'CNOT', 'λ', 'θ'];
+    const symbols = ['ψ', 'φ', 'H', 'U', '|0⟩', '|1⟩', '|+⟩', '|-⟩', '∑', '∫', '∂', '∇', 'Ω', 'X', 'CNOT', 'λ', 'θ'];
     
     interface Particle {
       x: number;
@@ -30,7 +30,7 @@ export function NeuralBackground() {
       size: number;
       symbol?: string;
       isSymbol: boolean;
-      layer: number; // 0 (slow/back), 1 (medium), 2 (fast/front)
+      layer: number;
       pulsePhase: number;
       pulseSpeed: number;
     }
@@ -46,15 +46,15 @@ export function NeuralBackground() {
       
       particles = [];
       for (let i = 0; i < particleCount; i++) {
-        const isSymbol = Math.random() > 0.6; // 40% chance to be a symbol
-        const layer = Math.floor(Math.random() * 3); // 0, 1, 2
+        const isSymbol = Math.random() > 0.6;
+        const layer = Math.floor(Math.random() * 3);
         
         particles.push({
           x: Math.random() * width,
           y: Math.random() * height,
-          vx: (Math.random() - 0.5) * (0.3 + layer * 0.3), // Speed based on layer
+          vx: (Math.random() - 0.5) * (0.3 + layer * 0.3),
           vy: (Math.random() - 0.5) * (0.3 + layer * 0.3),
-          size: Math.random() * 2 + 1 + layer, // Larger in front
+          size: Math.random() * 2 + 1 + layer,
           isSymbol,
           symbol: isSymbol ? symbols[Math.floor(Math.random() * symbols.length)] : undefined,
           layer,
@@ -67,67 +67,61 @@ export function NeuralBackground() {
     const draw = () => {
       ctx.clearRect(0, 0, width, height);
       
-      // Update and draw particles
+      // Theme-based colors
+      const isDark = theme === 'dark';
+      const primaryColor = isDark ? 'rgba(91, 33, 182,' : 'rgba(139, 92, 246,'; // Purple
+      const secondaryColor = isDark ? 'rgba(59, 130, 246,' : 'rgba(59, 130, 246,'; // Blue
+      const symbolColor = isDark ? 'rgba(59, 130, 246,' : 'rgba(91, 33, 182,';
+      
       particles.forEach((p, i) => {
-        // Pulse effect
         p.pulsePhase += p.pulseSpeed;
-        const pulse = 0.9 + Math.sin(p.pulsePhase) * 0.2; // 0.7 to 1.1 scale (more subtle pulse)
+        const pulse = 0.9 + Math.sin(p.pulsePhase) * 0.2;
 
-        // Movement
         p.x += p.vx;
         p.y += p.vy;
 
-        // Bounce off walls
         if (p.x < 0 || p.x > width) p.vx *= -1;
         if (p.y < 0 || p.y > height) p.vy *= -1;
 
-        // Mouse interaction (Repulsion)
         const dxMouse = mouse.x - p.x;
         const dyMouse = mouse.y - p.y;
         const distMouse = Math.sqrt(dxMouse * dxMouse + dyMouse * dyMouse);
 
         if (distMouse < mouseDistance) {
           const force = (mouseDistance - distMouse) / mouseDistance;
-          // Move away from mouse
           p.x -= dxMouse * force * 0.05 * (p.layer + 1); 
           p.y -= dyMouse * force * 0.05 * (p.layer + 1);
         }
 
-        const opacity = 0.2 + p.layer * 0.2; // More opaque in front
+        const baseOpacity = isDark ? 0.2 + p.layer * 0.2 : 0.15 + p.layer * 0.15;
 
-        // Draw particle or symbol
         if (p.isSymbol && p.symbol) {
-          ctx.font = `${14 + p.layer * 4}px monospace`; // Larger symbols
+          ctx.font = `${14 + p.layer * 4}px monospace`;
           ctx.save();
-          // Gentle rotation for symbols
           ctx.translate(p.x, p.y);
           ctx.rotate(Math.sin(p.pulsePhase * 0.5) * 0.2);
-          ctx.fillStyle = `rgba(59, 130, 246, ${opacity})`; // Electric blue
-          ctx.fillText(p.symbol, -5, 5); // Center approximate
+          ctx.fillStyle = `${symbolColor}${baseOpacity})`;
+          ctx.fillText(p.symbol, -5, 5);
           ctx.restore();
         } else {
           ctx.beginPath();
           ctx.arc(p.x, p.y, p.size * pulse, 0, Math.PI * 2);
           
-          // Gradient fill for nodes
           const gradient = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * pulse * 2);
-          gradient.addColorStop(0, `rgba(91, 33, 182, ${opacity})`); // Purple core
-          gradient.addColorStop(1, `rgba(91, 33, 182, 0)`); // Fade out
+          gradient.addColorStop(0, `${primaryColor}${baseOpacity})`);
+          gradient.addColorStop(1, `${primaryColor}0)`);
           
           ctx.fillStyle = gradient;
           ctx.fill();
           
-          // Solid center
           ctx.beginPath();
           ctx.arc(p.x, p.y, p.size * 0.4, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(139, 92, 246, ${opacity})`;
+          ctx.fillStyle = `${secondaryColor}${baseOpacity})`;
           ctx.fill();
         }
 
-        // Connections (only for non-symbol nodes or mixed, limit checks for performance)
         for (let j = i + 1; j < particles.length; j++) {
           const p2 = particles[j];
-          // Only connect if on same or adjacent layer
           if (Math.abs(p.layer - p2.layer) > 1) continue;
 
           const dx = p.x - p2.x;
@@ -138,23 +132,15 @@ export function NeuralBackground() {
             ctx.beginPath();
             ctx.moveTo(p.x, p.y);
             ctx.lineTo(p2.x, p2.y);
-            const alpha = (1 - dist / connectionDistance) * 0.2;
+            const alpha = (1 - dist / connectionDistance) * (isDark ? 0.2 : 0.15);
             
-            // Gradient connection from blue to purple
             const grad = ctx.createLinearGradient(p.x, p.y, p2.x, p2.y);
-            grad.addColorStop(0, `rgba(59, 130, 246, ${alpha})`); // Blue
-            grad.addColorStop(1, `rgba(91, 33, 182, ${alpha})`); // Purple
+            grad.addColorStop(0, `${secondaryColor}${alpha})`);
+            grad.addColorStop(1, `${primaryColor}${alpha})`);
             
             ctx.strokeStyle = grad;
-            ctx.lineWidth = 1 + (p.layer * 0.5); // Thicker lines in front
+            ctx.lineWidth = 1 + (p.layer * 0.5);
             ctx.stroke();
-            
-            // Data flow animation along lines (random moving dots)
-            if (Math.random() > 0.995) { // Occasional pulse
-               // Implementation for complex flow dots is simplified here to avoid excessive draw calls in 2D context
-               // Real "flow" would need tracking active pulses per line, which is heavy. 
-               // Instead, we can flash the line brighter occasionally.
-            }
           }
         }
       });
@@ -182,12 +168,14 @@ export function NeuralBackground() {
       window.removeEventListener('mousemove', handleMouseMove);
       cancelAnimationFrame(animationFrameId);
     };
-  }, []);
+  }, [theme]);
 
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 w-full h-full -z-10 pointer-events-none opacity-80 bg-[#0a1929]"
+      className={`fixed inset-0 w-full h-full -z-10 pointer-events-none ${
+        theme === 'dark' ? 'opacity-80 bg-[#0a1929]' : 'opacity-60 bg-slate-50'
+      }`}
     />
   );
 }

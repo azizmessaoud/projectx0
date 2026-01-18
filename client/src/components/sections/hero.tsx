@@ -13,7 +13,7 @@ export function Hero() {
         <img 
           src={heroBg} 
           alt="Abstract Data Background" 
-          className="w-full h-full object-cover opacity-60 mix-blend-overlay"
+          className="w-full h-full object-cover opacity-60 mix-blend-overlay dark:opacity-60 light:opacity-30"
         />
         {/* Spotlight Effect */}
         <div className="absolute inset-0 bg-gradient-radial from-primary/10 via-transparent to-transparent opacity-50 mix-blend-screen" />
@@ -22,31 +22,38 @@ export function Hero() {
       <div className="container mx-auto px-4 md:px-6 relative z-20">
         <div className="max-w-4xl">
           <motion.div
-            initial={{ opacity: 0, scale: 0, rotate: -10 }}
-            animate={{ opacity: 1, scale: 1, rotate: 0 }}
-            transition={{ duration: 0.6, delay: 0.3, type: "spring" }}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
             className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-secondary/30 bg-secondary/10 text-secondary text-sm font-medium mb-6 backdrop-blur-sm"
           >
             <Terminal className="w-4 h-4 animate-pulse" />
             <span>Data Science Engineer</span>
           </motion.div>
           
-          <div className="mb-6 overflow-hidden">
-             <motion.h1
-              initial={{ clipPath: "inset(0 100% 0 0)" }}
-              animate={{ clipPath: "inset(0 0 0 0)" }}
-              transition={{ duration: 1, ease: "easeOut", delay: 0.5 }}
-              className="text-5xl md:text-7xl lg:text-8xl font-bold font-heading leading-[1.1] tracking-tight text-white"
+          <div className="mb-6">
+            <motion.h1
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.3, ease: "easeOut" }}
+              className="text-5xl md:text-7xl lg:text-8xl font-bold font-heading leading-[1.1] tracking-tight"
             >
               Transforming data into <br/>
-              <span className="text-gradient animate-pulse-slow inline-block">actionable insights</span>
+              <motion.span 
+                className="text-gradient inline-block"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.8, delay: 0.6 }}
+              >
+                actionable insights
+              </motion.span>
             </motion.h1>
           </div>
 
           <motion.div
-            initial={{ filter: "blur(10px)", opacity: 0 }}
-            animate={{ filter: "blur(0px)", opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.8 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.7 }}
             className="text-lg md:text-xl text-muted-foreground max-w-2xl mb-8 leading-relaxed"
           >
             <p>
@@ -55,45 +62,40 @@ export function Hero() {
             </p>
           </motion.div>
 
-          <div className="flex flex-wrap gap-4">
+          <motion.div 
+            className="flex flex-wrap gap-4"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.9 }}
+          >
             <MagneticButton 
               className="group relative"
               onClick={() => document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' })}
             >
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1.0, duration: 0.5 }}
-                className="px-8 py-4 bg-primary hover:bg-primary/90 text-white rounded-lg font-bold transition-all flex items-center gap-2 shadow-lg shadow-primary/25 overflow-hidden relative"
-              >
+              <div className="px-8 py-4 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg font-bold transition-all flex items-center gap-2 shadow-lg shadow-primary/25 overflow-hidden relative">
                 <span className="relative z-10 flex items-center gap-2">
                   View My Work 
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </span>
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-shimmer" />
-              </motion.div>
+              </div>
             </MagneticButton>
 
             <MagneticButton
                className="group relative"
                onClick={() => window.open("https://drive.google.com/file/d/194Evas7Gb53EXbZagF6yxcRne-FokIHB/view?usp=sharing", "_blank")}
             >
-               <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1.1, duration: 0.5 }}
-                className="px-8 py-4 bg-white/5 border border-white/10 hover:bg-white/10 rounded-lg font-bold transition-all backdrop-blur-sm flex items-center gap-2 text-white"
-              >
+              <div className="px-8 py-4 bg-card/50 border border-border hover:bg-card/80 rounded-lg font-bold transition-all backdrop-blur-sm flex items-center gap-2">
                 <FileText className="w-4 h-4" />
                 Download CV
-              </motion.div>
+              </div>
             </MagneticButton>
-          </div>
+          </motion.div>
 
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 1.5 }}
+            transition={{ duration: 0.5, delay: 1.1 }}
             className="mt-12 space-y-4"
           >
             <div className="flex flex-wrap gap-6 text-muted-foreground">
@@ -107,10 +109,10 @@ export function Hero() {
                   href={item.href} 
                   target="_blank" 
                   className="hover:text-secondary transition-colors flex items-center gap-2"
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  whileHover={{ scale: 1.1, rotate: 5 }}
-                  transition={{ type: "spring", delay: 1.5 + i * 0.1 }}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  whileHover={{ scale: 1.05 }}
+                  transition={{ delay: 1.1 + i * 0.1 }}
                 >
                   <item.icon className="w-5 h-5" /> <span className="text-sm">{item.label}</span>
                 </motion.a>
@@ -120,16 +122,16 @@ export function Hero() {
             <motion.div 
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.7 }}
-              className="pt-6 border-t border-white/5 flex flex-wrap gap-4 text-sm text-muted-foreground"
+              transition={{ delay: 1.4 }}
+              className="pt-6 border-t border-border/30 flex flex-wrap gap-4 text-sm text-muted-foreground"
             >
-              <a href="https://www.kaggle.com/azizmessaoud2002" target="_blank" className="hover:text-white transition-colors flex items-center gap-1 hover:underline decoration-secondary underline-offset-4">Kaggle</a>
-              <span>•</span>
-              <a href="https://leetcode.com/u/azizmessaoud/" target="_blank" className="hover:text-white transition-colors flex items-center gap-1 hover:underline decoration-secondary underline-offset-4">LeetCode</a>
-              <span>•</span>
-              <a href="https://codeforces.com/profile/rebellion2002" target="_blank" className="hover:text-white transition-colors flex items-center gap-1 hover:underline decoration-secondary underline-offset-4">Codeforces</a>
-              <span>•</span>
-              <a href="https://zindi.africa/users/REBELLION123" target="_blank" className="hover:text-white transition-colors flex items-center gap-1 hover:underline decoration-secondary underline-offset-4">Zindi</a>
+              <a href="https://www.kaggle.com/azizmessaoud2002" target="_blank" className="hover:text-primary transition-colors hover:underline decoration-secondary underline-offset-4">Kaggle</a>
+              <span className="text-border">•</span>
+              <a href="https://leetcode.com/u/azizmessaoud/" target="_blank" className="hover:text-primary transition-colors hover:underline decoration-secondary underline-offset-4">LeetCode</a>
+              <span className="text-border">•</span>
+              <a href="https://codeforces.com/profile/rebellion2002" target="_blank" className="hover:text-primary transition-colors hover:underline decoration-secondary underline-offset-4">Codeforces</a>
+              <span className="text-border">•</span>
+              <a href="https://zindi.africa/users/REBELLION123" target="_blank" className="hover:text-primary transition-colors hover:underline decoration-secondary underline-offset-4">Zindi</a>
             </motion.div>
           </motion.div>
         </div>
