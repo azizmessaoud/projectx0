@@ -49,8 +49,12 @@ export function About() {
                   initial={{ opacity: 0, y: 10 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.1 }}
-                  whileHover={{ scale: 1.1, rotate: 360, transition: { duration: 0.5 } }}
-                  className="px-3 py-1 bg-white/5 rounded-full text-sm border border-white/5 hover:border-primary/30 transition-colors cursor-pointer inline-block"
+                  whileHover={{ 
+                    scale: 1.05, 
+                    y: -2,
+                    transition: { duration: 0.2 } 
+                  }}
+                  className="px-3 py-1 bg-white/5 rounded-full text-sm border border-white/5 hover:border-primary/50 hover:bg-primary/10 hover:shadow-[0_0_12px_rgba(91,33,182,0.3)] transition-all cursor-pointer inline-block relative"
                 >
                   {tech}
                 </motion.span>
