@@ -233,31 +233,24 @@ export function Contact() {
     setErrorMessage("");
     
     const formData = new FormData(e.currentTarget);
-    const data = {
-      name: formData.get('name') as string,
-      email: formData.get('email') as string,
-      subject: formData.get('subject') as string,
-      message: formData.get('message') as string,
-    };
     
     try {
-      const response = await fetch('/api/contact', {
+      const response = await fetch('https://formspree.io/f/xovdjqzj', {
         method: 'POST',
+        body: formData,
         headers: {
-          'Content-Type': 'application/json',
+          'Accept': 'application/json',
         },
-        body: JSON.stringify(data),
       });
       
-      const result = await response.json();
-      
-      if (response.ok && result.success) {
+      if (response.ok) {
         setFormState('success');
         (e.target as HTMLFormElement).reset();
         setTimeout(() => setFormState('idle'), 4000);
       } else {
+        const result = await response.json();
         setFormState('error');
-        setErrorMessage(result.message || "Failed to send message");
+        setErrorMessage(result.error || "Failed to send message");
         setShouldShake(true);
         setTimeout(() => setShouldShake(false), 500);
         setTimeout(() => setFormState('idle'), 4000);
