@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { Menu, X, Terminal } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 const navItems = [
   { name: "About", href: "#about" },
@@ -52,7 +51,7 @@ export function Navbar() {
       transition={{ duration: 0.5 }}
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b border-transparent",
-        scrolled ? "bg-background/80 backdrop-blur-md border-border/50 py-4" : "bg-transparent py-6"
+        scrolled ? "bg-background/80 backdrop-blur-md border-white/5 py-4" : "bg-transparent py-6"
       )}
     >
       <div className="container mx-auto px-4 md:px-6 flex items-center justify-between">
@@ -83,29 +82,23 @@ export function Navbar() {
               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all group-hover:w-full opacity-50" />
             </a>
           ))}
-          
-          <ThemeToggle />
-          
           <a
             href="https://drive.google.com/file/d/194Evas7Gb53EXbZagF6yxcRne-FokIHB/view?usp=sharing"
             target="_blank"
             rel="noopener noreferrer"
-            className="px-6 py-2 bg-primary/10 hover:bg-primary/20 border border-primary/30 rounded-full text-sm font-medium transition-all backdrop-blur-sm text-primary"
+            className="px-6 py-2 bg-white/10 hover:bg-white/20 border border-white/10 rounded-full text-sm font-medium transition-all backdrop-blur-sm"
           >
             Resume
           </a>
         </div>
 
-        {/* Mobile Controls */}
-        <div className="md:hidden flex items-center gap-3">
-          <ThemeToggle />
-          <button
-            className="p-2 text-foreground"
-            onClick={() => setMobileOpen(!mobileOpen)}
-          >
-            {mobileOpen ? <X /> : <Menu />}
-          </button>
-        </div>
+        {/* Mobile Toggle */}
+        <button
+          className="md:hidden p-2 text-foreground"
+          onClick={() => setMobileOpen(!mobileOpen)}
+        >
+          {mobileOpen ? <X /> : <Menu />}
+        </button>
       </div>
 
       {/* Mobile Nav */}
@@ -126,7 +119,7 @@ export function Navbar() {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.1 }}
                   onClick={(e) => scrollToSection(e, item.href)}
-                  className="text-2xl font-bold py-4 border-b border-border/30"
+                  className="text-2xl font-bold py-4 border-b border-white/5"
                 >
                   {item.name}
                 </motion.a>

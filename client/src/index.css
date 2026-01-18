@@ -5,7 +5,7 @@
   --font-heading: "Space Grotesk", sans-serif;
   --font-mono: "JetBrains Mono", monospace;
 
-  /* Dark Theme (Default) - Deep Blue Background #0a1929 */
+  /* Deep Blue Background #0a1929 */
   --color-background: hsl(211 61% 10%); 
   --color-foreground: hsl(210 40% 98%);
 
@@ -46,7 +46,6 @@
   --animate-gradient-x: gradient-x 15s ease infinite;
   --animate-pulse-slow: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   --animate-shimmer: shimmer 2s linear infinite;
-  --animate-fade-in-up: fade-in-up 0.6s ease-out forwards;
 
   @keyframes accordion-down {
     from { height: 0; }
@@ -70,44 +69,6 @@
     from { transform: translateX(-100%); }
     to { transform: translateX(100%); }
   }
-  @keyframes fade-in-up {
-    from { 
-      opacity: 0; 
-      transform: translateY(30px); 
-    }
-    to { 
-      opacity: 1; 
-      transform: translateY(0); 
-    }
-  }
-}
-
-/* Light Theme Overrides */
-.light {
-  --color-background: hsl(210 40% 98%);
-  --color-foreground: hsl(211 61% 10%);
-  
-  --color-card: hsl(0 0% 100%);
-  --color-card-foreground: hsl(211 61% 10%);
-  
-  --color-popover: hsl(0 0% 100%);
-  --color-popover-foreground: hsl(211 61% 10%);
-  
-  --color-primary: hsl(263 70% 50%);
-  --color-primary-foreground: hsl(210 40% 98%);
-  
-  --color-secondary: hsl(217 91% 50%);
-  --color-secondary-foreground: hsl(210 40% 98%);
-  
-  --color-muted: hsl(210 40% 96%);
-  --color-muted-foreground: hsl(215 20% 40%);
-  
-  --color-accent: hsl(210 40% 96%);
-  --color-accent-foreground: hsl(211 61% 10%);
-  
-  --color-border: hsl(214 32% 85%);
-  --color-input: hsl(214 32% 85%);
-  --color-ring: hsl(217 91% 60%);
 }
 
 @layer base {
@@ -117,31 +78,14 @@
   * {
     @apply border-border;
   }
-  
-  /* Dark mode body styles */
   body {
     @apply font-sans antialiased bg-background text-foreground selection:bg-secondary/30;
-    transition: background-color 0.3s ease, color 0.3s ease;
-  }
-  
-  .dark body,
-  :root:not(.light) body {
     background-image: 
       radial-gradient(circle at 50% 0%, hsl(263 70% 42% / 0.15), transparent 60%),
       radial-gradient(circle at 80% 80%, hsl(217 91% 60% / 0.1), transparent 50%),
       linear-gradient(to bottom, hsl(211 61% 10%), hsl(211 61% 8%));
     background-attachment: fixed;
   }
-  
-  /* Light mode body styles */
-  .light body {
-    background-image: 
-      radial-gradient(circle at 50% 0%, hsl(263 70% 50% / 0.08), transparent 60%),
-      radial-gradient(circle at 80% 80%, hsl(217 91% 60% / 0.05), transparent 50%),
-      linear-gradient(to bottom, hsl(210 40% 98%), hsl(210 40% 96%));
-    background-attachment: fixed;
-  }
-  
   h1, h2, h3, h4, h5, h6 {
     @apply font-heading tracking-tight;
   }
@@ -150,23 +94,11 @@
   ::-webkit-scrollbar {
     width: 10px;
   }
-  .dark ::-webkit-scrollbar-track,
-  :root:not(.light) ::-webkit-scrollbar-track {
+  ::-webkit-scrollbar-track {
     @apply bg-background;
   }
-  .dark ::-webkit-scrollbar-thumb,
-  :root:not(.light) ::-webkit-scrollbar-thumb {
+  ::-webkit-scrollbar-thumb {
     @apply bg-white/10 rounded-full border-4 border-solid border-transparent bg-clip-content hover:bg-white/20;
-  }
-  .light ::-webkit-scrollbar-track {
-    background: hsl(210 40% 96%);
-  }
-  .light ::-webkit-scrollbar-thumb {
-    background: hsl(214 32% 80%);
-    border-radius: 9999px;
-  }
-  .light ::-webkit-scrollbar-thumb:hover {
-    background: hsl(214 32% 70%);
   }
 }
 
@@ -175,16 +107,8 @@
     @apply bg-background/50 backdrop-blur-md border border-white/10;
   }
   
-  .light .glass {
-    @apply bg-white/70 backdrop-blur-md border border-black/5;
-  }
-  
   .glass-card {
     @apply bg-card/30 backdrop-blur-sm border border-white/5 hover:border-secondary/50 transition-colors duration-300;
-  }
-  
-  .light .glass-card {
-    @apply bg-white/80 backdrop-blur-sm border border-black/5 hover:border-secondary/50 shadow-lg shadow-black/5;
   }
 
   .text-gradient {

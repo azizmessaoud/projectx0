@@ -1,9 +1,7 @@
 import { useEffect, useRef } from 'react';
-import { useTheme } from '@/hooks/use-theme';
 
 export function NeuralBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { theme } = useTheme();
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -67,12 +65,6 @@ export function NeuralBackground() {
     const draw = () => {
       ctx.clearRect(0, 0, width, height);
       
-      // Theme-based colors
-      const isDark = theme === 'dark';
-      const primaryColor = isDark ? 'rgba(91, 33, 182,' : 'rgba(139, 92, 246,'; // Purple
-      const secondaryColor = isDark ? 'rgba(59, 130, 246,' : 'rgba(59, 130, 246,'; // Blue
-      const symbolColor = isDark ? 'rgba(59, 130, 246,' : 'rgba(91, 33, 182,';
-      
       particles.forEach((p, i) => {
         p.pulsePhase += p.pulseSpeed;
         const pulse = 0.9 + Math.sin(p.pulsePhase) * 0.2;
@@ -93,14 +85,14 @@ export function NeuralBackground() {
           p.y -= dyMouse * force * 0.05 * (p.layer + 1);
         }
 
-        const baseOpacity = isDark ? 0.2 + p.layer * 0.2 : 0.15 + p.layer * 0.15;
+        const opacity = 0.2 + p.layer * 0.2;
 
         if (p.isSymbol && p.symbol) {
           ctx.font = `${14 + p.layer * 4}px monospace`;
           ctx.save();
           ctx.translate(p.x, p.y);
           ctx.rotate(Math.sin(p.pulsePhase * 0.5) * 0.2);
-          ctx.fillStyle = `${symbolColor}${baseOpacity})`;
+          ctx.fillStyle = `rgba(59, 130, 246, ${opacity})`;
           ctx.fillText(p.symbol, -5, 5);
           ctx.restore();
         } else {
@@ -108,15 +100,15 @@ export function NeuralBackground() {
           ctx.arc(p.x, p.y, p.size * pulse, 0, Math.PI * 2);
           
           const gradient = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * pulse * 2);
-          gradient.addColorStop(0, `${primaryColor}${baseOpacity})`);
-          gradient.addColorStop(1, `${primaryColor}0)`);
+          gradient.addColorStop(0, `rgba(91, 33, 182, ${opacity})`);
+          gradient.addColorStop(1, `rgba(91, 33, 182, 0)`);
           
           ctx.fillStyle = gradient;
           ctx.fill();
           
           ctx.beginPath();
           ctx.arc(p.x, p.y, p.size * 0.4, 0, Math.PI * 2);
-          ctx.fillStyle = `${secondaryColor}${baseOpacity})`;
+          ctx.fillStyle = `rgba(139, 92, 246, ${opacity})`;
           ctx.fill();
         }
 
@@ -132,11 +124,11 @@ export function NeuralBackground() {
             ctx.beginPath();
             ctx.moveTo(p.x, p.y);
             ctx.lineTo(p2.x, p2.y);
-            const alpha = (1 - dist / connectionDistance) * (isDark ? 0.2 : 0.15);
+            const alpha = (1 - dist / connectionDistance) * 0.2;
             
             const grad = ctx.createLinearGradient(p.x, p.y, p2.x, p2.y);
-            grad.addColorStop(0, `${secondaryColor}${alpha})`);
-            grad.addColorStop(1, `${primaryColor}${alpha})`);
+            grad.addColorStop(0, `rgba(59, 130, 246, ${alpha})`);
+            grad.addColorStop(1, `rgba(91, 33, 182, ${alpha})`);
             
             ctx.strokeStyle = grad;
             ctx.lineWidth = 1 + (p.layer * 0.5);
@@ -168,14 +160,12 @@ export function NeuralBackground() {
       window.removeEventListener('mousemove', handleMouseMove);
       cancelAnimationFrame(animationFrameId);
     };
-  }, [theme]);
+  }, []);
 
   return (
     <canvas
       ref={canvasRef}
-      className={`fixed inset-0 w-full h-full -z-10 pointer-events-none ${
-        theme === 'dark' ? 'opacity-80 bg-[#0a1929]' : 'opacity-60 bg-slate-50'
-      }`}
+      className="fixed inset-0 w-full h-full -z-10 pointer-events-none opacity-80 bg-[#0a1929]"
     />
   );
 }
