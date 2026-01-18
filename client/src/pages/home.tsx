@@ -9,6 +9,7 @@ import { NeuralBackground } from "@/components/ui/neural-background";
 import { LoadingScreen } from "@/components/ui/loading-screen";
 import { ScrollProgress } from "@/components/ui/scroll-progress";
 import { CustomCursor } from "@/components/ui/custom-cursor";
+import { BackToTop } from "@/components/ui/back-to-top";
 
 export default function Home() {
   return (
@@ -17,6 +18,7 @@ export default function Home() {
       <CustomCursor />
       <ScrollProgress />
       <NeuralBackground />
+      <BackToTop />
       
       <Navbar />
       <Hero />

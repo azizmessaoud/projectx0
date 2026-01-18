@@ -1,22 +1,46 @@
 import { Section } from "@/components/ui/section";
-import { Mail, MapPin, Send } from "lucide-react";
-import { motion } from "framer-motion";
+import { Mail, MapPin, Send, Loader2, Check } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useState } from "react";
+import { TiltCard } from "@/components/ui/tilt-card";
 
 export function Contact() {
+  const [formState, setFormState] = useState<'idle' | 'loading' | 'success'>('idle');
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setFormState('loading');
+    
+    // Simulate API call
+    setTimeout(() => {
+      setFormState('success');
+      // Reset after success
+      setTimeout(() => setFormState('idle'), 3000);
+    }, 1500);
+  };
+
   return (
-    <Section id="contact" className="pb-32">
-      <div className="max-w-4xl mx-auto">
+    <Section id="contact" className="pb-32 relative">
+      {/* Spotlight effect background */}
+      <div className="absolute inset-0 bg-gradient-radial from-primary/5 via-transparent to-transparent opacity-50 pointer-events-none" />
+      
+      <div className="max-w-4xl mx-auto relative z-10">
         <h2 className="text-3xl md:text-5xl font-bold mb-12 text-center">Get In Touch</h2>
         
         <div className="grid md:grid-cols-2 gap-12">
-          <div className="space-y-8">
+          <motion.div 
+            initial={{ opacity: 0, x: -50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6 }}
+            className="space-y-8"
+          >
             <p className="text-lg text-muted-foreground leading-relaxed">
               I'm always open to discussing new projects, creative ideas or opportunities to be part of your visions.
             </p>
             
             <div className="space-y-6">
               <a href="mailto:aziz.messaoud@esprit.tn" className="flex items-center gap-4 text-lg hover:text-primary transition-colors group">
-                <div className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                <div className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center group-hover:bg-primary/20 transition-colors border border-white/10 group-hover:border-primary/50">
                   <Mail className="w-5 h-5" />
                 </div>
                 <div>
@@ -26,7 +50,7 @@ export function Contact() {
               </a>
               
               <div className="flex items-center gap-4 text-lg">
-                <div className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center">
+                <div className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center border border-white/10">
                   <MapPin className="w-5 h-5" />
                 </div>
                 <div>
@@ -35,35 +59,78 @@ export function Contact() {
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
 
-          <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2 group">
-                <label htmlFor="name" className="text-sm font-medium group-focus-within:text-primary transition-colors">Name</label>
-                <input id="name" className="w-full bg-white/5 border border-white/10 rounded-lg p-3 focus:outline-none focus:border-primary focus:bg-white/10 transition-all" placeholder="John Doe" />
-              </div>
-              <div className="space-y-2 group">
-                <label htmlFor="email" className="text-sm font-medium group-focus-within:text-primary transition-colors">Email</label>
-                <input id="email" type="email" className="w-full bg-white/5 border border-white/10 rounded-lg p-3 focus:outline-none focus:border-primary focus:bg-white/10 transition-all" placeholder="john@example.com" />
-              </div>
-            </div>
-            <div className="space-y-2 group">
-              <label htmlFor="subject" className="text-sm font-medium group-focus-within:text-primary transition-colors">Subject</label>
-              <input id="subject" className="w-full bg-white/5 border border-white/10 rounded-lg p-3 focus:outline-none focus:border-primary focus:bg-white/10 transition-all" placeholder="Project Inquiry" />
-            </div>
-            <div className="space-y-2 group">
-              <label htmlFor="message" className="text-sm font-medium group-focus-within:text-primary transition-colors">Message</label>
-              <textarea id="message" rows={4} className="w-full bg-white/5 border border-white/10 rounded-lg p-3 focus:outline-none focus:border-primary focus:bg-white/10 transition-all" placeholder="Hello..." />
-            </div>
-            <motion.button 
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="w-full bg-primary text-primary-foreground font-bold py-4 rounded-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
-            >
-              Send Message <Send className="w-4 h-4" />
-            </motion.button>
-          </form>
+          <motion.div
+            initial={{ opacity: 0, x: 50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <TiltCard className="p-6 glass-card rounded-2xl">
+              <form className="space-y-4" onSubmit={handleSubmit}>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2 group">
+                    <label htmlFor="name" className="text-sm font-medium group-focus-within:text-primary transition-colors inline-block transform group-focus-within:-translate-y-1 duration-200">Name</label>
+                    <input id="name" required className="w-full bg-white/5 border border-white/10 rounded-lg p-3 focus:outline-none focus:border-primary focus:bg-white/10 transition-all focus:shadow-[0_0_15px_rgba(59,130,246,0.3)]" placeholder="John Doe" />
+                  </div>
+                  <div className="space-y-2 group">
+                    <label htmlFor="email" className="text-sm font-medium group-focus-within:text-primary transition-colors inline-block transform group-focus-within:-translate-y-1 duration-200">Email</label>
+                    <input id="email" type="email" required className="w-full bg-white/5 border border-white/10 rounded-lg p-3 focus:outline-none focus:border-primary focus:bg-white/10 transition-all focus:shadow-[0_0_15px_rgba(59,130,246,0.3)]" placeholder="john@example.com" />
+                  </div>
+                </div>
+                <div className="space-y-2 group">
+                  <label htmlFor="subject" className="text-sm font-medium group-focus-within:text-primary transition-colors inline-block transform group-focus-within:-translate-y-1 duration-200">Subject</label>
+                  <input id="subject" required className="w-full bg-white/5 border border-white/10 rounded-lg p-3 focus:outline-none focus:border-primary focus:bg-white/10 transition-all focus:shadow-[0_0_15px_rgba(59,130,246,0.3)]" placeholder="Project Inquiry" />
+                </div>
+                <div className="space-y-2 group">
+                  <label htmlFor="message" className="text-sm font-medium group-focus-within:text-primary transition-colors inline-block transform group-focus-within:-translate-y-1 duration-200">Message</label>
+                  <textarea id="message" rows={4} required className="w-full bg-white/5 border border-white/10 rounded-lg p-3 focus:outline-none focus:border-primary focus:bg-white/10 transition-all focus:shadow-[0_0_15px_rgba(59,130,246,0.3)]" placeholder="Hello..." />
+                </div>
+                <motion.button 
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  disabled={formState !== 'idle'}
+                  className={`w-full font-bold py-4 rounded-lg flex items-center justify-center gap-2 transition-all relative overflow-hidden ${
+                    formState === 'success' ? 'bg-green-500 text-white' : 'bg-primary text-primary-foreground hover:opacity-90'
+                  }`}
+                >
+                  <AnimatePresence mode="wait">
+                    {formState === 'idle' && (
+                      <motion.div 
+                        key="idle"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="flex items-center gap-2"
+                      >
+                        Send Message <Send className="w-4 h-4" />
+                      </motion.div>
+                    )}
+                    {formState === 'loading' && (
+                      <motion.div
+                        key="loading"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                      >
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                      </motion.div>
+                    )}
+                    {formState === 'success' && (
+                      <motion.div
+                        key="success"
+                        initial={{ opacity: 0, scale: 0.5 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="flex items-center gap-2"
+                      >
+                        Sent Successfully <Check className="w-5 h-5" />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.button>
+              </form>
+            </TiltCard>
+          </motion.div>
         </div>
       </div>
     </Section>
