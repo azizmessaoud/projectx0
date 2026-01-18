@@ -1,0 +1,100 @@
+{
+  "colorScheme": "dark",
+  "fonts": [
+    {
+      "family": "sans-serif",
+      "count": 60
+    },
+    {
+      "family": "Inter",
+      "count": 42
+    },
+    {
+      "family": "Arial",
+      "count": 19
+    },
+    {
+      "family": "Space Grotesk",
+      "count": 18
+    },
+    {
+      "family": "monospace",
+      "count": 2
+    }
+  ],
+  "colors": {
+    "primary": "#0F172A",
+    "accent": "#1A2134",
+    "background": "#878B95",
+    "textPrimary": "#878B95",
+    "link": "#1A2134"
+  },
+  "typography": {
+    "fontFamilies": {
+      "primary": "Inter",
+      "heading": "Space Grotesk"
+    },
+    "fontStacks": {
+      "body": [
+        "Inter",
+        "sans-serif"
+      ],
+      "heading": [
+        "Space Grotesk",
+        "sans-serif"
+      ],
+      "paragraph": [
+        "Inter",
+        "sans-serif"
+      ]
+    },
+    "fontSizes": {
+      "h1": "64px",
+      "h2": "48px",
+      "body": "17.6px"
+    }
+  },
+  "spacing": {
+    "baseUnit": 4,
+    "borderRadius": "12px"
+  },
+  "components": {
+    "input": {
+      "background": "#1A2134",
+      "textColor": "#E2E8F0",
+      "borderColor": "#394152",
+      "borderRadius": "8px",
+      "borderRadiusCorners": {
+        "topLeft": "8px",
+        "topRight": "8px",
+        "bottomRight": "8px",
+        "bottomLeft": "8px"
+      },
+      "shadow": "none"
+    }
+  },
+  "images": {
+    "logo": null,
+    "favicon": "https://azizm.me/favicon.ico",
+    "ogImage": "assets/images/profile.jpg"
+  },
+  "__framework_hints": [],
+  "__llm_button_reasoning": {
+    "primary": {
+      "index": -1,
+      "text": "N/A",
+      "reasoning": "LLM failed"
+    },
+    "secondary": {
+      "index": -1,
+      "text": "N/A",
+      "reasoning": "LLM failed"
+    },
+    "confidence": 0
+  },
+  "confidence": {
+    "buttons": 0,
+    "colors": 0,
+    "overall": 0
+  }
+}
