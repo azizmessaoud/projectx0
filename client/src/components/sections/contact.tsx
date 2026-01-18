@@ -274,7 +274,6 @@ export function Contact() {
   return (
     <Section id="contact" className="pb-32 relative">
       <div className="absolute inset-0 bg-gradient-radial from-primary/5 via-transparent to-transparent opacity-50 pointer-events-none" />
-      
       <div className="max-w-4xl mx-auto relative z-10">
         <h2 className="text-3xl md:text-5xl font-bold mb-12 text-center">Get In Touch</h2>
         
@@ -306,7 +305,7 @@ export function Contact() {
                 </div>
                 <div>
                   <div className="text-sm text-muted-foreground">Location</div>
-                  <div className="font-medium">Nabeul, Tunisia</div>
+                  <div className="font-medium">ariana, Tunisia</div>
                 </div>
               </div>
             </div>
