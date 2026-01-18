@@ -1,5 +1,6 @@
 import { Section } from "@/components/ui/section";
 import { Mail, MapPin, Send } from "lucide-react";
+import { motion } from "framer-motion";
 
 export function Contact() {
   return (
@@ -38,26 +39,30 @@ export function Contact() {
 
           <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label htmlFor="name" className="text-sm font-medium">Name</label>
-                <input id="name" className="w-full bg-white/5 border border-white/10 rounded-lg p-3 focus:outline-none focus:border-primary transition-colors" placeholder="John Doe" />
+              <div className="space-y-2 group">
+                <label htmlFor="name" className="text-sm font-medium group-focus-within:text-primary transition-colors">Name</label>
+                <input id="name" className="w-full bg-white/5 border border-white/10 rounded-lg p-3 focus:outline-none focus:border-primary focus:bg-white/10 transition-all" placeholder="John Doe" />
               </div>
-              <div className="space-y-2">
-                <label htmlFor="email" className="text-sm font-medium">Email</label>
-                <input id="email" type="email" className="w-full bg-white/5 border border-white/10 rounded-lg p-3 focus:outline-none focus:border-primary transition-colors" placeholder="john@example.com" />
+              <div className="space-y-2 group">
+                <label htmlFor="email" className="text-sm font-medium group-focus-within:text-primary transition-colors">Email</label>
+                <input id="email" type="email" className="w-full bg-white/5 border border-white/10 rounded-lg p-3 focus:outline-none focus:border-primary focus:bg-white/10 transition-all" placeholder="john@example.com" />
               </div>
             </div>
-            <div className="space-y-2">
-              <label htmlFor="subject" className="text-sm font-medium">Subject</label>
-              <input id="subject" className="w-full bg-white/5 border border-white/10 rounded-lg p-3 focus:outline-none focus:border-primary transition-colors" placeholder="Project Inquiry" />
+            <div className="space-y-2 group">
+              <label htmlFor="subject" className="text-sm font-medium group-focus-within:text-primary transition-colors">Subject</label>
+              <input id="subject" className="w-full bg-white/5 border border-white/10 rounded-lg p-3 focus:outline-none focus:border-primary focus:bg-white/10 transition-all" placeholder="Project Inquiry" />
             </div>
-            <div className="space-y-2">
-              <label htmlFor="message" className="text-sm font-medium">Message</label>
-              <textarea id="message" rows={4} className="w-full bg-white/5 border border-white/10 rounded-lg p-3 focus:outline-none focus:border-primary transition-colors" placeholder="Hello..." />
+            <div className="space-y-2 group">
+              <label htmlFor="message" className="text-sm font-medium group-focus-within:text-primary transition-colors">Message</label>
+              <textarea id="message" rows={4} className="w-full bg-white/5 border border-white/10 rounded-lg p-3 focus:outline-none focus:border-primary focus:bg-white/10 transition-all" placeholder="Hello..." />
             </div>
-            <button className="w-full bg-primary text-primary-foreground font-bold py-4 rounded-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
+            <motion.button 
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="w-full bg-primary text-primary-foreground font-bold py-4 rounded-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+            >
               Send Message <Send className="w-4 h-4" />
-            </button>
+            </motion.button>
           </form>
         </div>
       </div>

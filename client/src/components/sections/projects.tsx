@@ -1,5 +1,7 @@
 import { Section } from "@/components/ui/section";
 import { Github, ExternalLink } from "lucide-react";
+import { TiltCard } from "@/components/ui/tilt-card";
+import { motion } from "framer-motion";
 
 const projects = [
   {
@@ -35,36 +37,43 @@ export function Projects() {
       <h2 className="text-3xl md:text-5xl font-bold mb-12">Featured Projects</h2>
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         {projects.map((project, index) => (
-          <div key={index} className="group glass-card p-6 rounded-2xl flex flex-col h-full hover:shadow-[0_0_30px_rgba(var(--color-primary),0.15)] transition-all">
-            <div className="mb-4">
-              <div className="flex justify-between items-start mb-4">
-                <h3 className="text-xl font-bold group-hover:text-primary transition-colors">{project.title}</h3>
-                <div className="flex gap-3">
-                  {project.links.github && (
-                    <a href={project.links.github} target="_blank" className="hover:text-primary transition-colors">
-                      <Github className="w-5 h-5" />
-                    </a>
-                  )}
-                  {(project.links.demo || project.links.presentation) && (
-                    <a href={project.links.demo || project.links.presentation} target="_blank" className="hover:text-primary transition-colors">
-                      <ExternalLink className="w-5 h-5" />
-                    </a>
-                  )}
+          <motion.div
+            key={index}
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.1 }}
+          >
+            <TiltCard className="group glass-card p-6 rounded-2xl flex flex-col h-full hover:shadow-[0_0_30px_rgba(var(--color-primary),0.15)] transition-all">
+              <div className="mb-4">
+                <div className="flex justify-between items-start mb-4">
+                  <h3 className="text-xl font-bold group-hover:text-primary transition-colors">{project.title}</h3>
+                  <div className="flex gap-3">
+                    {project.links.github && (
+                      <a href={project.links.github} target="_blank" className="hover:text-primary transition-colors hover:scale-110 transform duration-200">
+                        <Github className="w-5 h-5" />
+                      </a>
+                    )}
+                    {(project.links.demo || project.links.presentation) && (
+                      <a href={project.links.demo || project.links.presentation} target="_blank" className="hover:text-primary transition-colors hover:scale-110 transform duration-200">
+                        <ExternalLink className="w-5 h-5" />
+                      </a>
+                    )}
+                  </div>
                 </div>
+                <p className="text-muted-foreground leading-relaxed mb-6">
+                  {project.description}
+                </p>
               </div>
-              <p className="text-muted-foreground leading-relaxed mb-6">
-                {project.description}
-              </p>
-            </div>
-            
-            <div className="mt-auto pt-4 border-t border-white/5 flex flex-wrap gap-2">
-              {project.tech.map(t => (
-                <span key={t} className="text-xs font-mono text-secondary">
-                  {t}
-                </span>
-              ))}
-            </div>
-          </div>
+              
+              <div className="mt-auto pt-4 border-t border-white/5 flex flex-wrap gap-2">
+                {project.tech.map(t => (
+                  <span key={t} className="text-xs font-mono text-secondary px-2 py-1 bg-secondary/10 rounded">
+                    {t}
+                  </span>
+                ))}
+              </div>
+            </TiltCard>
+          </motion.div>
         ))}
       </div>
     </Section>

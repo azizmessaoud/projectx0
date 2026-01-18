@@ -1,4 +1,6 @@
 import { Section } from "@/components/ui/section";
+import { TiltCard } from "@/components/ui/tilt-card";
+import { motion } from "framer-motion";
 
 const experiences = [
   {
@@ -29,12 +31,19 @@ export function Experience() {
         
         <div className="space-y-12">
           {experiences.map((exp, index) => (
-            <div key={index} className={`relative flex flex-col md:flex-row gap-8 ${index % 2 === 0 ? "md:text-right" : "md:flex-row-reverse"}`}>
+            <motion.div 
+              key={index} 
+              initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: index * 0.2 }}
+              className={`relative flex flex-col md:flex-row gap-8 ${index % 2 === 0 ? "md:text-right" : "md:flex-row-reverse"}`}
+            >
               {/* Timeline Dot */}
-              <div className="absolute left-0 md:left-1/2 w-4 h-4 bg-primary rounded-full -translate-x-[5px] md:-translate-x-1/2 top-1.5 hidden md:block shadow-[0_0_10px_rgba(var(--color-primary),0.5)]" />
+              <div className="absolute left-0 md:left-1/2 w-4 h-4 bg-primary rounded-full -translate-x-[5px] md:-translate-x-1/2 top-1.5 hidden md:block shadow-[0_0_10px_rgba(var(--color-primary),0.5)] animate-pulse" />
               
               <div className={`flex-1 ${index % 2 === 0 ? "md:pr-12" : "md:pl-12"}`}>
-                <div className="glass-card p-6 rounded-2xl hover:bg-white/5 transition-colors">
+                <TiltCard className="glass-card p-6 rounded-2xl hover:bg-white/5 transition-colors">
                   <span className="text-primary font-mono text-sm mb-2 block">{exp.date}</span>
                   <h3 className="text-xl font-bold text-white mb-1">{exp.role}</h3>
                   <div className="text-muted-foreground mb-4">{exp.company} • {exp.location}</div>
@@ -48,10 +57,10 @@ export function Experience() {
                       </span>
                     ))}
                   </div>
-                </div>
+                </TiltCard>
               </div>
               <div className="flex-1 hidden md:block" />
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>

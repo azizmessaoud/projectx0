@@ -44,6 +44,8 @@
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
   --animate-gradient-x: gradient-x 15s ease infinite;
+  --animate-pulse-slow: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-shimmer: shimmer 2s linear infinite;
 
   @keyframes accordion-down {
     from { height: 0; }
@@ -62,6 +64,10 @@
       background-size: 200% 200%;
       background-position: right center;
     }
+  }
+  @keyframes shimmer {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(100%); }
   }
 }
 

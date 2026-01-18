@@ -6,11 +6,18 @@ import { Projects } from "@/components/sections/projects";
 import { Certifications } from "@/components/sections/certifications";
 import { Contact } from "@/components/sections/contact";
 import { NeuralBackground } from "@/components/ui/neural-background";
+import { LoadingScreen } from "@/components/ui/loading-screen";
+import { ScrollProgress } from "@/components/ui/scroll-progress";
+import { CustomCursor } from "@/components/ui/custom-cursor";
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden selection:bg-secondary/30 relative">
+      <LoadingScreen />
+      <CustomCursor />
+      <ScrollProgress />
       <NeuralBackground />
+      
       <Navbar />
       <Hero />
       <About />

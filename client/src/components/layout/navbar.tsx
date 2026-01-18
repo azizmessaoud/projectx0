@@ -15,9 +15,24 @@ const navItems = [
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState("");
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 50);
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50);
+      
+      // Active section detection
+      const sections = navItems.map(item => item.href.substring(1));
+      let current = "";
+      for (const section of sections) {
+        const element = document.getElementById(section);
+        if (element && window.scrollY >= (element.offsetTop - 200)) {
+          current = section;
+        }
+      }
+      setActiveSection("#" + current);
+    };
+    
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -54,10 +69,19 @@ export function Navbar() {
               key={item.name}
               href={item.href}
               onClick={(e) => scrollToSection(e, item.href)}
-              className="text-sm font-medium hover:text-primary transition-colors relative group"
+              className={cn(
+                "text-sm font-medium transition-colors relative group",
+                activeSection === item.href ? "text-primary" : "text-muted-foreground hover:text-primary"
+              )}
             >
               {item.name}
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all group-hover:w-full" />
+              <motion.span 
+                className="absolute -bottom-1 left-0 h-0.5 bg-primary"
+                initial={{ width: "0%" }}
+                animate={{ width: activeSection === item.href ? "100%" : "0%" }}
+                transition={{ duration: 0.3 }}
+              />
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all group-hover:w-full opacity-50" />
             </a>
           ))}
           <a
@@ -84,29 +108,35 @@ export function Navbar() {
         {mobileOpen && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
+            animate={{ opacity: 1, height: "100vh" }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-background/95 backdrop-blur-xl border-b border-white/5 overflow-hidden"
+            className="md:hidden fixed inset-0 top-[60px] bg-background/95 backdrop-blur-xl z-40"
           >
-            <div className="flex flex-col p-6 gap-4">
-              {navItems.map((item) => (
-                <a
+            <div className="flex flex-col p-6 gap-4 h-full">
+              {navItems.map((item, i) => (
+                <motion.a
                   key={item.name}
                   href={item.href}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.1 }}
                   onClick={(e) => scrollToSection(e, item.href)}
-                  className="text-lg font-medium py-2 border-b border-white/5"
+                  className="text-2xl font-bold py-4 border-b border-white/5"
                 >
                   {item.name}
-                </a>
+                </motion.a>
               ))}
-              <a
+              <motion.a
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
                 href="https://drive.google.com/file/d/194Evas7Gb53EXbZagF6yxcRne-FokIHB/view?usp=sharing"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-4 text-center py-3 bg-primary text-primary-foreground rounded-lg font-bold"
+                className="mt-4 text-center py-4 bg-primary text-primary-foreground rounded-lg font-bold text-xl"
               >
                 Download CV
-              </a>
+              </motion.a>
             </div>
           </motion.div>
         )}
