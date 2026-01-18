@@ -11,13 +11,14 @@ Preferred communication style: Simple, everyday language.
 ## System Architecture
 
 ### Frontend Architecture
-- **Framework**: React 18 with TypeScript
+- **Framework**: React 19 with TypeScript
 - **Routing**: Wouter (lightweight client-side routing)
 - **State Management**: TanStack React Query for server state
 - **Styling**: Tailwind CSS v4 with custom theme variables
 - **UI Components**: Shadcn/ui component library (New York style)
 - **Animations**: Framer Motion for scroll effects, transitions, and microinteractions
 - **Fonts**: Inter (body), Space Grotesk (headings), JetBrains Mono (code)
+- **Theme**: Dark-only "Dark Future" aesthetic (no light mode)
 
 ### Backend Architecture
 - **Runtime**: Node.js with Express 5
