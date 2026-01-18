@@ -1,12 +1,231 @@
 import { Section } from "@/components/ui/section";
 import { Mail, MapPin, Send, Loader2, Check, AlertCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { TiltCard } from "@/components/ui/tilt-card";
+
+interface Particle {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  color: string;
+  rotation: number;
+  rotationSpeed: number;
+  size: number;
+  opacity: number;
+}
+
+const CONFETTI_COLORS = ['#3b82f6', '#8b5cf6', '#5b21b6', '#ffffff'];
+
+function Confetti({ active }: { active: boolean }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const particlesRef = useRef<Particle[]>([]);
+  const animationRef = useRef<number | undefined>(undefined);
+
+  const createParticles = useCallback(() => {
+    const particles: Particle[] = [];
+    const count = 75;
+    
+    for (let i = 0; i < count; i++) {
+      particles.push({
+        x: 0,
+        y: 0,
+        vx: (Math.random() - 0.5) * 15,
+        vy: Math.random() * -15 - 5,
+        color: CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)],
+        rotation: Math.random() * 360,
+        rotationSpeed: (Math.random() - 0.5) * 10,
+        size: Math.random() * 8 + 4,
+        opacity: 1,
+      });
+    }
+    return particles;
+  }, []);
+
+  useEffect(() => {
+    if (!active || !canvasRef.current) return;
+
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+
+    particlesRef.current = createParticles();
+    const startX = canvas.width / 2;
+    const startY = canvas.height / 2;
+    
+    particlesRef.current.forEach(p => {
+      p.x = startX;
+      p.y = startY;
+    });
+
+    let startTime = Date.now();
+    const duration = 2500;
+
+    const animate = () => {
+      const elapsed = Date.now() - startTime;
+      const progress = elapsed / duration;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      particlesRef.current.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.4;
+        p.rotation += p.rotationSpeed;
+        p.opacity = Math.max(0, 1 - progress);
+
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate((p.rotation * Math.PI) / 180);
+        ctx.globalAlpha = p.opacity;
+        ctx.fillStyle = p.color;
+        ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size / 2);
+        ctx.restore();
+      });
+
+      if (progress < 1) {
+        animationRef.current = requestAnimationFrame(animate);
+      }
+    };
+
+    animate();
+
+    return () => {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+    };
+  }, [active, createParticles]);
+
+  if (!active) return null;
+
+  return (
+    <canvas
+      ref={canvasRef}
+      className="absolute inset-0 pointer-events-none z-50"
+      style={{ width: '100%', height: '100%' }}
+    />
+  );
+}
+
+interface FocusParticle {
+  id: number;
+  x: number;
+  y: number;
+  color: string;
+}
+
+function AnimatedInput({ 
+  id, 
+  name, 
+  type = "text", 
+  required, 
+  disabled, 
+  placeholder,
+  isTextarea = false,
+  rows,
+}: {
+  id: string;
+  name: string;
+  type?: string;
+  required?: boolean;
+  disabled?: boolean;
+  placeholder?: string;
+  isTextarea?: boolean;
+  rows?: number;
+}) {
+  const [isFocused, setIsFocused] = useState(false);
+  const [particles, setParticles] = useState<FocusParticle[]>([]);
+  const particleIdRef = useRef(0);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const spawnParticles = () => {
+    if (!containerRef.current) return;
+    
+    const rect = containerRef.current.getBoundingClientRect();
+    const count = Math.floor(Math.random() * 3) + 3;
+    const newParticles: FocusParticle[] = [];
+    const colors = ['#3b82f6', '#8b5cf6', '#5b21b6'];
+
+    for (let i = 0; i < count; i++) {
+      newParticles.push({
+        id: particleIdRef.current++,
+        x: Math.random() * rect.width,
+        y: Math.random() < 0.5 ? -5 : rect.height + 5,
+        color: colors[Math.floor(Math.random() * colors.length)],
+      });
+    }
+    setParticles(newParticles);
+    setTimeout(() => setParticles([]), 800);
+  };
+
+  const handleFocus = () => {
+    setIsFocused(true);
+    spawnParticles();
+  };
+
+  const baseClasses = "w-full bg-white/5 border border-white/10 rounded-lg p-3 focus:outline-none focus:border-primary focus:bg-white/10 transition-all focus:shadow-[0_0_15px_rgba(59,130,246,0.3)] disabled:opacity-50";
+
+  const InputComponent = isTextarea ? 'textarea' : 'input';
+
+  return (
+    <div ref={containerRef} className="relative">
+      <div 
+        className={`absolute -inset-[2px] rounded-lg transition-opacity duration-300 ${isFocused ? 'opacity-100' : 'opacity-0'}`}
+        style={{
+          background: 'linear-gradient(90deg, #3b82f6, #8b5cf6, #5b21b6, #3b82f6)',
+          backgroundSize: '300% 100%',
+          animation: isFocused ? 'gradient-border 3s ease infinite' : 'none',
+        }}
+      />
+      <InputComponent
+        id={id}
+        name={name}
+        type={type}
+        required={required}
+        disabled={disabled}
+        placeholder={placeholder}
+        rows={rows}
+        className={`${baseClasses} relative z-10`}
+        onFocus={handleFocus}
+        onBlur={() => setIsFocused(false)}
+      />
+      <AnimatePresence>
+        {particles.map((p) => (
+          <motion.div
+            key={p.id}
+            initial={{ opacity: 1, scale: 1 }}
+            animate={{ 
+              opacity: 0, 
+              scale: 0,
+              y: (Math.random() - 0.5) * 40,
+              x: (Math.random() - 0.5) * 30,
+            }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="absolute w-2 h-2 rounded-full pointer-events-none z-20"
+            style={{ 
+              left: p.x,
+              top: p.y,
+              backgroundColor: p.color,
+              boxShadow: `0 0 8px ${p.color}`,
+            }}
+          />
+        ))}
+      </AnimatePresence>
+    </div>
+  );
+}
 
 export function Contact() {
   const [formState, setFormState] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState<string>("");
+  const [shouldShake, setShouldShake] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -34,25 +253,26 @@ export function Contact() {
       
       if (response.ok && result.success) {
         setFormState('success');
-        // Reset form
         (e.target as HTMLFormElement).reset();
-        // Reset to idle after 4 seconds
         setTimeout(() => setFormState('idle'), 4000);
       } else {
         setFormState('error');
         setErrorMessage(result.message || "Failed to send message");
+        setShouldShake(true);
+        setTimeout(() => setShouldShake(false), 500);
         setTimeout(() => setFormState('idle'), 4000);
       }
     } catch (error) {
       setFormState('error');
       setErrorMessage("Network error. Please try again.");
+      setShouldShake(true);
+      setTimeout(() => setShouldShake(false), 500);
       setTimeout(() => setFormState('idle'), 4000);
     }
   };
 
   return (
     <Section id="contact" className="pb-32 relative">
-      {/* Spotlight effect background */}
       <div className="absolute inset-0 bg-gradient-radial from-primary/5 via-transparent to-transparent opacity-50 pointer-events-none" />
       
       <div className="max-w-4xl mx-auto relative z-10">
@@ -97,58 +317,62 @@ export function Contact() {
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <TiltCard className="p-6 glass-card rounded-2xl">
-              <form className="space-y-4" onSubmit={handleSubmit}>
+            <TiltCard className="p-6 glass-card rounded-2xl relative overflow-hidden">
+              <Confetti active={formState === 'success'} />
+              <form 
+                ref={formRef}
+                className="space-y-4" 
+                onSubmit={handleSubmit}
+                style={{
+                  animation: shouldShake ? 'shake 0.5s ease-in-out' : 'none',
+                }}
+              >
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2 group">
                     <label htmlFor="name" className="text-sm font-medium group-focus-within:text-primary transition-colors inline-block transform group-focus-within:-translate-y-1 duration-200">Name</label>
-                    <input 
-                      id="name" 
+                    <AnimatedInput
+                      id="name"
                       name="name"
-                      required 
+                      required
                       disabled={formState === 'loading'}
-                      className="w-full bg-white/5 border border-white/10 rounded-lg p-3 focus:outline-none focus:border-primary focus:bg-white/10 transition-all focus:shadow-[0_0_15px_rgba(59,130,246,0.3)] disabled:opacity-50" 
-                      placeholder="John Doe" 
+                      placeholder="John Doe"
                     />
                   </div>
                   <div className="space-y-2 group">
                     <label htmlFor="email" className="text-sm font-medium group-focus-within:text-primary transition-colors inline-block transform group-focus-within:-translate-y-1 duration-200">Email</label>
-                    <input 
-                      id="email" 
+                    <AnimatedInput
+                      id="email"
                       name="email"
-                      type="email" 
-                      required 
+                      type="email"
+                      required
                       disabled={formState === 'loading'}
-                      className="w-full bg-white/5 border border-white/10 rounded-lg p-3 focus:outline-none focus:border-primary focus:bg-white/10 transition-all focus:shadow-[0_0_15px_rgba(59,130,246,0.3)] disabled:opacity-50" 
-                      placeholder="john@example.com" 
+                      placeholder="john@example.com"
                     />
                   </div>
                 </div>
                 <div className="space-y-2 group">
                   <label htmlFor="subject" className="text-sm font-medium group-focus-within:text-primary transition-colors inline-block transform group-focus-within:-translate-y-1 duration-200">Subject</label>
-                  <input 
-                    id="subject" 
+                  <AnimatedInput
+                    id="subject"
                     name="subject"
-                    required 
+                    required
                     disabled={formState === 'loading'}
-                    className="w-full bg-white/5 border border-white/10 rounded-lg p-3 focus:outline-none focus:border-primary focus:bg-white/10 transition-all focus:shadow-[0_0_15px_rgba(59,130,246,0.3)] disabled:opacity-50" 
-                    placeholder="Project Inquiry" 
+                    placeholder="Project Inquiry"
                   />
                 </div>
                 <div className="space-y-2 group">
                   <label htmlFor="message" className="text-sm font-medium group-focus-within:text-primary transition-colors inline-block transform group-focus-within:-translate-y-1 duration-200">Message</label>
-                  <textarea 
-                    id="message" 
+                  <AnimatedInput
+                    id="message"
                     name="message"
-                    rows={4} 
-                    required 
+                    isTextarea
+                    rows={4}
+                    required
                     disabled={formState === 'loading'}
-                    className="w-full bg-white/5 border border-white/10 rounded-lg p-3 focus:outline-none focus:border-primary focus:bg-white/10 transition-all focus:shadow-[0_0_15px_rgba(59,130,246,0.3)] disabled:opacity-50" 
-                    placeholder="Hello..." 
+                    placeholder="Hello..."
                   />
                 </div>
                 
-                {/* Error message */}
                 <AnimatePresence>
                   {formState === 'error' && errorMessage && (
                     <motion.div

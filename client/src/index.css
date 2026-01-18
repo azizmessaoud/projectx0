@@ -69,6 +69,18 @@
     from { transform: translateX(-100%); }
     to { transform: translateX(100%); }
   }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+  }
+  @keyframes gradient-border {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  --animate-shake: shake 0.5s ease-in-out;
+  --animate-gradient-border: gradient-border 3s ease infinite;
 }
 
 @layer base {
