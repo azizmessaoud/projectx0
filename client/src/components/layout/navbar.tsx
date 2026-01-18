@@ -4,9 +4,10 @@ import { Menu, X, Terminal } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const navItems = [
-  { name: "About", href: "#about" },
   { name: "Experience", href: "#experience" },
   { name: "Projects", href: "#projects" },
+  { name: "How I Work", href: "#how-i-work" },
+  { name: "Volunteering", href: "#volunteering" },
   { name: "Certifications", href: "#certifications" },
   { name: "Contact", href: "#contact" },
 ];
@@ -55,9 +56,8 @@ export function Navbar() {
       )}
     >
       <div className="container mx-auto px-4 md:px-6 flex items-center justify-between">
-        <a href="#" className="flex items-center gap-2 font-bold text-xl md:text-2xl font-heading tracking-tighter">
-          <Terminal className="text-primary h-6 w-6 md:h-8 md:w-8" />
-          <span>Aziz<span className="text-primary">M.</span></span>
+        <a href="#" className="font-bold text-xl md:text-2xl font-heading tracking-tighter bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+          AM
         </a>
 
         {/* Desktop Nav */}
@@ -88,7 +88,7 @@ export function Navbar() {
             rel="noopener noreferrer"
             className="px-6 py-2 bg-white/10 hover:bg-white/20 border border-white/10 rounded-full text-sm font-medium transition-all backdrop-blur-sm"
           >
-            Resume
+            Download CV
           </a>
         </div>
 

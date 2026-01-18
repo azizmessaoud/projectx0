@@ -1,10 +1,14 @@
 import { Navbar } from "@/components/layout/navbar";
 import { Hero } from "@/components/sections/hero";
 import { About } from "@/components/sections/about";
+import { Personality } from "@/components/sections/personality";
 import { Experience } from "@/components/sections/experience";
+import { HowIWork } from "@/components/sections/how-i-work";
 import { Projects } from "@/components/sections/projects";
+import { Volunteering } from "@/components/sections/volunteering";
 import { Certifications } from "@/components/sections/certifications";
 import { Contact } from "@/components/sections/contact";
+import { Footer } from "@/components/sections/footer";
 import { NeuralBackground } from "@/components/ui/neural-background";
 import { LoadingScreen } from "@/components/ui/loading-screen";
 import { ScrollProgress } from "@/components/ui/scroll-progress";
@@ -23,21 +27,14 @@ export default function Home() {
       <Navbar />
       <Hero />
       <About />
+      <Personality />
       <Experience />
+      <HowIWork />
       <Projects />
+      <Volunteering />
       <Certifications />
       <Contact />
-      
-      <footer className="py-8 text-center text-muted-foreground border-t border-white/5 text-sm glass relative z-10">
-        <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4">
-          <div>
-            © {new Date().getFullYear()} Aziz Messaoud.
-          </div>
-          <div className="flex gap-6">
-             <a href="#projects" className="hover:text-secondary transition-colors">Projects</a>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }
