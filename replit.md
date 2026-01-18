@@ -27,10 +27,12 @@ Preferred communication style: Simple, everyday language.
 - **API Design**: RESTful endpoints under `/api/*` prefix
 
 ### Key Design Patterns
-- **Section-based Layout**: Each portfolio section is a separate component (Hero, About, Experience, Projects, Certifications, Contact)
+- **Section-based Layout**: Each portfolio section is a separate component:
+  - Hero, About, Personality, Experience, How I Work, Projects, Volunteering, Certifications, Contact, Footer
 - **Glass Morphism UI**: Cards use backdrop blur and transparency effects
-- **Custom UI Effects**: Neural network background, custom cursor, scroll progress indicator, loading screen
-- **Form Validation**: Zod schemas shared between client and server
+- **Custom UI Effects**: Neural network background with orbital particles, custom cursor with trail, scroll progress indicator, loading screen, back-to-top button
+- **Form Validation**: Zod schemas with Formspree for static hosting
+- **Scroll Animations**: Framer Motion whileInView animations on all sections
 
 ### Project Structure
 ```
@@ -46,9 +48,9 @@ shared/           # Shared types and schemas
 
 ## External Dependencies
 
-### Email Service
-- **Resend**: Used for sending contact form emails via `/api/contact` endpoint
-- Configured through Replit Connectors for API key management
+### Contact Form
+- **Formspree**: Contact form submissions via Formspree (static-hosting compatible)
+- Form ID: xovdjqzj (can be replaced with your own Formspree form ID)
 - Emails sent to aziz.messaoud@esprit.tn
 
 ### Database
