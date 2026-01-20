@@ -128,6 +128,8 @@ function AnimatedInput({
   placeholder,
   isTextarea = false,
   rows,
+  autoComplete,
+  minLength,
 }: {
   id: string;
   name: string;
@@ -137,6 +139,8 @@ function AnimatedInput({
   placeholder?: string;
   isTextarea?: boolean;
   rows?: number;
+  autoComplete?: string;
+  minLength?: number;
 }) {
   const [isFocused, setIsFocused] = useState(false);
   const [particles, setParticles] = useState<FocusParticle[]>([]);
@@ -190,6 +194,8 @@ function AnimatedInput({
         disabled={disabled}
         placeholder={placeholder}
         rows={rows}
+        autoComplete={autoComplete}
+        minLength={minLength}
         className={`${baseClasses} relative z-10`}
         onFocus={handleFocus}
         onBlur={() => setIsFocused(false)}
@@ -233,24 +239,35 @@ export function Contact() {
     setErrorMessage("");
     
     const formData = new FormData(e.currentTarget);
+    const payload = {
+      name: formData.get('name') as string,
+      email: formData.get('email') as string,
+      subject: formData.get('subject') as string,
+      message: formData.get('message') as string,
+      honeypot: (formData.get('honeypot') as string) || "",
+    };
     
+    const apiBase = import.meta.env.VITE_API_URL || window.location.origin;
+
     try {
-      const response = await fetch('https://formspree.io/f/xovdjqzj', {
+      const response = await fetch(`${apiBase}/api/contact`, {
         method: 'POST',
-        body: formData,
         headers: {
+          'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
+        body: JSON.stringify(payload),
       });
+      
+      const result = await response.json();
       
       if (response.ok) {
         setFormState('success');
         (e.target as HTMLFormElement).reset();
         setTimeout(() => setFormState('idle'), 4000);
       } else {
-        const result = await response.json();
         setFormState('error');
-        setErrorMessage(result.error || "Failed to send message");
+        setErrorMessage(result.message || "Failed to send message");
         setShouldShake(true);
         setTimeout(() => setShouldShake(false), 500);
         setTimeout(() => setFormState('idle'), 4000);
@@ -319,6 +336,16 @@ export function Contact() {
                   animation: shouldShake ? 'shake 0.5s ease-in-out' : 'none',
                 }}
               >
+                {/* Honeypot field to deter bots */}
+                <input
+                  type="text"
+                  name="honeypot"
+                  className="hidden"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  aria-hidden="true"
+                />
+
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2 group">
                     <label htmlFor="name" className="text-sm font-medium group-focus-within:text-primary transition-colors inline-block transform group-focus-within:-translate-y-1 duration-200">Name</label>
@@ -328,6 +355,7 @@ export function Contact() {
                       required
                       disabled={formState === 'loading'}
                       placeholder="John Doe"
+                      autoComplete="name"
                     />
                   </div>
                   <div className="space-y-2 group">
@@ -339,6 +367,7 @@ export function Contact() {
                       required
                       disabled={formState === 'loading'}
                       placeholder="john@example.com"
+                      autoComplete="email"
                     />
                   </div>
                 </div>
@@ -359,6 +388,7 @@ export function Contact() {
                     name="message"
                     isTextarea
                     rows={4}
+                    minLength={5}
                     required
                     disabled={formState === 'loading'}
                     placeholder="Hello..."

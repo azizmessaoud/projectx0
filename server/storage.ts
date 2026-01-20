@@ -1,5 +1,12 @@
-import { type User, type InsertUser } from "@shared/schema";
+// User storage interface (not currently used in portfolio)
+// Uncomment and implement if you need user authentication
+
+// import { type User, type InsertUser } from "@shared/schema";
 import { randomUUID } from "crypto";
+
+// Define temporary types for compilation
+type User = { id: string; username: string };
+type InsertUser = { username: string };
 
 // modify the interface with any CRUD methods
 // you might need

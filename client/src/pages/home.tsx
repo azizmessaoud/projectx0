@@ -9,7 +9,7 @@ import { Volunteering } from "@/components/sections/volunteering";
 import { Certifications } from "@/components/sections/certifications";
 import { Contact } from "@/components/sections/contact";
 import { Footer } from "@/components/sections/footer";
-import { NeuralBackground } from "@/components/ui/neural-background";
+import { HeroBackground } from "@/components/ui/hero-background";
 import { LoadingScreen } from "@/components/ui/loading-screen";
 import { ScrollProgress } from "@/components/ui/scroll-progress";
 import { CustomCursor } from "@/components/ui/custom-cursor";
@@ -17,11 +17,11 @@ import { BackToTop } from "@/components/ui/back-to-top";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-background text-foreground overflow-x-hidden selection:bg-secondary/30 relative">
+    <div className="min-h-screen bg-background text-foreground overflow-x-hidden selection:bg-secondary/30 relative z-10">
       <LoadingScreen />
       <CustomCursor />
       <ScrollProgress />
-      <NeuralBackground />
+      <HeroBackground />
       <BackToTop />
       
       <Navbar />

@@ -1,31 +1,38 @@
+import { useRef } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight, Github, Linkedin, Mail, FileText, Terminal } from "lucide-react";
-import heroBg from "@assets/generated_images/abstract_dark_data_science_background_with_nodes_and_connections.png";
 import { MagneticButton } from "@/components/ui/magnetic-button";
+import { useGSAP } from "@/hooks/use-gsap";
+import { createHeroTimeline } from "@/animations";
+import { useReducedMotionSafe } from "@/hooks/use-reduced-motion-safe";
 
 export function Hero() {
-  return (
-    <section className="relative min-h-screen flex items-center pt-20 overflow-hidden">
-      {/* Background Image with Overlay - Fallback for non-canvas */}
-      <div className="absolute inset-0 z-0 pointer-events-none">
-        <div className="absolute inset-0 bg-background/80 md:bg-background/60 z-10" />
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent z-10" />
-        <img 
-          src={heroBg} 
-          alt="Abstract Data Background" 
-          className="w-full h-full object-cover opacity-60 mix-blend-overlay dark:opacity-60 light:opacity-30"
-        />
-        {/* Spotlight Effect */}
-        <div className="absolute inset-0 bg-gradient-radial from-primary/10 via-transparent to-transparent opacity-50 mix-blend-screen" />
-      </div>
+  const heroRef = useRef<HTMLElement>(null);
+  const badgeRef = useRef<HTMLDivElement>(null);
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const gradientRef = useRef<HTMLSpanElement>(null);
+  const descriptionRef = useRef<HTMLDivElement>(null);
+  const ctasRef = useRef<HTMLDivElement>(null);
+  const socialsRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const prefersReduced = useReducedMotionSafe();
 
+  useGSAP(() => {
+    if (prefersReduced) return;
+    const ctx = createHeroTimeline();
+    return () => ctx.kill();
+  }, [prefersReduced]);
+
+  return (
+    <section id="hero" ref={heroRef} className="relative min-h-screen flex items-center pt-20 overflow-hidden">
       <div className="container mx-auto px-4 md:px-6 relative z-20">
         <div className="max-w-4xl">
           <motion.div
+            ref={badgeRef}
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-secondary/30 bg-secondary/10 text-secondary text-sm font-medium mb-6 backdrop-blur-sm"
+            className="hero-badge inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-secondary/30 bg-secondary/10 text-secondary text-sm font-medium mb-6 backdrop-blur-sm"
           >
             <Terminal className="w-4 h-4 animate-pulse" />
             <span>Data Science Engineer</span>
@@ -33,14 +40,16 @@ export function Hero() {
           
           <div className="mb-6">
             <motion.h1
+              ref={titleRef}
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.3, ease: "easeOut" }}
-              className="text-5xl md:text-7xl lg:text-8xl font-bold font-heading leading-[1.1] tracking-tight"
+              className="hero-title text-5xl md:text-7xl lg:text-8xl font-bold font-heading leading-[1.1] tracking-tight"
             >
               Transforming data into <br/>
               <motion.span 
-                className="text-gradient inline-block"
+                ref={gradientRef}
+                className="hero-gradient-text text-gradient inline-block"
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.8, delay: 0.6 }}
@@ -51,10 +60,11 @@ export function Hero() {
           </div>
 
           <motion.div
+            ref={descriptionRef}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.7 }}
-            className="text-lg md:text-xl text-muted-foreground max-w-2xl mb-8 leading-relaxed"
+            className="hero-description text-lg md:text-xl text-muted-foreground max-w-2xl mb-8 leading-relaxed"
           >
             <p>
               I help organizations unlock the power of data science to make smarter decisions, 
@@ -63,13 +73,14 @@ export function Hero() {
           </motion.div>
 
           <motion.div 
+            ref={ctasRef}
             className="flex flex-wrap gap-4"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.9 }}
           >
             <MagneticButton 
-              className="group relative"
+              className="group relative hero-cta"
               onClick={() => document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' })}
             >
               <div className="px-8 py-4 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg font-bold transition-all flex items-center gap-2 shadow-lg shadow-primary/25 overflow-hidden relative">
@@ -82,7 +93,7 @@ export function Hero() {
             </MagneticButton>
 
             <MagneticButton
-               className="group relative"
+              className="group relative hero-cta"
                onClick={() => window.open("https://drive.google.com/file/d/194Evas7Gb53EXbZagF6yxcRne-FokIHB/view?usp=sharing", "_blank")}
             >
               <div className="px-8 py-4 bg-card/50 border border-border hover:bg-card/80 rounded-lg font-bold transition-all backdrop-blur-sm flex items-center gap-2">
@@ -93,6 +104,7 @@ export function Hero() {
           </motion.div>
 
           <motion.div
+            ref={socialsRef}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 1.1 }}
@@ -108,7 +120,8 @@ export function Hero() {
                   key={i}
                   href={item.href} 
                   target="_blank" 
-                  className="hover:text-secondary transition-colors flex items-center gap-2"
+                  aria-label={`Open ${item.label} profile`}
+                  className="hero-social hover:text-secondary transition-colors flex items-center gap-2"
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   whileHover={{ scale: 1.05 }}
@@ -139,10 +152,11 @@ export function Hero() {
       
       {/* Scroll indicator */}
       <motion.div 
+        ref={scrollRef}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1, y: [0, 10, 0] }}
         transition={{ delay: 1.5, duration: 2, repeat: Infinity }}
-        className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-20 cursor-pointer"
+        className="hero-scroll-indicator absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-20 cursor-pointer"
         onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })}
       >
         <span className="text-xs uppercase tracking-widest text-muted-foreground">Scroll</span>

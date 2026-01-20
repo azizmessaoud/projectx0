@@ -1,9 +1,8 @@
 import { Section } from "@/components/ui/section";
-import { Card, CardContent } from "@/components/ui/card";
-import { Brain, Code2, Database, GraduationCap } from "lucide-react";
+import { TiltCard } from "@/components/ui/tilt-card";
+import { Brain, Code2, Database } from "lucide-react";
 import { useCountUp } from "@/hooks/use-count-up";
 import { TextReveal } from "@/components/ui/text-reveal";
-import { TiltCard } from "@/components/ui/tilt-card";
 import { motion } from "framer-motion";
 
 function StatCard({ label, value, suffix = "", delay = 0 }: { label: string, value: number, suffix?: string, delay?: number }) {

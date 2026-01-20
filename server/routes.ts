@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { contactFormSchema } from "../shared/schema";
-import { getUncachableResendClient } from "./resend";
+import { Resend } from "resend";
 
 export async function registerRoutes(
   httpServer: Server,
@@ -13,13 +13,27 @@ export async function registerRoutes(
     try {
       // Validate request body
       const validatedData = contactFormSchema.parse(req.body);
+
+      // Simple honeypot check to block bots
+      if (validatedData.honeypot) {
+        return res.status(400).json({ success: false, message: "Spam detected" });
+      }
       
-      // Get Resend client
-      const { client, fromEmail } = await getUncachableResendClient();
+      // Initialize Resend client with API key from environment
+      const resendApiKey = process.env.RESEND_API_KEY;
+      if (!resendApiKey) {
+        console.error("RESEND_API_KEY environment variable is not set");
+        return res.status(500).json({ 
+          success: false, 
+          message: "Email service not configured" 
+        });
+      }
+      
+      const resend = new Resend(resendApiKey);
       
       // Send email to Aziz
-      await client.emails.send({
-        from: fromEmail,
+      await resend.emails.send({
+        from: "Portfolio Contact <onboarding@resend.dev>",
         to: "aziz.messaoud@esprit.tn",
         replyTo: validatedData.email,
         subject: `Portfolio Contact: ${validatedData.subject}`,
@@ -41,7 +55,7 @@ export async function registerRoutes(
             </div>
             
             <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb; color: #6b7280; font-size: 12px;">
-              <p>This email was sent from your portfolio contact form at azizm.me</p>
+              <p>This email was sent from your portfolio contact form at azizmessaoud.github.io</p>
             </div>
           </div>
         `

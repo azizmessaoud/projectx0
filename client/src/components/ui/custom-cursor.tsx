@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
+import { useReducedMotionSafe } from "@/hooks/use-reduced-motion-safe";
 
 interface Position {
   x: number;
@@ -16,6 +17,7 @@ export function CustomCursor() {
   const [cursorState, setCursorState] = useState<CursorState>("default");
   const [isVisible, setIsVisible] = useState(false);
   const [isTouchDevice, setIsTouchDevice] = useState(true);
+  const prefersReducedMotion = useReducedMotionSafe();
   
   const animationFrameRef = useRef<number | null>(null);
   const mousePositionRef = useRef<Position>({ x: 0, y: 0 });
@@ -48,7 +50,7 @@ export function CustomCursor() {
       navigator.maxTouchPoints > 0 ||
       window.matchMedia("(pointer: coarse)").matches;
 
-    if (hasTouchSupport) {
+    if (hasTouchSupport || prefersReducedMotion) {
       setIsTouchDevice(true);
       return;
     }
@@ -99,7 +101,7 @@ export function CustomCursor() {
       
       document.body.style.cursor = "";
     };
-  }, [updateTrail]);
+  }, [updateTrail, prefersReducedMotion]);
 
   if (isTouchDevice || !isVisible) return null;
 
