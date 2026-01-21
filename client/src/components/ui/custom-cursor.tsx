@@ -21,6 +21,12 @@ export function CustomCursor() {
   const animationFrameId = useRef<number | null>(null);
   const lastUpdateTime = useRef(0);
   const stateChangeDebounce = useRef<number | null>(null);
+  
+  // Trail nodes refs
+  const trailRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const trailPositions = useRef<{ x: number; y: number }[]>(
+    Array(5).fill(null).map(() => ({ x: 0, y: 0 }))
+  );
 
   const animate = useCallback(() => {
     if (!cursorRef.current || !cursorDotRef.current) {
@@ -113,6 +119,25 @@ export function CustomCursor() {
       `translate3d(${dotX - dotSize / 2}px, ${dotY - dotSize / 2}px, 0) scale(${currentScale.current * 0.85})`;
     cursorDotRef.current.style.width = `${dotSize}px`;
     cursorDotRef.current.style.height = `${dotSize}px`;
+    
+    // Update trail positions with cascading delay
+    const trailSmoothing = hoverState.current === "small" ? 0.08 : 0.15;
+    for (let i = trailPositions.current.length - 1; i >= 0; i--) {
+      const prevPos = i === 0 ? cursorPos.current : trailPositions.current[i - 1];
+      trailPositions.current[i].x += (prevPos.x - trailPositions.current[i].x) * trailSmoothing;
+      trailPositions.current[i].y += (prevPos.y - trailPositions.current[i].y) * trailSmoothing;
+      
+      // Apply to DOM
+      const trailEl = trailRefs.current[i];
+      if (trailEl) {
+        const trailSize = 6 - i * 0.8;
+        const trailOpacity = 0.6 - i * 0.1;
+        trailEl.style.transform = `translate3d(${trailPositions.current[i].x - trailSize / 2}px, ${trailPositions.current[i].y - trailSize / 2}px, 0)`;
+        trailEl.style.width = `${trailSize}px`;
+        trailEl.style.height = `${trailSize}px`;
+        trailEl.style.opacity = String(trailOpacity);
+      }
+    }
     
     animationFrameId.current = requestAnimationFrame(animate);
   }, []);
@@ -289,6 +314,29 @@ export function CustomCursor() {
           WebkitBackfaceVisibility: "hidden",
         }}
       />
+      
+      {/* Trail Nodes */}
+      {[0, 1, 2, 3, 4].map((i) => (
+        <div
+          key={i}
+          ref={(el) => { trailRefs.current[i] = el; }}
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: 6 - i * 0.8,
+            height: 6 - i * 0.8,
+            backgroundColor: "rgba(139, 92, 246, 0.8)",
+            borderRadius: "50%",
+            pointerEvents: "none",
+            zIndex: 9997 - i,
+            opacity: 0.6 - i * 0.1,
+            willChange: "transform",
+            backfaceVisibility: "hidden",
+            WebkitBackfaceVisibility: "hidden",
+          }}
+        />
+      ))}
     </>
   );
 }

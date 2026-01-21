@@ -63,33 +63,6 @@ export function Personality() {
             className="group"
           >
             <TiltCard className="p-8 glass-card rounded-2xl h-full relative overflow-hidden">
-              {/* Animated gradient border */}
-              <div className="absolute inset-0 bg-gradient-to-r from-primary via-secondary to-primary bg-[length:200%_auto] opacity-0 group-hover:opacity-20 transition-opacity duration-500 rounded-2xl" 
-                   style={{ animation: "gradient 3s ease infinite" }} />
-              
-              {/* Particle shimmer effect */}
-              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                {[...Array(15)].map((_, i) => (
-                  <motion.div
-                    key={i}
-                    className="absolute w-1 h-1 bg-primary/50 rounded-full"
-                    style={{
-                      left: `${Math.random() * 100}%`,
-                      top: `${Math.random() * 100}%`,
-                    }}
-                    animate={{
-                      y: [0, -20, 0],
-                      opacity: [0, 0.8, 0],
-                    }}
-                    transition={{
-                      duration: 2 + Math.random() * 2,
-                      repeat: Infinity,
-                      delay: i * 0.1,
-                    }}
-                  />
-                ))}
-              </div>
-
               <div className="relative z-10">
                 <div className="flex items-center gap-4 mb-6">
                   <motion.div 
@@ -135,33 +108,6 @@ export function Personality() {
             className="group"
           >
             <TiltCard className="p-8 glass-card rounded-2xl h-full relative overflow-hidden">
-              {/* Animated gradient border */}
-              <div className="absolute inset-0 bg-gradient-to-r from-secondary via-primary to-secondary bg-[length:200%_auto] opacity-0 group-hover:opacity-20 transition-opacity duration-500 rounded-2xl" 
-                   style={{ animation: "gradient 3s ease infinite" }} />
-              
-              {/* Particle shimmer effect */}
-              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                {[...Array(15)].map((_, i) => (
-                  <motion.div
-                    key={i}
-                    className="absolute w-1 h-1 bg-secondary/50 rounded-full"
-                    style={{
-                      left: `${Math.random() * 100}%`,
-                      top: `${Math.random() * 100}%`,
-                    }}
-                    animate={{
-                      y: [0, -20, 0],
-                      opacity: [0, 0.8, 0],
-                    }}
-                    transition={{
-                      duration: 2 + Math.random() * 2,
-                      repeat: Infinity,
-                      delay: i * 0.15,
-                    }}
-                  />
-                ))}
-              </div>
-
               <div className="relative z-10">
                 <div className="flex items-center gap-4 mb-6">
                   <motion.div 

@@ -9,10 +9,10 @@ import { createHeroTimeline } from "@/animations";
 import { useReducedMotionSafe } from "@/hooks/use-reduced-motion-safe";
 
 const roles = [
+  { text: "Data Science Engineer", delay: 4000 },
   { text: "Machine Learning Developer", delay: 3000 },
-  { text: "Problem Solver", delay: 2500 },
-  { text: "AI Enthusiast", delay: 4000 }, // Longer pause before primary title
-  { text: "Data Science Engineer", delay: 3500 },
+  { text: "AI Enthusiast", delay: 2500 },
+  { text: "Problem Solver", delay: 3000 },
 ];
 
 export function Hero() {
@@ -73,50 +73,21 @@ export function Hero() {
   }, [prefersReduced]);
 
   return (
-    <section id="hero" ref={heroRef} className="relative min-h-screen flex items-center pt-20 overflow-hidden">
-      <div className="container mx-auto px-4 md:px-6 relative z-20">
-        <div className="max-w-4xl">
-          <motion.div
-            ref={badgeRef}
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="hero-badge relative z-20 inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-secondary/50 bg-secondary/20 text-white text-sm font-medium mb-6 backdrop-blur-sm overflow-hidden"
-          >
-            <Terminal className="w-4 h-4 animate-pulse" />
-            <span className="relative">
-              <AnimatePresence mode="wait">
-                <motion.span
-                  key={currentRoleIndex}
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  exit={{ y: -20, opacity: 0 }}
-                  transition={{ duration: 0.4, ease: "easeInOut" }}
-                  className="inline-block bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent bg-[length:200%_auto] animate-gradient"
-                >
-                  {roles[currentRoleIndex].text}
-                </motion.span>
-              </AnimatePresence>
-              <motion.span 
-                className="ml-0.5 inline-block w-0.5 h-4 bg-gradient-to-b from-primary to-secondary"
-                animate={{ opacity: [1, 0, 1] }}
-                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-              />
-            </span>
-          </motion.div>
+    <section id="hero" ref={heroRef} className="relative min-h-screen flex items-center justify-center px-4 md:px-6 overflow-hidden">
+      <div className="container mx-auto max-w-5xl relative z-20">
+        <div className="flex flex-col items-start gap-6">
           
-          <div className="mb-6">
-            <motion.h1
-              ref={titleRef}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.3, ease: "easeOut" }}
-              className="hero-title relative z-20 text-white text-balance text-5xl md:text-6xl lg:text-7xl font-bold font-heading leading-[1.15] tracking-tight max-w-[900px]"
-            >
-              Transforming data into{" "}
-              <motion.span 
-                ref={gradientRef}
-                className="inline-block"
+          {/* 1. GREETING - Smaller, subtle introduction */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+            className="relative z-20"
+          >
+            <h2 className="text-2xl md:text-3xl font-medium text-slate-300">
+              Hi, I'm{" "}
+              <span 
+                className="inline-block font-bold"
                 style={{
                   background: 'linear-gradient(90deg, #8b5cf6, #06b6d4, #3b82f6, #8b5cf6)',
                   backgroundSize: '300% 100%',
@@ -125,21 +96,76 @@ export function Hero() {
                   backgroundClip: 'text',
                   animation: 'gradient 4s ease infinite',
                 }}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.8, delay: 0.6 }}
               >
-                actionable insights
-              </motion.span>
-            </motion.h1>
-          </div>
+                Aziz Messaoud
+              </span>
+            </h2>
+          </motion.div>
 
+          {/* 2. BADGE - Role context after name */}
+          <motion.div
+            ref={badgeRef}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
+            className="relative z-20"
+          >
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/30 backdrop-blur-sm">
+              <Terminal className="w-4 h-4 text-primary animate-pulse" />
+              <span className="relative">
+                <AnimatePresence mode="wait">
+                  <motion.span
+                    key={currentRoleIndex}
+                    initial={{ y: 15, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    exit={{ y: -15, opacity: 0 }}
+                    transition={{ duration: 0.4, ease: "easeInOut" }}
+                    className="inline-block text-primary text-sm md:text-base font-medium tracking-wide"
+                  >
+                    {roles[currentRoleIndex].text}
+                  </motion.span>
+                </AnimatePresence>
+                <motion.span 
+                  className="ml-1 inline-block w-0.5 h-4 bg-primary"
+                  animate={{ opacity: [1, 0, 1] }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                />
+              </span>
+            </div>
+          </motion.div>
+
+          {/* 3. MAIN TAGLINE - Hero statement, largest and most prominent */}
+          <motion.h1
+            ref={titleRef}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
+            className="hero-title relative z-20 text-white text-4xl md:text-6xl lg:text-7xl font-bold font-heading leading-[1.1] tracking-tight max-w-[900px]"
+          >
+            Transforming data into{" "}
+            <span 
+              ref={gradientRef}
+              className="inline-block"
+              style={{
+                background: 'linear-gradient(90deg, #8b5cf6, #06b6d4, #3b82f6, #8b5cf6)',
+                backgroundSize: '300% 100%',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                animation: 'gradient 4s ease infinite',
+              }}
+            >
+              actionable insights
+            </span>
+          </motion.h1>
+
+          {/* 4. DESCRIPTION - Supporting text */}
           <motion.div
             ref={descriptionRef}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.7 }}
-            className="hero-description relative z-20 text-balance text-lg md:text-xl text-white/90 max-w-2xl mb-8 leading-relaxed"
+            transition={{ duration: 0.8, delay: 0.6, ease: "easeOut" }}
+            className="hero-description relative z-20 text-white/80 text-lg md:text-xl max-w-2xl leading-relaxed"
           >
             <p>
               I help organizations unlock the power of data science to make smarter decisions, 
@@ -147,12 +173,13 @@ export function Hero() {
             </p>
           </motion.div>
 
+          {/* 5. CTAs - Action buttons */}
           <motion.div 
             ref={ctasRef}
-            className="flex flex-wrap gap-4 relative z-20"
+            className="flex flex-wrap gap-4 relative z-20 mt-2"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.9 }}
+            transition={{ duration: 0.8, delay: 0.8, ease: "easeOut" }}
           >
             <MagneticButton 
               className="group relative hero-cta"
@@ -178,50 +205,49 @@ export function Hero() {
             </MagneticButton>
           </motion.div>
 
+          {/* 6. SOCIAL LINKS - Smaller, tertiary info */}
           <motion.div
             ref={socialsRef}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 1.1 }}
-            className="mt-12 space-y-4 relative z-20"
+            transition={{ duration: 0.8, delay: 1.0, ease: "easeOut" }}
+            className="relative z-20 flex items-center gap-6 mt-2"
           >
-            <div className="flex flex-wrap gap-6 text-slate-300">
-              {[
-                { icon: Linkedin, label: "LinkedIn", href: "https://linkedin.com/in/azizmessaoud" },
-                { icon: Github, label: "GitHub", href: "https://github.com/azizmessaoud" },
-                { icon: Mail, label: "Email", href: "mailto:aziz.messaoud@esprit.tn" }
-              ].map((item, i) => (
-                <motion.a 
-                  key={i}
-                  href={item.href} 
-                  target="_blank" 
-                  aria-label={`Open ${item.label} profile`}
-                  className="hero-social hover:text-white transition-colors flex items-center gap-2"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  whileHover={{ scale: 1.05 }}
-                  transition={{ delay: 1.1 + i * 0.1 }}
-                >
-                  <item.icon className="w-5 h-5" /> <span className="text-sm">{item.label}</span>
-                </motion.a>
-              ))}
-            </div>
-
-            <motion.div 
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.4 }}
-              className="pt-6 border-t border-white/20 flex flex-wrap gap-4 text-sm text-slate-400"
-            >
-              <a href="https://www.kaggle.com/azizmessaoud2002" target="_blank" className="hover:text-white transition-colors hover:underline decoration-secondary underline-offset-4">Kaggle</a>
-              <span className="text-white/30">•</span>
-              <a href="https://leetcode.com/u/azizmessaoud/" target="_blank" className="hover:text-white transition-colors hover:underline decoration-secondary underline-offset-4">LeetCode</a>
-              <span className="text-white/30">•</span>
-              <a href="https://codeforces.com/profile/rebellion2002" target="_blank" className="hover:text-white transition-colors hover:underline decoration-secondary underline-offset-4">Codeforces</a>
-              <span className="text-white/30">•</span>
-              <a href="https://zindi.africa/users/REBELLION123" target="_blank" className="hover:text-white transition-colors hover:underline decoration-secondary underline-offset-4">Zindi</a>
-            </motion.div>
+            {[
+              { icon: Linkedin, label: "LinkedIn", href: "https://linkedin.com/in/azizmessaoud" },
+              { icon: Github, label: "GitHub", href: "https://github.com/azizmessaoud" },
+              { icon: Mail, label: "Email", href: "mailto:aziz.messaoud@esprit.tn" }
+            ].map((item, i) => (
+              <motion.a 
+                key={i}
+                href={item.href} 
+                target="_blank" 
+                aria-label={`Open ${item.label} profile`}
+                className="hero-social text-slate-300 hover:text-white transition-colors flex items-center gap-2"
+                whileHover={{ scale: 1.05 }}
+              >
+                <item.icon className="w-5 h-5" /> 
+                <span className="text-sm">{item.label}</span>
+              </motion.a>
+            ))}
           </motion.div>
+
+          {/* 7. COMPETITIVE SITES - Smallest, least prominent */}
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8, delay: 1.2, ease: "easeOut" }}
+            className="relative z-20 flex flex-wrap items-center gap-4 text-sm text-slate-400 pt-4 border-t border-white/10"
+          >
+            <a href="https://www.kaggle.com/azizmessaoud2002" target="_blank" className="hover:text-white transition-colors hover:underline decoration-secondary underline-offset-4">Kaggle</a>
+            <span className="text-white/30">•</span>
+            <a href="https://leetcode.com/u/azizmessaoud/" target="_blank" className="hover:text-white transition-colors hover:underline decoration-secondary underline-offset-4">LeetCode</a>
+            <span className="text-white/30">•</span>
+            <a href="https://codeforces.com/profile/rebellion2002" target="_blank" className="hover:text-white transition-colors hover:underline decoration-secondary underline-offset-4">Codeforces</a>
+            <span className="text-white/30">•</span>
+            <a href="https://zindi.africa/users/REBELLION123" target="_blank" className="hover:text-white transition-colors hover:underline decoration-secondary underline-offset-4">Zindi</a>
+          </motion.div>
+
         </div>
       </div>
       

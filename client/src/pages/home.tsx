@@ -14,13 +14,15 @@ import { LoadingScreen } from "@/components/ui/loading-screen";
 import { ScrollProgress } from "@/components/ui/scroll-progress";
 import { CustomCursor } from "@/components/ui/custom-cursor";
 import { BackToTop } from "@/components/ui/back-to-top";
+import { SectionBackground } from "@/components/ui/section-background";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-background text-foreground overflow-x-hidden selection:bg-secondary/30 relative z-10">
+    <div className="min-h-screen bg-transparent text-foreground overflow-x-hidden selection:bg-secondary/30 relative z-10">
       <LoadingScreen />
       <CustomCursor />
       <ScrollProgress />
+      <SectionBackground />
       <HeroBackground />
       <BackToTop />
       
