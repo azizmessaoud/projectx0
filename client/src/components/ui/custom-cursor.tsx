@@ -1,47 +1,120 @@
-import { useEffect, useState, useRef, useCallback } from "react";
-import { motion } from "framer-motion";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { useReducedMotionSafe } from "@/hooks/use-reduced-motion-safe";
 
-interface Position {
-  x: number;
-  y: number;
-}
-
-type CursorState = "default" | "link" | "button";
+type HoverState = "default" | "small" | "medium" | "large";
 
 export function CustomCursor() {
-  const [mousePosition, setMousePosition] = useState<Position>({ x: 0, y: 0 });
-  const [trailPositions, setTrailPositions] = useState<Position[]>(
-    Array(5).fill({ x: 0, y: 0 })
-  );
-  const [cursorState, setCursorState] = useState<CursorState>("default");
+  const cursorRef = useRef<HTMLDivElement>(null);
+  const cursorDotRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
   const [isTouchDevice, setIsTouchDevice] = useState(true);
   const prefersReducedMotion = useReducedMotionSafe();
   
-  const animationFrameRef = useRef<number | null>(null);
-  const mousePositionRef = useRef<Position>({ x: 0, y: 0 });
-  const trailPositionsRef = useRef<Position[]>(Array(5).fill({ x: 0, y: 0 }));
+  // Use refs for animation values to avoid re-renders
+  const mousePos = useRef({ x: 0, y: 0 });
+  const cursorPos = useRef({ x: 0, y: 0 });
+  const targetScale = useRef(1);
+  const currentScale = useRef(1);
+  const hoverState = useRef<HoverState>("default");
+  const lastHoverState = useRef<HoverState>("default");
+  const magneticTarget = useRef<{ x: number; y: number } | null>(null);
+  const animationFrameId = useRef<number | null>(null);
+  const lastUpdateTime = useRef(0);
+  const stateChangeDebounce = useRef<number | null>(null);
 
-  const updateTrail = useCallback(() => {
-    const newTrailPositions = [...trailPositionsRef.current];
+  const animate = useCallback(() => {
+    if (!cursorRef.current || !cursorDotRef.current) {
+      animationFrameId.current = requestAnimationFrame(animate);
+      return;
+    }
+
+    const isMagnetic = hoverState.current !== "default";
     
-    for (let i = newTrailPositions.length - 1; i > 0; i--) {
-      newTrailPositions[i] = {
-        x: newTrailPositions[i].x + (newTrailPositions[i - 1].x - newTrailPositions[i].x) * 0.3,
-        y: newTrailPositions[i].y + (newTrailPositions[i - 1].y - newTrailPositions[i].y) * 0.3,
-      };
+    // Calculate target position with magnetic pull
+    let targetX = mousePos.current.x;
+    let targetY = mousePos.current.y;
+    
+    if (isMagnetic && magneticTarget.current) {
+      // Pull cursor 25% towards center of element
+      targetX += (magneticTarget.current.x - targetX) * 0.25;
+      targetY += (magneticTarget.current.y - targetY) * 0.25;
     }
     
-    newTrailPositions[0] = {
-      x: newTrailPositions[0].x + (mousePositionRef.current.x - newTrailPositions[0].x) * 0.4,
-      y: newTrailPositions[0].y + (mousePositionRef.current.y - newTrailPositions[0].y) * 0.4,
-    };
+    // INCREASED smoothing for stability on small elements
+    // Lower value = slower/smoother, higher = faster/snappier
+    // Added minimum update threshold to prevent micro-jitter
+    const deltaX = Math.abs(targetX - cursorPos.current.x);
+    const deltaY = Math.abs(targetY - cursorPos.current.y);
+    const minThreshold = hoverState.current === "small" ? 0.5 : 1; // Lower threshold for smoother small element tracking
     
-    trailPositionsRef.current = newTrailPositions;
-    setTrailPositions([...newTrailPositions]);
+    let smoothing: number;
+    switch (hoverState.current) {
+      case "small":
+        smoothing = 0.04; // Ultra slow for small buttons - prevents jitter
+        break;
+      case "medium":
+        smoothing = 0.10; // Moderate smoothing
+        break;
+      case "large":
+        smoothing = 0.12; // Slightly faster for large elements
+        break;
+      default:
+        smoothing = 0.15; // Default speed
+    }
     
-    animationFrameRef.current = requestAnimationFrame(updateTrail);
+    // Smooth position follow (LERP) with GPU-friendly transforms
+    // Only update if movement exceeds threshold to prevent oscillation
+    if (deltaX > minThreshold || deltaY > minThreshold) {
+      cursorPos.current.x += (targetX - cursorPos.current.x) * smoothing;
+      cursorPos.current.y += (targetY - cursorPos.current.y) * smoothing;
+    }
+    
+    // MUCH smoother scale transition with cubic easing
+    const scaleDiff = targetScale.current - currentScale.current;
+    const scaleSmoothing = hoverState.current === "small" ? 0.04 : 0.06;
+    currentScale.current += scaleDiff * scaleSmoothing;
+    
+    // Determine cursor size based on hover state
+    let cursorSize: number;
+    switch (hoverState.current) {
+      case "small":
+        cursorSize = 28;
+        break;
+      case "medium":
+        cursorSize = 40;
+        break;
+      case "large":
+        cursorSize = 50;
+        break;
+      default:
+        cursorSize = 40;
+    }
+    
+    // Ring color intensity based on state
+    const ringOpacity = hoverState.current === "small" ? 0.9 : 0.6;
+    const glowIntensity = hoverState.current === "small" ? "0 0 15px rgba(139, 92, 246, 0.8)" : "0 0 10px rgba(139, 92, 246, 0.4)";
+    
+    // Apply transforms with GPU acceleration (translate3d forces GPU layer)
+    cursorRef.current.style.transform = 
+      `translate3d(${cursorPos.current.x - cursorSize / 2}px, ${cursorPos.current.y - cursorSize / 2}px, 0) scale(${currentScale.current})`;
+    cursorRef.current.style.width = `${cursorSize}px`;
+    cursorRef.current.style.height = `${cursorSize}px`;
+    cursorRef.current.style.borderColor = `rgba(139, 92, 246, ${ringOpacity})`;
+    cursorRef.current.style.boxShadow = glowIntensity;
+    
+    // Dot follows with slightly faster response for precision feel
+    const dotSize = hoverState.current === "small" ? 6 : 8;
+    
+    // Dot uses a slightly faster lerp towards mouse for precision
+    const dotX = cursorPos.current.x + (mousePos.current.x - cursorPos.current.x) * 0.5;
+    const dotY = cursorPos.current.y + (mousePos.current.y - cursorPos.current.y) * 0.5;
+    
+    cursorDotRef.current.style.transform = 
+      `translate3d(${dotX - dotSize / 2}px, ${dotY - dotSize / 2}px, 0) scale(${currentScale.current * 0.85})`;
+    cursorDotRef.current.style.width = `${dotSize}px`;
+    cursorDotRef.current.style.height = `${dotSize}px`;
+    
+    animationFrameId.current = requestAnimationFrame(animate);
   }, []);
 
   useEffect(() => {
@@ -56,163 +129,166 @@ export function CustomCursor() {
     }
 
     setIsTouchDevice(false);
-    
     document.body.style.cursor = "none";
 
     const handleMouseMove = (e: MouseEvent) => {
-      mousePositionRef.current = { x: e.clientX, y: e.clientY };
-      setMousePosition({ x: e.clientX, y: e.clientY });
+      mousePos.current = { x: e.clientX, y: e.clientY };
       setIsVisible(true);
 
       const target = e.target as HTMLElement;
       
-      const isLink = target.tagName === "A" || target.closest("a") !== null;
-      const isButton = 
-        target.tagName === "BUTTON" || 
-        target.closest("button") !== null ||
-        target.getAttribute("role") === "button";
-
-      if (isButton) {
-        setCursorState("button");
-      } else if (isLink) {
-        setCursorState("link");
+      // Find the interactive element - expanded to include all small button types
+      const interactiveEl = target.closest(
+        ".tech-chip, .magnetic-target, [data-cursor-magnetic], button, a, .skill-tag, .tech-stack-item, [class*='badge'], [class*='chip'], [class*='tag']"
+      ) as HTMLElement | null;
+      
+      const isInteractive = 
+        target.tagName === "BUTTON" ||
+        target.tagName === "A" ||
+        target.closest("button") ||
+        target.closest("a") ||
+        target.classList.contains("tech-chip") ||
+        target.closest(".tech-chip") ||
+        target.classList.contains("skill-tag") ||
+        target.closest(".skill-tag") ||
+        target.classList.contains("tech-stack-item") ||
+        target.closest(".tech-stack-item") ||
+        target.closest("[class*='badge']") ||
+        target.closest("[class*='chip']") ||
+        target.closest("[class*='tag']");
+      
+      if (isInteractive && interactiveEl) {
+        const rect = interactiveEl.getBoundingClientRect();
+        const elementSize = Math.max(rect.width, rect.height);
+        
+        // Check if it's a tech chip - always use small state for these
+        const isTechChip = interactiveEl.classList.contains("tech-chip") || 
+                           interactiveEl.closest(".tech-chip") !== null ||
+                           interactiveEl.hasAttribute("data-cursor-magnetic");
+        
+        // Set magnetic target for pull effect
+        magneticTarget.current = {
+          x: rect.left + rect.width / 2,
+          y: rect.top + rect.height / 2,
+        };
+        
+        // Determine new hover state
+        let newState: HoverState;
+        let newScale: number;
+        
+        // Tech chips always get the "small" animation regardless of size
+        if (isTechChip || elementSize < 120) {
+          newState = "small";
+          newScale = 0.65; // Shrink for chips and small buttons
+        } else if (elementSize < 200) {
+          newState = "medium";
+          newScale = 1.0; // Normal size
+        } else {
+          newState = "large";
+          newScale = 1.15; // Expand for large buttons
+        }
+        
+        // Debounce state changes to prevent rapid switching
+        if (newState !== lastHoverState.current) {
+          if (stateChangeDebounce.current) {
+            clearTimeout(stateChangeDebounce.current);
+          }
+          stateChangeDebounce.current = window.setTimeout(() => {
+            hoverState.current = newState;
+            targetScale.current = newScale;
+            lastHoverState.current = newState;
+          }, 50); // 50ms debounce
+        } else {
+          hoverState.current = newState;
+          targetScale.current = newScale;
+        }
       } else {
-        setCursorState("default");
+        // Debounce returning to default state
+        if (lastHoverState.current !== "default") {
+          if (stateChangeDebounce.current) {
+            clearTimeout(stateChangeDebounce.current);
+          }
+          stateChangeDebounce.current = window.setTimeout(() => {
+            hoverState.current = "default";
+            targetScale.current = 1.0;
+            magneticTarget.current = null;
+            lastHoverState.current = "default";
+          }, 30); // Faster return to default
+        } else {
+          hoverState.current = "default";
+          targetScale.current = 1.0;
+          magneticTarget.current = null;
+        }
       }
     };
 
     const handleMouseLeave = () => setIsVisible(false);
     const handleMouseEnter = () => setIsVisible(true);
 
-    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mousemove", handleMouseMove, { passive: true });
     document.addEventListener("mouseleave", handleMouseLeave);
     document.addEventListener("mouseenter", handleMouseEnter);
 
-    animationFrameRef.current = requestAnimationFrame(updateTrail);
+    // Start animation loop
+    animationFrameId.current = requestAnimationFrame(animate);
 
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseleave", handleMouseLeave);
       document.removeEventListener("mouseenter", handleMouseEnter);
       
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
+      if (animationFrameId.current) {
+        cancelAnimationFrame(animationFrameId.current);
       }
       
       document.body.style.cursor = "";
     };
-  }, [updateTrail, prefersReducedMotion]);
+  }, [animate, prefersReducedMotion]);
 
   if (isTouchDevice || !isVisible) return null;
 
-  const getCursorSize = () => {
-    switch (cursorState) {
-      case "link":
-        return 60;
-      case "button":
-        return 20;
-      default:
-        return 40;
-    }
-  };
-
-  const getGradientColors = () => {
-    if (cursorState === "button") {
-      return "from-purple-600 to-purple-600";
-    }
-    return "from-[#3b82f6] to-[#5b21b6]";
-  };
-
-  const cursorSize = getCursorSize();
-  const dotSize = 8;
-  const trailDotSize = 6;
-
-  const trailOpacities = [1.0, 0.8, 0.6, 0.4, 0.2];
-
   return (
     <>
-      <motion.div
-        className={`fixed top-0 left-0 rounded-full pointer-events-none bg-transparent`}
+      {/* Cursor Ring - GPU accelerated */}
+      <div
+        ref={cursorRef}
         style={{
-          width: cursorSize,
-          height: cursorSize,
-          zIndex: 9998,
-          background: "transparent",
-          border: "2px solid transparent",
-          backgroundImage: cursorState === "button" 
-            ? "linear-gradient(transparent, transparent), linear-gradient(135deg, #5b21b6, #5b21b6)"
-            : "linear-gradient(transparent, transparent), linear-gradient(135deg, #3b82f6, #5b21b6)",
-          backgroundOrigin: "border-box",
-          backgroundClip: "padding-box, border-box",
-        }}
-        animate={{
-          x: mousePosition.x - cursorSize / 2,
-          y: mousePosition.y - cursorSize / 2,
-          scale: cursorState === "default" ? [1, 1.1, 1] : 1,
-        }}
-        transition={
-          cursorState === "default"
-            ? {
-                x: { type: "spring", stiffness: 300, damping: 28, mass: 0.5 },
-                y: { type: "spring", stiffness: 300, damping: 28, mass: 0.5 },
-                scale: {
-                  duration: 2,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                },
-              }
-            : {
-                type: "spring",
-                stiffness: 300,
-                damping: 28,
-                mass: 0.5,
-              }
-        }
-      />
-
-      <motion.div
-        className={`fixed top-0 left-0 rounded-full pointer-events-none ${
-          cursorState === "button" ? "bg-purple-600" : "bg-gradient-to-br from-[#3b82f6] to-[#5b21b6]"
-        }`}
-        style={{
-          width: dotSize,
-          height: dotSize,
-          zIndex: 9998,
-        }}
-        animate={{
-          x: mousePosition.x - dotSize / 2,
-          y: mousePosition.y - dotSize / 2,
-        }}
-        transition={{
-          type: "spring",
-          stiffness: 500,
-          damping: 30,
-          mass: 0.2,
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: 40,
+          height: 40,
+          border: "2px solid rgba(139, 92, 246, 0.6)",
+          borderRadius: "50%",
+          pointerEvents: "none",
+          zIndex: 9999,
+          willChange: "transform, width, height, border-color, box-shadow",
+          transformOrigin: "center",
+          backfaceVisibility: "hidden",
+          WebkitBackfaceVisibility: "hidden",
         }}
       />
-
-      {trailPositions.map((pos, index) => (
-        <motion.div
-          key={index}
-          className="fixed top-0 left-0 rounded-full pointer-events-none bg-gradient-to-br from-[#3b82f6] to-[#5b21b6]"
-          style={{
-            width: trailDotSize - index * 0.5,
-            height: trailDotSize - index * 0.5,
-            zIndex: 9998 - index - 1,
-            opacity: trailOpacities[index],
-          }}
-          animate={{
-            x: pos.x - (trailDotSize - index * 0.5) / 2,
-            y: pos.y - (trailDotSize - index * 0.5) / 2,
-          }}
-          transition={{
-            type: "spring",
-            stiffness: 400 - index * 50,
-            damping: 30 + index * 5,
-            mass: 0.1 + index * 0.05,
-          }}
-        />
-      ))}
+      
+      {/* Cursor Dot - GPU accelerated */}
+      <div
+        ref={cursorDotRef}
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: 8,
+          height: 8,
+          backgroundColor: "rgba(139, 92, 246, 0.95)",
+          borderRadius: "50%",
+          pointerEvents: "none",
+          zIndex: 10000,
+          boxShadow: "0 0 10px rgba(139, 92, 246, 0.7)",
+          willChange: "transform, width, height",
+          transformOrigin: "center",
+          backfaceVisibility: "hidden",
+          WebkitBackfaceVisibility: "hidden",
+        }}
+      />
     </>
   );
 }

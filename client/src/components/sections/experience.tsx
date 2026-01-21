@@ -53,7 +53,24 @@ export function Experience() {
 
   return (
     <Section id="experience">
-      <h2 className="text-3xl md:text-5xl font-bold mb-12 text-center">Experience</h2>
+      <motion.h2 
+        className="text-3xl md:text-5xl font-bold mb-12 text-center flex items-center justify-center gap-3 text-white"
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6 }}
+      >
+        <motion.span
+          className="text-3xl"
+          initial={{ scale: 0, rotate: -180 }}
+          whileInView={{ scale: 1, rotate: 0 }}
+          viewport={{ once: true }}
+          transition={{ type: "spring", stiffness: 200, damping: 15 }}
+        >
+          💼
+        </motion.span>
+        <span>Experience</span>
+      </motion.h2>
       <div className="relative max-w-3xl mx-auto" ref={containerRef}>
         {/* Animated Timeline Line */}
         <div className="absolute left-[7px] md:left-1/2 md:-translate-x-1/2 top-0 bottom-0 w-[2px] overflow-hidden">

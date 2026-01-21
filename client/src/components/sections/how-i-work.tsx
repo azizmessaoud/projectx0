@@ -40,7 +40,43 @@ export function HowIWork() {
           transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >
-          <h2 className="text-3xl md:text-5xl font-bold mb-4">How I Work</h2>
+          <h2 className="text-3xl md:text-5xl font-bold mb-4 flex items-center justify-center gap-3 text-white">
+            <motion.span
+              className="text-4xl inline-block"
+              style={{ transformStyle: 'preserve-3d' }}
+              animate={{
+                rotateY: [0, 360],
+                rotateZ: [0, 15, 0, -15, 0],
+                y: [0, -8, 0],
+                scale: [1, 1.1, 1],
+              }}
+              transition={{
+                rotateY: {
+                  duration: 10,
+                  repeat: Infinity,
+                  ease: "linear",
+                },
+                rotateZ: {
+                  duration: 4,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                },
+                y: {
+                  duration: 3,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                },
+                scale: {
+                  duration: 3,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                },
+              }}
+            >
+              🚀
+            </motion.span>
+            <span>How I Work</span>
+          </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
             My proven approach to delivering results
           </p>

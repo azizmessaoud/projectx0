@@ -69,10 +69,22 @@ export function Certifications() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
         transition={{ duration: 0.6 }}
         className="text-center mb-12"
       >
-        <h2 className="text-3xl md:text-5xl font-bold mb-4">Certifications</h2>
+        <h2 className="text-3xl md:text-5xl font-bold mb-4 flex items-center justify-center gap-3 text-white">
+          <motion.span
+            className="text-3xl"
+            initial={{ scale: 0, rotate: -180 }}
+            whileInView={{ scale: 1, rotate: 0 }}
+            viewport={{ once: true }}
+            transition={{ type: "spring", stiffness: 200, damping: 15 }}
+          >
+            🏆
+          </motion.span>
+          <span>Certifications</span>
+        </h2>
         <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
           Professional certifications and credentials
         </p>
@@ -85,43 +97,95 @@ export function Certifications() {
           return (
             <motion.div 
               key={index}
-              initial={{ opacity: 0, y: 20, scale: 0.95 }}
+              initial={{ opacity: 0, y: 30, scale: 0.9 }}
               whileInView={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ delay: index * 0.08, duration: 0.4 }}
-              className="h-full"
+              viewport={{ once: true }}
+              transition={{ 
+                delay: index * 0.08, 
+                duration: 0.5,
+                type: "spring",
+                stiffness: 100,
+                damping: 15
+              }}
+              className="h-full group/card"
             >
-              <TiltCard className="flex flex-col gap-4 p-6 rounded-2xl border border-white/5 bg-card/20 hover:bg-card/40 hover:border-secondary/30 hover:shadow-[0_0_40px_rgba(139,92,246,0.15)] transition-all group h-full">
-                <div className="flex items-start justify-between w-full">
-                  <div className={`p-3 rounded-xl bg-gradient-to-br ${colorClass} group-hover:scale-110 transition-transform`}>
-                    <Award className="w-6 h-6 text-white/80" />
-                  </div>
-                  <span className="px-2 py-1 bg-white/5 rounded-full text-xs text-muted-foreground border border-white/10">
+              <TiltCard className="flex flex-col gap-4 p-6 rounded-2xl border border-white/5 bg-card/20 hover:bg-card/40 hover:shadow-[0_0_50px_rgba(139,92,246,0.25)] transition-all h-full relative overflow-hidden">
+                {/* Animated gradient border on hover */}
+                <div className="absolute inset-0 opacity-0 group-hover/card:opacity-100 transition-opacity duration-500 pointer-events-none">
+                  <div 
+                    className="absolute inset-0 bg-gradient-to-r from-primary via-secondary to-primary bg-[length:200%_auto] rounded-2xl"
+                    style={{ 
+                      animation: "gradient 3s ease infinite",
+                      opacity: 0.2,
+                      filter: "blur(20px)"
+                    }}
+                  />
+                </div>
+
+                <div className="relative z-10 flex items-start justify-between w-full">
+                  <motion.div 
+                    className={`p-3 rounded-xl bg-gradient-to-br ${colorClass}`}
+                    whileHover={{ 
+                      scale: 1.15, 
+                      rotate: 10,
+                      y: -3
+                    }}
+                    transition={{ type: "spring", stiffness: 300 }}
+                  >
+                    <Award className="w-6 h-6 text-white/90" />
+                  </motion.div>
+                  <motion.span 
+                    className="px-2 py-1 bg-white/5 rounded-full text-xs text-muted-foreground border border-white/10 group-hover/card:border-primary/30 transition-colors"
+                    initial={{ opacity: 0, x: 10 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.08 + 0.2 }}
+                  >
                     {cert.category}
-                  </span>
+                  </motion.span>
                 </div>
                 
-                <div className="flex flex-col justify-between flex-1">
+                <div className="relative z-10 flex flex-col justify-between flex-1">
                   <div>
-                    <h3 className="text-lg font-bold group-hover:text-secondary transition-colors leading-tight mb-3">
+                    {/* Smooth title animation without character splitting */}
+                    <motion.h3 
+                      className="text-lg font-bold group-hover/card:text-secondary transition-colors leading-tight mb-3"
+                      initial={{ opacity: 0, y: 10 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: index * 0.08 + 0.3 }}
+                    >
                       {cert.title}
-                    </h3>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
+                    </motion.h3>
+                    <motion.div 
+                      className="flex items-center gap-2 text-sm text-muted-foreground mb-4"
+                      initial={{ opacity: 0 }}
+                      whileInView={{ opacity: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: index * 0.08 + 0.4 }}
+                    >
                       <BadgeCheck className="w-4 h-4 text-primary" />
                       <span className="font-medium text-white/80">{cert.issuer}</span>
                       <span className="text-white/30">|</span>
                       <span>{cert.date}</span>
-                    </div>
+                    </motion.div>
                   </div>
                   
-                  <a
+                  <motion.a
                     href={cert.link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-primary/20 border border-white/10 hover:border-primary/50 rounded-lg text-sm font-medium transition-all group/btn w-fit"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-primary/20 border border-white/10 hover:border-primary/50 hover:shadow-[0_0_16px_rgba(139,92,246,0.4)] rounded-lg text-sm font-medium transition-all group/btn w-fit"
+                    whileHover={{ scale: 1.03, x: 2 }}
+                    whileTap={{ scale: 0.98 }}
+                    initial={{ opacity: 0, y: 10 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.08 + 0.5 }}
                   >
                     <span>View Certificate</span>
                     <ExternalLink className="w-4 h-4 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
-                  </a>
+                  </motion.a>
                 </div>
               </TiltCard>
             </motion.div>

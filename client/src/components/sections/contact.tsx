@@ -285,7 +285,24 @@ export function Contact() {
     <Section id="contact" className="pb-32 relative">
       <div className="absolute inset-0 bg-gradient-radial from-primary/5 via-transparent to-transparent opacity-50 pointer-events-none" />
       <div className="max-w-4xl mx-auto relative z-10">
-        <h2 className="text-3xl md:text-5xl font-bold mb-12 text-center">Get In Touch</h2>
+        <motion.h2 
+          className="text-3xl md:text-5xl font-bold mb-12 text-center flex items-center justify-center gap-3 text-white"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+        >
+          <motion.span
+            className="text-3xl"
+            initial={{ scale: 0, rotate: -180 }}
+            whileInView={{ scale: 1, rotate: 0 }}
+            viewport={{ once: true }}
+            transition={{ type: "spring", stiffness: 200, damping: 15 }}
+          >
+            📬
+          </motion.span>
+          <span>Get In Touch</span>
+        </motion.h2>
         
         <div className="grid md:grid-cols-2 gap-12">
           <motion.div 

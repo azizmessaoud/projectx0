@@ -1,541 +1,701 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { useReducedMotionSafe } from '@/hooks/use-reduced-motion-safe';
-
-const SYMBOLS = ['|0⟩', '|1⟩', 'ψ', 'φ', 'θ', '∑', '∫', '∂', '∇', 'Ω', 'H', 'X', 'CNOT', 'λ'];
+import { useEffect, useRef, useState } from 'react';
 
 type SectionKey = 'hero' | 'about' | 'experience' | 'projects' | 'certifications' | 'contact';
+
+type Theme = {
+  gradient: [string, string];
+  connectionHue: [number, number];
+  dataStreams: boolean;
+  particleDensityMultiplier: number;
+  spotlightEffect: boolean;
+};
+
+const SECTION_THEMES: Record<SectionKey, Theme> = {
+  hero: { 
+    gradient: ['#030810', '#0a1520'], 
+    connectionHue: [200, 220], 
+    dataStreams: false,
+    particleDensityMultiplier: 0.8,
+    spotlightEffect: true
+  },
+  about: { 
+    gradient: ['#040a14', '#0c1a28'], 
+    connectionHue: [195, 215], 
+    dataStreams: false,
+    particleDensityMultiplier: 1.2, 
+    spotlightEffect: true
+  },
+  experience: {
+    gradient: ['#050c18', '#0e1825'],
+    connectionHue: [200, 230], 
+    dataStreams: false,
+    particleDensityMultiplier: 1.0,
+    spotlightEffect: true
+  },
+  projects: { 
+    gradient: ['#040a14', '#0a1520'], 
+    connectionHue: [190, 220],
+    dataStreams: false, 
+    particleDensityMultiplier: 1.0,
+    spotlightEffect: true
+  },
+  certifications: {
+    gradient: ['#050c18', '#0c1825'],
+    connectionHue: [200, 225],
+    dataStreams: false,
+    particleDensityMultiplier: 1.0,
+    spotlightEffect: true
+  },
+  contact: {
+    gradient: ['#020508', '#060e18'], 
+    connectionHue: [200, 220],
+    dataStreams: false,
+    particleDensityMultiplier: 0.6,
+    spotlightEffect: true
+  }
+};
 
 type Node = {
   x: number;
   y: number;
   vx: number;
   vy: number;
-  baseSize: number;
-  layer: number;
-  pulse: number;
-  pulseSpeed: number;
+  radius: number;
+  baseRadius: number;
+  layer: number; 
+  phase: number;
+  driftSpeed: number; // Parallax drift for space travel
+  color: string; // Cosmic color
 };
 
-type ScatterPoint = {
+// Cosmic color palette for space theme
+const spaceColors = [
+  'rgba(139, 92, 246, 0.9)',   // Purple
+  'rgba(59, 130, 246, 0.9)',   // Blue  
+  'rgba(236, 72, 153, 0.9)',   // Pink/Magenta
+  'rgba(147, 51, 234, 0.9)',   // Deep purple
+  'rgba(99, 102, 241, 0.9)',   // Indigo
+  'rgba(167, 139, 250, 0.9)',  // Light purple
+  'rgba(56, 189, 248, 0.9)',   // Cyan
+  'rgba(192, 132, 252, 0.9)',  // Lavender
+];
+
+const getSpaceColor = () => spaceColors[Math.floor(Math.random() * spaceColors.length)];
+
+type Symbol = {
   x: number;
   y: number;
-  size: number;
+  char: string;
   opacity: number;
+  speed: number;
+  phase: number;
   layer: number;
 };
 
-type Bar = { x: number; width: number; height: number; layer: number; phase: number; };
-type LinePoint = { x: number; y: number; layer: number; phase: number; };
-type BinaryDrop = { x: number; y: number; speed: number; len: number; offset: number; };
-type HexCell = { x: number; y: number; r: number; };
-
-type ThemeState = {
-  gradient: [string, string];
-  connectionHue: [number, number];
-  densityBoost: number;
-  purpleBoost: number;
-  dataStreams: boolean;
-  spotlight: boolean;
+type DataStream = { 
+  x: number; 
+  y: number; 
+  vx: number; 
+  vy: number; 
+  opacity: number; 
+  type: 'binary' | 'bar' | 'stream' | 'scatter' | 'line';
+  value?: string;
+  height?: number;
+  points?: {x: number, y: number}[];
 };
-
-const SECTION_THEMES: Record<SectionKey, ThemeState> = {
-  hero: { gradient: ['#0b1221', '#0d1f37'], connectionHue: [215, 260], densityBoost: 1, purpleBoost: 0.4, dataStreams: false, spotlight: false },
-  about: { gradient: ['#0d1424', '#0f2239'], connectionHue: [210, 250], densityBoost: 0.9, purpleBoost: 0.35, dataStreams: false, spotlight: false },
-  experience: { gradient: ['#0b1221', '#111d33'], connectionHue: [210, 255], densityBoost: 1.15, purpleBoost: 0.4, dataStreams: false, spotlight: false },
-  projects: { gradient: ['#0e1530', '#1a1035'], connectionHue: [225, 275], densityBoost: 1.2, purpleBoost: 0.7, dataStreams: false, spotlight: false },
-  certifications: { gradient: ['#0c1328', '#161a30'], connectionHue: [215, 270], densityBoost: 1.05, purpleBoost: 0.5, dataStreams: true, spotlight: false },
-  contact: { gradient: ['#080d1a', '#0b0f1d'], connectionHue: [205, 245], densityBoost: 0.8, purpleBoost: 0.3, dataStreams: false, spotlight: true },
-};
-
-function clamp(value: number, min: number, max: number) {
-  return Math.min(max, Math.max(min, value));
-}
-
-function join(...parts: Array<string | undefined>) {
-  return parts.filter(Boolean).join(' ');
-}
 
 export function HeroBackground({ className }: { className?: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const symbolsRef = useRef<HTMLDivElement>(null);
-  const gradientRef = useRef<HTMLDivElement>(null);
-  const [activeSection, setActiveSection] = useState<SectionKey>('hero');
-  const prefersReducedMotion = useReducedMotionSafe();
-  const heavyDisabledRef = useRef(false);
-  const themeRef = useRef<ThemeState>(SECTION_THEMES.hero);
-
-  const symbolStyle = useMemo(
-    () => `
-      @keyframes hb-float {
-        0% { transform: translate3d(0, 0, 0) rotate(0deg); }
-        50% { transform: translate3d(12px, -18px, 0) rotate(6deg); }
-        100% { transform: translate3d(0, 0, 0) rotate(0deg); }
-      }
-      @keyframes hb-fade {
-        0% { opacity: 0; }
-        10% { opacity: var(--hb-opacity); filter: blur(0px); }
-        80% { opacity: var(--hb-opacity); }
-        100% { opacity: 0; filter: blur(2px); }
-      }
-    `,
-    []
-  );
+  const [currentSection, setCurrentSection] = useState<SectionKey>('hero');
+  const mouseRef = useRef({ x: 0, y: 0 });
+  const themeRef = useRef(SECTION_THEMES.hero);
+  const isVisibleRef = useRef(true);
+  const prefersReducedMotionRef = useRef(false);
 
   useEffect(() => {
-    const sectionIds: SectionKey[] = ['hero', 'about', 'experience', 'projects', 'certifications', 'contact'];
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const mostVisible = entries
-          .filter((e) => e.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-        if (mostVisible) {
-          const id = mostVisible.target.id as SectionKey;
-          if (SECTION_THEMES[id]) {
-            setActiveSection(id);
-          }
-        }
-      },
-      { threshold: [0.1, 0.25, 0.5, 0.75], rootMargin: '0px 0px -30% 0px' }
-    );
+    themeRef.current = SECTION_THEMES[currentSection];
+  }, [currentSection]);
 
-    sectionIds.forEach((id) => {
-      const el = document.getElementById(id);
-      if (el) observer.observe(el);
-    });
-
-    return () => observer.disconnect();
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      isVisibleRef.current = document.visibilityState === 'visible';
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, []);
 
+  // Check for reduced motion preference
   useEffect(() => {
-    themeRef.current = SECTION_THEMES[activeSection];
-    const canvas = canvasRef.current;
-    if (canvas) {
-      canvas.style.background = `radial-gradient(circle at 20% 20%, ${themeRef.current.gradient[0]} 0%, transparent 35%), linear-gradient(135deg, ${themeRef.current.gradient[0]} 0%, ${themeRef.current.gradient[1]} 100%)`;
-    }
-  }, [activeSection]);
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    prefersReducedMotionRef.current = mediaQuery.matches;
+    
+    const handleChange = (e: MediaQueryListEvent) => {
+      prefersReducedMotionRef.current = e.matches;
+    };
+    
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d', { alpha: false }); 
     if (!ctx) return;
 
-    const deviceMemory = (navigator as unknown as { deviceMemory?: number }).deviceMemory || 8;
-    const isMobile = window.matchMedia('(max-width: 768px)').matches;
-    heavyDisabledRef.current = prefersReducedMotion || isMobile || deviceMemory < 4;
-
-    if (heavyDisabledRef.current) {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      ctx.fillStyle = `linear-gradient(135deg, ${SECTION_THEMES.hero.gradient[0]}, ${SECTION_THEMES.hero.gradient[1]})`;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      return;
-    }
-
-    let width = window.innerWidth;
-    let height = window.innerHeight;
-    const pixelRatio = window.devicePixelRatio || 1;
-    canvas.width = width * pixelRatio;
-    canvas.height = height * pixelRatio;
-    ctx.scale(pixelRatio, pixelRatio);
-
-    const baseNodeCount = clamp(Math.floor(width / 20), 40, 55);
-    const connectionDistance = 180;
-    const mouse = { x: -1000, y: -1000 };
-    const targetMouse = { x: -1000, y: -1000 };
-
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
+    
+    // Mobile optimization - reduce particles for better performance
+    const isMobile = width < 768;
+    const particleCountReduction = isMobile ? 0.5 : 1;
+    
     const nodes: Node[] = [];
-    const scatter: ScatterPoint[] = [];
-    const bars: Bar[] = [];
-    const lines: LinePoint[][] = [];
-    const rain: BinaryDrop[] = [];
-    const hexes: HexCell[] = [];
-
-    const densityScale = Math.max(0.6, themeRef.current.densityBoost * 0.8);
-
-    for (let i = 0; i < baseNodeCount * densityScale; i++) {
-      const layer = i % 3;
-      nodes.push({
-        x: Math.random() * width,
-        y: Math.random() * height,
-        vx: (Math.random() - 0.5) * (0.6 + layer * 0.2),
-        vy: (Math.random() - 0.5) * (0.6 + layer * 0.2),
-        baseSize: 2.5 + Math.random() * 3.5,
-        layer,
-        pulse: Math.random() * Math.PI * 2,
-        pulseSpeed: 0.01 + Math.random() * 0.02,
-      });
-    }
-
-    const scatterClusters = Math.floor(6 * densityScale);
-    for (let i = 0; i < scatterClusters; i++) {
-      const cx = Math.random() * width;
-      const cy = Math.random() * height;
-      const count = 12 + Math.floor(Math.random() * 10);
-      for (let j = 0; j < count; j++) {
-        scatter.push({
-          x: cx + (Math.random() - 0.5) * 60,
-          y: cy + (Math.random() - 0.5) * 60,
-          size: 1.5 + Math.random() * 3,
-          opacity: 0.15 + Math.random() * 0.25,
-          layer: j % 3,
+    const symbols: Symbol[] = [];
+    const streams: DataStream[] = [];
+    
+    const connectionDistance = isMobile ? 120 : 180; // Extended for space connections 
+    
+    // Minimal, subtle Data Science symbols for the moody aesthetic
+    const dataScienceSymbols = [
+      // Core math - very subtle
+      'σ', 'μ', 'π', 'Σ', '∞', '∫', '∂', '∇', 
+      'α', 'β', 'θ', 'λ', 'Δ',
+      // Simple symbols
+      '→', '∈', '∩', '≈', '∝',
+      // ML essentials
+      'w', 'b', 'L', 'η',
+      // Subtle markers
+      '●', '○', '·'
+    ];
+    
+    // Smoky particle type for atmospheric effect
+    type SmokeParticle = {
+      x: number;
+      y: number;
+      vx: number;
+      vy: number;
+      size: number;
+      opacity: number;
+      life: number;
+      maxLife: number;
+    };
+    
+    const smokeParticles: SmokeParticle[] = [];
+    
+    const initSmoke = (count: number) => {
+      smokeParticles.length = 0;
+      for (let i = 0; i < count; i++) {
+        smokeParticles.push({
+          x: Math.random() * width,
+          y: Math.random() * height,
+          vx: (Math.random() - 0.5) * 0.3,
+          vy: -Math.random() * 0.5 - 0.1,
+          size: Math.random() * 80 + 40,
+          opacity: Math.random() * 0.08 + 0.02,
+          life: Math.random() * 1000,
+          maxLife: 1000 + Math.random() * 500
         });
       }
-    }
+    };
+    
+    initSmoke(isMobile ? 8 : 15);
+    
+    // Section-specific symbol density - cosmic presence
+    const getSectionSymbolCount = (section: SectionKey): number => {
+      const base = {
+        hero: 12,
+        about: 15,
+        experience: 14,
+        projects: 18,
+        certifications: 18,
+        contact: 10
+      };
+      return Math.floor((base[section] || 12) * particleCountReduction);
+    };
 
-    for (let i = 0; i < 18; i++) {
-      bars.push({
-        x: (width / 18) * i + Math.random() * 12,
-        width: 6 + Math.random() * 8,
-        height: 40 + Math.random() * 120,
-        layer: i % 3,
-        phase: Math.random() * Math.PI * 2,
-      });
-    }
-
-    for (let l = 0; l < 3; l++) {
-      const series: LinePoint[] = [];
-      for (let i = 0; i < 16; i++) {
-        series.push({
-          x: (width / 15) * i,
-          y: height * 0.35 + Math.sin(i * 0.5 + l) * 40,
-          layer: l,
+    const initNodes = (count: number) => {
+      nodes.length = 0; 
+      for (let i = 0; i < count; i++) {
+        // 3 depth layers: 0=far (slow), 1=mid, 2=near (fast) - parallax effect
+        const layer = Math.random() < 0.3 ? 0 : (Math.random() < 0.6 ? 1 : 2);
+        // Larger nodes: 3-7px for visibility
+        const radius = layer === 0 ? Math.random() * 2 + 2 : 
+                       layer === 1 ? Math.random() * 2.5 + 3 :
+                       Math.random() * 3 + 4;
+        // Drift speed based on layer (parallax: far=slow, near=fast)
+        const driftSpeed = layer === 0 ? 0.2 + Math.random() * 0.2 :
+                          layer === 1 ? 0.4 + Math.random() * 0.3 :
+                          0.6 + Math.random() * 0.4;
+        nodes.push({
+          x: Math.random() * (width + 200) - 100, // Spawn off-screen too
+          y: Math.random() * height,
+          vx: (Math.random() - 0.5) * 0.3, // Small random vertical movement
+          vy: (Math.random() - 0.5) * 0.3, // Small random horizontal movement
+          radius: radius,
+          baseRadius: radius,
+          layer: layer,
           phase: Math.random() * Math.PI * 2,
+          driftSpeed: driftSpeed,
+          color: getSpaceColor()
         });
       }
-      lines.push(series);
-    }
+    };
 
-    for (let i = 0; i < 60; i++) {
-      rain.push({
-        x: (i % 2 === 0 ? 0.05 : 0.95) * width + (Math.random() - 0.5) * 20,
-        y: Math.random() * height,
-        speed: 60 + Math.random() * 90,
-        len: 12 + Math.random() * 20,
-        offset: Math.random() * Math.PI * 2,
-      });
-    }
+    // More nodes for richer space experience
+    initNodes(Math.floor(80 * particleCountReduction));
 
-    const hexSize = 32;
-    for (let y = -hexSize; y < height + hexSize; y += hexSize * 0.86) {
-      for (let x = -hexSize; x < width + hexSize; x += hexSize * 1.5) {
-        const offset = (Math.floor(y / (hexSize * 0.86)) % 2) * (hexSize * 0.75);
-        hexes.push({ x: x + offset, y, r: hexSize });
+    const initSymbols = (count: number) => {
+      symbols.length = 0;
+      for (let i = 0; i < count; i++) {
+        symbols.push({
+          x: Math.random() * width,
+          y: Math.random() * height,
+          char: dataScienceSymbols[Math.floor(Math.random() * dataScienceSymbols.length)],
+          opacity: Math.random() * 0.5 + 0.35, // Slightly higher base opacity
+          speed: (Math.random() * 0.35) + 0.12, // Slightly slower for readability
+          phase: Math.random() * Math.PI * 2,
+          layer: Math.random() 
+        });
       }
-    }
+    };
+    
+    // Initialize with section-aware symbol count
+    initSymbols(getSectionSymbolCount(currentSection));
 
-    let lastMouseUpdate = 0;
-    const handleMouseMove = (e: MouseEvent) => {
-      const now = performance.now();
-      if (now - lastMouseUpdate < 16) return;
-      lastMouseUpdate = now;
-      targetMouse.x = e.clientX;
-      targetMouse.y = e.clientY;
+    const initStreams = (count: number) => {
+      streams.length = 0;
+      for (let i = 0; i < count; i++) {
+        createStream(i < count * 0.2);
+      }
     };
 
-    const handleMouseLeave = () => {
-      targetMouse.x = -1000;
-      targetMouse.y = -1000;
+    const createStream = (forceBinaryRain = false) => {
+      const typeRand = Math.random();
+      let type: DataStream['type'] = 'stream';
+      let x = Math.random() * width;
+      let y = Math.random() * height;
+      
+      if (forceBinaryRain || typeRand > 0.85) {
+        type = 'binary';
+        if (Math.random() > 0.5) x = Math.random() * (width * 0.1);
+        else x = width - Math.random() * (width * 0.1);
+        y = Math.random() * height;
+      } else if (typeRand > 0.7) {
+        type = 'bar';
+      } else if (typeRand > 0.6) {
+        type = 'scatter';
+      } else if (typeRand > 0.55) {
+        type = 'line';
+      }
+
+      const newStream: DataStream = {
+        x, y,
+        vx: type === 'line' ? 1 : 0,
+        vy: (Math.random() * 2) + 1,
+        opacity: Math.random() * 0.5 + 0.1, // Better visibility
+        type: type,
+        value: type === 'binary' ? (Math.random() > 0.5 ? '1' : '0') : undefined,
+        height: type === 'bar' ? Math.random() * 60 + 20 : undefined,
+        points: []
+      };
+
+      if (type === 'scatter') {
+        for (let k = 0; k < 10; k++) {
+          newStream.points?.push({
+            x: (Math.random() - 0.5) * 30, 
+            y: (Math.random() - 0.5) * 30
+          });
+        }
+      }
+
+      if (type === 'line') {
+        let ly = 0;
+        for (let k = 0; k < 20; k++) {
+          ly += (Math.random() - 0.5) * 10;
+          newStream.points?.push({ x: k * 5, y: ly });
+        }
+      }
+      
+      streams.push(newStream);
     };
 
-    let resizeTimeout: ReturnType<typeof setTimeout>;
+    initStreams(Math.floor(25 * particleCountReduction)); // Reduced stream count
+
     const handleResize = () => {
-      clearTimeout(resizeTimeout);
-      resizeTimeout = setTimeout(() => {
-        width = window.innerWidth;
-        height = window.innerHeight;
-        canvas.width = width * pixelRatio;
-        canvas.height = height * pixelRatio;
-        ctx.scale(pixelRatio, pixelRatio);
-      }, 150);
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    };
+    
+    const handleMouseMove = (e: MouseEvent) => {
+      mouseRef.current = { x: e.clientX, y: e.clientY };
     };
 
-    let paused = false;
-    const handleVisibility = () => {
-      paused = document.hidden;
-    };
-
-    document.addEventListener('visibilitychange', handleVisibility);
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseleave', handleMouseLeave);
     window.addEventListener('resize', handleResize);
+    window.addEventListener('mousemove', handleMouseMove);
 
-    let frame = 0;
+    let animationFrameId: number;
+    let time = 0;
+
     const draw = () => {
-      if (paused) {
-        requestAnimationFrame(draw);
+      if (!isVisibleRef.current) {
+        animationFrameId = requestAnimationFrame(draw);
         return;
       }
 
-      frame += 1;
-      mouse.x += (targetMouse.x - mouse.x) * 0.1;
-      mouse.y += (targetMouse.y - mouse.y) * 0.1;
-
       const theme = themeRef.current;
+      
+      // Reduce animation speed for users who prefer reduced motion
+      const timeIncrement = prefersReducedMotionRef.current ? 0.002 : 0.008;
+      time += timeIncrement;
 
-      // Draw background gradient first
-      const bgGrad = ctx.createLinearGradient(0, 0, width, height);
-      bgGrad.addColorStop(0, theme.gradient[0]);
-      bgGrad.addColorStop(1, theme.gradient[1]);
-      ctx.fillStyle = bgGrad;
+      // Deep, moody background gradient
+      const grad = ctx.createLinearGradient(0, 0, 0, height);
+      grad.addColorStop(0, theme.gradient[0]);
+      grad.addColorStop(0.5, theme.gradient[1]);
+      grad.addColorStop(1, theme.gradient[0]);
+      ctx.fillStyle = grad;
       ctx.fillRect(0, 0, width, height);
-
-      // Optional: add radial gradient overlay
-      const radGrad = ctx.createRadialGradient(width * 0.2, height * 0.2, 0, width * 0.5, height * 0.5, Math.max(width, height) * 0.8);
-      radGrad.addColorStop(0, `rgba(59, 130, 246, 0.08)`);
-      radGrad.addColorStop(1, 'rgba(0, 0, 0, 0.05)');
-      ctx.fillStyle = radGrad;
+      
+      // Motion trail effect - semi-transparent overlay for speed blur
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.08)';
       ctx.fillRect(0, 0, width, height);
-
-      ctx.save();
-      ctx.globalAlpha = 0.08;
-      ctx.strokeStyle = 'rgba(255,255,255,0.1)';
-      hexes.forEach((h) => {
-        ctx.beginPath();
-        for (let i = 0; i < 6; i++) {
-          const angle = Math.PI / 3 * i;
-          const x = h.x + h.r * Math.cos(angle);
-          const y = h.y + h.r * Math.sin(angle);
-          if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      
+      // Cosmic nebula smoke particles - adds depth to space
+      smokeParticles.forEach(smoke => {
+        smoke.x += smoke.vx + Math.sin(time * 0.5 + smoke.y * 0.01) * 0.2;
+        smoke.y += smoke.vy;
+        smoke.life += 1;
+        
+        // Reset smoke when it goes off screen or expires
+        if (smoke.y < -smoke.size || smoke.life > smoke.maxLife) {
+          smoke.x = Math.random() * width;
+          smoke.y = height + smoke.size;
+          smoke.life = 0;
+          smoke.opacity = Math.random() * 0.1 + 0.03;
         }
-        ctx.closePath();
-        ctx.stroke();
+        
+        // Fade based on life
+        const lifeFade = 1 - (smoke.life / smoke.maxLife) * 0.5;
+        const smokeGrad = ctx.createRadialGradient(
+          smoke.x, smoke.y, 0,
+          smoke.x, smoke.y, smoke.size
+        );
+        // Cosmic nebula colors - purples and blues
+        smokeGrad.addColorStop(0, `rgba(139, 92, 246, ${smoke.opacity * lifeFade * 0.7})`);
+        smokeGrad.addColorStop(0.3, `rgba(99, 102, 241, ${smoke.opacity * lifeFade * 0.4})`);
+        smokeGrad.addColorStop(0.6, `rgba(59, 130, 246, ${smoke.opacity * lifeFade * 0.2})`);
+        smokeGrad.addColorStop(1, 'rgba(30, 60, 100, 0)');
+        
+        ctx.fillStyle = smokeGrad;
+        ctx.beginPath();
+        ctx.arc(smoke.x, smoke.y, smoke.size, 0, Math.PI * 2);
+        ctx.fill();
       });
+      
+      // Subtle vignette effect
+      const vignetteGrad = ctx.createRadialGradient(
+        width / 2, height / 2, height * 0.2,
+        width / 2, height / 2, height * 0.9
+      );
+      vignetteGrad.addColorStop(0, 'rgba(0, 0, 0, 0)');
+      vignetteGrad.addColorStop(1, 'rgba(0, 0, 0, 0.4)');
+      ctx.fillStyle = vignetteGrad;
+      ctx.fillRect(0, 0, width, height);
+
+      // Subtle cosmic grid - space wireframe aesthetic
+      ctx.save();
+      ctx.strokeStyle = 'rgba(139, 92, 246, 0.02)';
+      ctx.lineWidth = 1;
+      const hexSize = 100;
+      for (let x = 0; x < width; x += hexSize) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, height);
+        ctx.stroke();
+      }
+      for (let y = 0; y < height; y += hexSize) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(width, y);
+        ctx.stroke();
+      }
       ctx.restore();
 
-      // Reset globalAlpha before drawing particles
-      ctx.globalAlpha = 1;
+      // Data streams - only if enabled for section
+      if (theme.dataStreams) {
+        for (let i = 0; i < streams.length; i++) {
+          const s = streams[i];
+          s.y += s.vy;
+          s.x += s.vx;
+          s.opacity = Math.max(0, s.opacity * 0.995); 
+          
+          if (s.y > height + 50 || s.opacity < 0.05) {
+            streams.splice(i, 1);
+            createStream(); 
+            i--;
+            continue;
+          }
 
-      scatter.forEach((p) => {
-        const shimmer = 0.01 * Math.sin(frame * 0.01 + p.x * 0.01 + p.y * 0.01);
-        ctx.fillStyle = `rgba(255,255,255,${(p.opacity + shimmer) * 1.3})`;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fill();
-      });
-
-      bars.forEach((b) => {
-        const h = b.height * (0.6 + Math.sin(frame * 0.015 + b.phase) * 0.3);
-        const baseY = height * 0.82 + (b.layer - 1) * 16;
-        ctx.fillStyle = 'rgba(59,130,246,0.12)';
-        ctx.fillRect(b.x, baseY - h, b.width, h);
-      });
-
-      lines.forEach((series) => {
-        ctx.beginPath();
-        series.forEach((pt, idx) => {
-          const y = pt.y + Math.sin(frame * 0.012 + pt.phase) * 14;
-          const x = pt.x;
-          if (idx === 0) ctx.moveTo(x, y);
-          else ctx.lineTo(x, y);
-        });
-        const hue = 210 + Math.sin(frame * 0.008) * 15;
-        ctx.strokeStyle = `hsla(${hue}, 75%, 55%, 0.22)`;
-        ctx.lineWidth = 1.2;
-        ctx.stroke();
-      });
-
-      rain.forEach((r, i) => {
-        const speed = r.speed * (0.65 + Math.sin(frame * 0.015 + r.offset) * 0.25);
-        r.y += speed * 0.016;
-        if (r.y - r.len > height) {
-          r.y = -r.len;
-        }
-        ctx.fillStyle = `rgba(91,33,182,${0.08 + 0.04 * Math.sin(frame * 0.04 + i)})`;
-        ctx.fillRect(r.x, r.y, 1.5, r.len);
-      });
-
-      nodes.forEach((n) => {
-        n.pulse += n.pulseSpeed;
-        const pulseScale = 0.8 + Math.sin(n.pulse) * 0.4;
-
-        n.x += n.vx * (0.3 + n.layer * 0.3);
-        n.y += n.vy * (0.3 + n.layer * 0.3);
-
-        if (n.x < -50) n.x = width + 50;
-        if (n.x > width + 50) n.x = -50;
-        if (n.y < -50) n.y = height + 50;
-        if (n.y > height + 50) n.y = -50;
-
-        const dx = n.x - mouse.x;
-        const dy = n.y - mouse.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < 200 && dist > 0) {
-          const force = (200 - dist) / 200;
-          n.x += (dx / dist) * force * 3;
-          n.y += (dy / dist) * force * 3;
-        }
-
-        const glowSize = n.baseSize * 10 * pulseScale;
-        const gradient = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, glowSize);
-        gradient.addColorStop(0, `rgba(59,130,246,0.5)`);
-        gradient.addColorStop(0.4, `rgba(91,33,182,0.35)`);
-        gradient.addColorStop(1, 'rgba(91,33,182,0.08)');
-        ctx.fillStyle = gradient;
-        ctx.beginPath();
-        ctx.arc(n.x, n.y, glowSize, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.fillStyle = 'rgba(255,255,255,0.8)';
-        ctx.beginPath();
-        ctx.arc(n.x, n.y, n.baseSize * pulseScale * (1.1 + n.layer * 0.25), 0, Math.PI * 2);
-        ctx.fill();
-      });
-
-      for (let i = 0; i < nodes.length; i++) {
-        for (let j = i + 1; j < nodes.length; j++) {
-          const a = nodes[i];
-          const b = nodes[j];
-          const dx = a.x - b.x;
-          const dy = a.y - b.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist > connectionDistance) continue;
-          const alpha = (1 - dist / connectionDistance) * 0.28;
-          const hueStart = theme.connectionHue[0];
-          const hueEnd = theme.connectionHue[1];
-          const grad = ctx.createLinearGradient(a.x, a.y, b.x, b.y);
-          grad.addColorStop(0, `hsla(${hueStart}, 75%, ${45 + theme.purpleBoost * 15}%, ${alpha})`);
-          grad.addColorStop(1, `hsla(${hueEnd}, 75%, ${45 + theme.purpleBoost * 15}%, ${alpha})`);
-          ctx.strokeStyle = grad;
-          ctx.lineWidth = 0.8 + a.layer * 0.15;
-          ctx.beginPath();
-          ctx.moveTo(a.x, a.y);
-          ctx.lineTo(b.x, b.y);
-          ctx.stroke();
-
-          const flow = (frame * 0.003 + (i % 10) * 0.1) % 1;
-          const fx = a.x + (b.x - a.x) * flow;
-          const fy = a.y + (b.y - a.y) * flow;
-          ctx.fillStyle = `rgba(255,255,255,${alpha * 0.5})`;
-          ctx.beginPath();
-          ctx.arc(fx, fy, 1.8, 0, Math.PI * 2);
-          ctx.fill();
-
-          if (theme.dataStreams && frame % 3 === 0) {
-            ctx.fillStyle = `rgba(91,33,182,${alpha * 0.35})`;
-            ctx.fillRect(fx, fy, 2.5, 2.5);
+          ctx.fillStyle = `rgba(139, 92, 246, ${s.opacity * 0.7})`; // Reduced opacity
+          ctx.strokeStyle = `rgba(139, 92, 246, ${s.opacity * 0.7})`;
+          
+          if (s.type === 'stream') {
+            ctx.fillRect(s.x, s.y, 2, 8);
+          } else if (s.type === 'binary') {
+            ctx.font = '11px monospace';
+            ctx.fillText(s.value || '1', s.x, s.y);
+            if (Math.random() > 0.95) s.value = s.value === '1' ? '0' : '1';
+          } else if (s.type === 'bar') {
+            const barH = (s.height || 20) * (0.5 + 0.5 * Math.sin(time * 5 + s.x));
+            ctx.fillRect(s.x, s.y, 6, barH);
+          } else if (s.type === 'scatter' && s.points) {
+            s.points.forEach(p => {
+              ctx.beginPath();
+              ctx.arc(s.x + p.x, s.y + p.y, 1.5, 0, Math.PI * 2);
+              ctx.fill();
+            });
+          } else if (s.type === 'line' && s.points) {
+            ctx.beginPath();
+            ctx.moveTo(s.x + s.points[0].x, s.y + s.points[0].y);
+            for (let k = 1; k < s.points.length; k++) {
+              ctx.lineTo(s.x + s.points[k].x, s.y + s.points[k].y);
+            }
+            ctx.stroke();
           }
         }
       }
 
-      if (theme.spotlight) {
-        const grad = ctx.createRadialGradient(width * 0.5, height * 0.55, 40, width * 0.5, height * 0.55, Math.max(width, height));
-        grad.addColorStop(0, 'rgba(0,0,0,0)');
-        grad.addColorStop(1, 'rgba(0,0,0,0.35)');
-        ctx.fillStyle = grad;
+      // Data Science symbols with cosmic colors - floating through space
+      ctx.font = 'bold 18px "JetBrains Mono", "Fira Code", monospace';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      
+      // Cosmic symbol colors (matching nodes)
+      const symbolColors = [
+        'rgba(139, 92, 246,',  // Purple
+        'rgba(59, 130, 246,',  // Blue
+        'rgba(167, 139, 250,', // Light purple
+        'rgba(99, 102, 241,',  // Indigo
+        'rgba(56, 189, 248,',  // Cyan
+      ];
+      
+      symbols.forEach((s, idx) => {
+        // Drift horizontally like nodes (space travel effect)
+        s.x += 0.4 + s.layer * 0.3; 
+        s.y -= s.speed * (1 + Math.sin(time + s.phase) * 0.2);
+        s.x += Math.sin(time * 0.3 + s.phase) * 0.4; 
+        
+        // Wrap around when going off screen
+        if (s.x > width + 40) {
+          s.x = -40;
+          s.y = Math.random() * height;
+          s.char = dataScienceSymbols[Math.floor(Math.random() * dataScienceSymbols.length)];
+        }
+        if (s.y < -40) {
+          s.y = height + 40;
+          s.x = Math.random() * width;
+          s.char = dataScienceSymbols[Math.floor(Math.random() * dataScienceSymbols.length)];
+        }
+        
+        // Parallax opacity - farther = dimmer
+        const parallaxOpacity = s.opacity * (0.5 + s.layer * 0.4);
+        
+        // Cycle through cosmic colors
+        const colorBase = symbolColors[idx % symbolColors.length];
+        const color = `${colorBase} ${parallaxOpacity})`;
+        
+        // Enhanced purple glow effect on symbols - REDUCED
+        ctx.shadowBlur = 8;
+        ctx.shadowColor = `rgba(139, 92, 246, ${parallaxOpacity * 0.5})`;
+        ctx.fillStyle = color;
+        ctx.fillText(s.char, s.x, s.y);
+        ctx.shadowBlur = 0;
+      });
+
+      // Cosmic space nodes & connections
+      const targetNodeCount = Math.floor(80 * theme.particleDensityMultiplier * particleCountReduction);
+      
+      if (nodes.length < targetNodeCount) {
+        for (let k = 0; k < targetNodeCount - nodes.length; k++) {
+          const layer = Math.random() < 0.3 ? 0 : (Math.random() < 0.6 ? 1 : 2);
+          const radius = layer === 0 ? Math.random() * 2 + 2 : 
+                         layer === 1 ? Math.random() * 2.5 + 3 :
+                         Math.random() * 3 + 4;
+          const driftSpeed = layer === 0 ? 0.2 + Math.random() * 0.2 :
+                            layer === 1 ? 0.4 + Math.random() * 0.3 :
+                            0.6 + Math.random() * 0.4;
+          nodes.push({
+            x: -100, // Spawn from left edge
+            y: Math.random() * height,
+            vx: (Math.random() - 0.5) * 0.3, 
+            vy: (Math.random() - 0.5) * 0.3,
+            radius: radius, 
+            baseRadius: radius, 
+            layer, 
+            phase: Math.random() * Math.PI * 2,
+            driftSpeed: driftSpeed,
+            color: getSpaceColor()
+          });
+        }
+      } else if (nodes.length > targetNodeCount) {
+        nodes.splice(targetNodeCount);
+      }
+
+      nodes.forEach((node, i) => {
+        // Pulsing animation - size oscillates with sine wave
+        const pulse = 1 + 0.25 * Math.sin(time * 2.5 + node.phase); 
+        const currentRadius = node.baseRadius * pulse;
+        
+        // Space drift - continuous horizontal movement (left to right, parallax)
+        node.x += node.driftSpeed;
+        
+        // Small random movement for organic feel
+        node.x += node.vx;
+        node.y += node.vy;
+        
+        // Wrap horizontally (seamless loop for space travel effect)
+        if (node.x > width + 100) {
+          node.x = -100;
+          node.y = Math.random() * height;
+          node.color = getSpaceColor(); // New color on respawn
+        }
+        
+        // Bounce vertically (stay on screen)
+        if (node.y < 0 || node.y > height) {
+          node.vy *= -1;
+          node.y = Math.max(0, Math.min(height, node.y));
+        }
+
+        // Mouse attraction/interaction - creates subtle pull
+        const dx = mouseRef.current.x - node.x;
+        const dy = mouseRef.current.y - node.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const repulsionRadius = 250;
+        
+        if (dist < repulsionRadius) {
+          const force = (repulsionRadius - dist) / repulsionRadius;
+          node.x -= (dx / dist) * force * 0.8;
+          node.y -= (dy / dist) * force * 0.8;
+        }
+
+        // Draw cosmic connections with gradient lines
+        for (let j = i + 1; j < nodes.length; j++) {
+          const nodeB = nodes[j];
+          const cdx = node.x - nodeB.x;
+          const cdy = node.y - nodeB.y;
+          const cdist = Math.sqrt(cdx * cdx + cdy * cdy);
+          
+          const maxDistance = 180; // Extended connection range
+          if (cdist < maxDistance) {
+            // Opacity fades with distance - REDUCED for text visibility
+            const alpha = (1 - cdist / maxDistance) * 0.18;
+            
+            // Gradient line between nodes for depth effect
+            const lineGrad = ctx.createLinearGradient(
+              node.x, node.y, nodeB.x, nodeB.y
+            );
+            lineGrad.addColorStop(0, node.color.replace('0.9', String(alpha)));
+            lineGrad.addColorStop(1, nodeB.color.replace('0.9', String(alpha)));
+            
+            ctx.lineWidth = 1.5; // Thicker lines for visibility
+            ctx.strokeStyle = lineGrad;
+            ctx.beginPath();
+            ctx.moveTo(node.x, node.y);
+            ctx.lineTo(nodeB.x, nodeB.y);
+            ctx.stroke();
+          }
+        }
+
+        // Glow intensity based on depth layer - REDUCED for text visibility
+        const glowIntensity = node.layer === 0 ? 5 : node.layer === 1 ? 10 : 15;
+        
+        // Draw outer glow halo first - REDUCED opacity
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, currentRadius * 2.5, 0, Math.PI * 2);
+        ctx.fillStyle = node.color.replace('0.9', '0.06');
+        ctx.fill();
+        
+        // Draw glow effect using shadowBlur
+        ctx.shadowBlur = glowIntensity;
+        ctx.shadowColor = node.color;
+        
+        // Draw main node with cosmic gradient
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, currentRadius, 0, Math.PI * 2);
+        
+        const gradient = ctx.createRadialGradient(
+          node.x, node.y, 0, 
+          node.x, node.y, currentRadius
+        );
+        gradient.addColorStop(0, node.color.replace('0.9', '1')); // Bright core
+        gradient.addColorStop(0.6, node.color); 
+        gradient.addColorStop(1, node.color.replace('0.9', '0.4'));
+        
+        ctx.fillStyle = gradient;
+        ctx.fill();
+        
+        // Reset shadow for other drawings
+        ctx.shadowBlur = 0;
+      });
+
+      // Cosmic spotlight effect following mouse - REDUCED opacity
+      if (theme.spotlightEffect) {
+        const spotGrad = ctx.createRadialGradient(
+          mouseRef.current.x, mouseRef.current.y, 0,
+          mouseRef.current.x, mouseRef.current.y, 450
+        );
+        spotGrad.addColorStop(0, 'rgba(139, 92, 246, 0.06)');
+        spotGrad.addColorStop(0.4, 'rgba(99, 102, 241, 0.03)');
+        spotGrad.addColorStop(0.7, 'rgba(59, 130, 246, 0.01)');
+        spotGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        ctx.fillStyle = spotGrad;
         ctx.fillRect(0, 0, width, height);
       }
 
-      requestAnimationFrame(draw);
+      animationFrameId = requestAnimationFrame(draw);
     };
 
     draw();
 
     return () => {
-      clearTimeout(resizeTimeout);
-      document.removeEventListener('visibilitychange', handleVisibility);
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseleave', handleMouseLeave);
       window.removeEventListener('resize', handleResize);
+      window.removeEventListener('mousemove', handleMouseMove);
+      cancelAnimationFrame(animationFrameId);
     };
-  }, [prefersReducedMotion]);
+  }, []);
 
   useEffect(() => {
-    if (prefersReducedMotion || heavyDisabledRef.current) return;
-    const container = symbolsRef.current;
-    if (!container) return;
-
-    let timer = 0;
-    let raf = 0;
-    const active: Array<{ el: HTMLSpanElement; removeAt: number; drift: number; rot: number; depth: number; }> = [];
-
-    const spawn = () => {
-      if (!container) return;
-      const el = document.createElement('span');
-      el.textContent = SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)];
-      const lifespan = 5000 + Math.random() * 3000;
-      const depth = 0.4 + Math.random() * 0.6;
-      el.style.position = 'absolute';
-      el.style.left = `${Math.random() * 100}%`;
-      el.style.top = `${Math.random() * 100}%`;
-      el.style.fontSize = `${12 + Math.random() * 16}px`;
-      el.style.opacity = '0';
-      el.style.filter = 'blur(2px)';
-      el.style.color = 'rgba(255,255,255,0.8)';
-      el.style.setProperty('--hb-opacity', `${0.2 + Math.random() * 0.4}`);
-      el.style.animation = `hb-fade ${lifespan}ms ease-in-out forwards, hb-float ${3500 + Math.random() * 2000}ms ease-in-out infinite`;
-      el.style.transformOrigin = 'center';
-      el.style.pointerEvents = 'none';
-      el.style.backfaceVisibility = 'hidden';
-      container.appendChild(el);
-      active.push({ el, removeAt: performance.now() + lifespan, drift: 6 + Math.random() * 8, rot: Math.random() * 0.6 - 0.3, depth });
+    const handleScroll = () => {
+      const scrollY = window.scrollY;
+      const height = window.innerHeight;
+      
+      const aboutPos = document.getElementById('about')?.offsetTop || height;
+      const expPos = document.getElementById('experience')?.offsetTop || height * 2;
+      const projPos = document.getElementById('projects')?.offsetTop || height * 3;
+      const certPos = document.getElementById('certifications')?.offsetTop || height * 4;
+      const contactPos = document.getElementById('contact')?.offsetTop || height * 5;
+      
+      const buffer = height * 0.3;
+      
+      if (scrollY < aboutPos - buffer) setCurrentSection('hero');
+      else if (scrollY < expPos - buffer) setCurrentSection('about');
+      else if (scrollY < projPos - buffer) setCurrentSection('experience');
+      else if (scrollY < certPos - buffer) setCurrentSection('projects');
+      else if (scrollY < contactPos - buffer) setCurrentSection('certifications');
+      else setCurrentSection('contact');
     };
 
-    const tick = () => {
-      const now = performance.now();
-      active.forEach((item) => {
-        const t = now * 0.001;
-        const dx = Math.sin(t * 0.6) * item.drift;
-        const dy = Math.cos(t * 0.7) * item.drift;
-        const translateY = window.scrollY * 0.04 * item.depth;
-        item.el.style.transform = `translate(${dx}px, ${dy + translateY}px) rotate(${item.rot}rad)`;
-      });
-      for (let i = active.length - 1; i >= 0; i--) {
-        if (active[i].removeAt <= now) {
-          active[i].el.remove();
-          active.splice(i, 1);
-        }
-      }
-      raf = requestAnimationFrame(tick);
-    };
-
-    tick();
-
-    const schedule = () => {
-      spawn();
-      const interval = 2000 + Math.random() * 1000;
-      timer = window.setTimeout(schedule, interval);
-    };
-
-    schedule();
-
-    return () => {
-      window.clearTimeout(timer);
-      cancelAnimationFrame(raf);
-      active.forEach((item) => item.el.remove());
-      active.length = 0;
-    };
-  }, [prefersReducedMotion]);
-
-  useEffect(() => {
-    const el = gradientRef.current;
-    if (!el) return;
-    let raf = 0;
-    const theme = themeRef.current;
-    el.style.background = `radial-gradient(circle at 30% 30%, ${theme.gradient[0]} 0%, transparent 35%), linear-gradient(135deg, ${theme.gradient[0]} 0%, ${theme.gradient[1]} 100%)`;
-    return () => cancelAnimationFrame(raf);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   return (
-    <div className={join('fixed inset-0 w-full h-full overflow-hidden pointer-events-none', className)} style={{ zIndex: 0 }}>
-      <style dangerouslySetInnerHTML={{ __html: symbolStyle }} />
-      <div ref={gradientRef} className="absolute inset-0" aria-hidden />
-      <canvas 
-        ref={canvasRef} 
-        className="absolute inset-0 w-full h-full" 
-        aria-hidden
-        style={{ background: `linear-gradient(135deg, #0b1221, #0d1f37)` }}
-      />
-      <div ref={symbolsRef} className="absolute inset-0" aria-hidden />
-      <div
-        aria-hidden
-        className="absolute inset-0"
-        style={{
-          background: 'radial-gradient(circle at 50% 120%, rgba(91,33,182,0.12), transparent 45%)',
-          mixBlendMode: 'screen',
-        }}
-      />
-    </div>
+    <canvas 
+      ref={canvasRef} 
+      className={`fixed inset-0 z-0 pointer-events-none ${className || ''}`}
+      aria-hidden="true"
+    />
   );
 }

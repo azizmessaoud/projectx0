@@ -14,7 +14,7 @@ export function Section({ children, className, delay = 0, ...props }: SectionPro
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-100px" }}
       transition={{ duration: 0.6, delay, ease: "easeOut" }}
-      className={cn("py-20 md:py-32 container mx-auto px-4 md:px-6", className)}
+      className={cn("py-20 md:py-32 container mx-auto px-4 md:px-6 relative z-10", className)}
       {...props}
     >
       {children}

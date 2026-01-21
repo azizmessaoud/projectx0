@@ -33,36 +33,22 @@ export function createHeroTimeline() {
     );
   }
 
-  // Title clip-path reveal (left to right)
-  const titleExists = gsap.utils.toArray('.hero-title').length;
-  if (titleExists) {
-    tl.from('.hero-title', {
-      clipPath: 'polygon(0% 0%, 0% 0%, 0% 100%, 0% 100%)',
-      duration: DURATION.verySlow,
-    });
-  }
+  // Title and description are now handled by Framer Motion in hero.tsx
+  // to avoid conflicts with SplitType animation
 
-  // Gradient text shimmer
+  // Gradient text shimmer - only animate backgroundPosition, not visibility
   const gradientExists = gsap.utils.toArray('.hero-gradient-text').length;
   if (gradientExists) {
-    tl.from(
+    tl.to(
       '.hero-gradient-text',
       {
-        backgroundPosition: '-200% center',
+        backgroundPosition: '200% center',
         duration: DURATION.verySlow,
+        repeat: -1,
+        ease: 'none',
       },
-      '-=0.5'
+      0
     );
-  }
-
-  // Description blur-in
-  const descExists = gsap.utils.toArray('.hero-description').length;
-  if (descExists) {
-    tl.from('.hero-description', {
-      filter: 'blur(10px)',
-      opacity: 0,
-      duration: DURATION.normal,
-    });
   }
 
   // CTA buttons stagger

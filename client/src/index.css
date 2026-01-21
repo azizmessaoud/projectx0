@@ -25,7 +25,7 @@
   --color-secondary-foreground: hsl(211 61% 10%);
 
   --color-muted: hsl(214 52% 20%);
-  --color-muted-foreground: hsl(215 20% 75%);
+  --color-muted-foreground: hsl(215 20% 80%);
 
   --color-accent: hsl(214 52% 25%);
   --color-accent-foreground: hsl(210 40% 98%);
@@ -79,8 +79,13 @@
     50% { background-position: 100% 50%; }
     100% { background-position: 0% 50%; }
   }
+  @keyframes gradient {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
   --animate-shake: shake 0.5s ease-in-out;
   --animate-gradient-border: gradient-border 3s ease infinite;
+  --animate-gradient: gradient 3s ease infinite;
 }
 
 @layer base {
@@ -100,6 +105,17 @@
   }
   h1, h2, h3, h4, h5, h6 {
     @apply font-heading tracking-tight;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+  }
+  
+  /* Text visibility enhancement */
+  p, span, a, button {
+    position: relative;
+    z-index: 10;
+  }
+  
+  p {
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
   }
   
   /* Custom Scrollbar */
@@ -126,4 +142,74 @@
   .text-gradient {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-primary via-secondary to-primary animate-gradient-x;
   }
+}
+
+/* Respect user's reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  .animate-gradient,
+  .animate-gradient-x,
+  .animate-pulse,
+  .animate-shimmer {
+    animation: none !important;
+  }
+}
+
+/* Custom Cursor - Hide default cursor on desktop */
+@media (hover: hover) and (pointer: fine) {
+  * {
+    cursor: none !important;
+  }
+  
+  /* Show text cursor on inputs */
+  input, 
+  textarea, 
+  select,
+  [contenteditable="true"] {
+    cursor: text !important;
+  }
+}
+
+/* Disable custom cursor on mobile/touch devices */
+@media (hover: none) and (pointer: coarse) {
+  * {
+    cursor: auto !important;
+  }
+  
+  .custom-cursor-ring,
+  .custom-cursor-dot {
+    display: none !important;
+  }
+}
+
+/* Smooth cursor transitions */
+.custom-cursor-ring {
+  will-change: transform, width, height;
+}
+
+.custom-cursor-dot {
+  will-change: transform, opacity;
+}
+
+/* Tech chip magnetic target styling */
+.tech-chip {
+  cursor: none !important;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.tech-chip:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+}
+
+.magnetic-target {
+  cursor: none !important;
 }
