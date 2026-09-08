@@ -56,6 +56,9 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--primary); outli
 
 .ledger-rail { position: fixed; z-index: 8; left: 12px; top: 48%; display: flex; align-items: center; gap: 14px; color: rgba(145, 168, 187, .55); font-family: "JetBrains Mono", monospace; font-size: 8px; letter-spacing: .14em; writing-mode: vertical-rl; transform: rotate(180deg); pointer-events: none; }
 .ledger-rail i { display: block; width: 1px; height: 70px; background: linear-gradient(#42b7ff, transparent); }
+.ledger-current { color: #42b7ff; text-shadow: 0 0 12px rgba(66,183,255,.35); transition: color .2s ease; }
+.network-hint { position: absolute; z-index: 3; right: 34px; bottom: 26px; display: inline-flex; align-items: center; gap: 8px; padding: 8px 10px; border: 1px solid rgba(157,212,244,.14); background: rgba(6,17,29,.45); color: #91a8bb; font-family: "JetBrains Mono", monospace; font-size: 9px; letter-spacing: .08em; text-transform: uppercase; backdrop-filter: blur(8px); }
+.network-hint .live-dot { width: 5px; height: 5px; }
 .hero-section { position: relative; min-height: 760px; padding-top: 78px; display: flex; align-items: center; border-bottom: 1px solid rgba(157, 212, 244, .1); }
 .hero-network { position: absolute; inset: 78px 0 0 38%; opacity: .75; pointer-events: none; mask-image: linear-gradient(90deg, transparent, black 16%, black 100%); }
 .hero-network::before { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, #06111d 0%, rgba(6, 17, 29, .55) 24%, transparent 60%), radial-gradient(circle at 55% 45%, rgba(32, 121, 178, .12), transparent 30rem); z-index: 1; }
@@ -171,6 +174,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--primary); outli
   .menu-toggle { display: block; }
   .hero-section { min-height: 700px; }
   .ledger-rail { display: none; }
+  .network-hint { right: 20px; bottom: 16px; font-size: 8px; }
   .hero-network { left: 0; opacity: .45; mask-image: linear-gradient(180deg, transparent, black 15%, black 75%, transparent); }
   .hero-grid, .section-heading, .about-grid, .contact-inner { grid-template-columns: 1fr; gap: 40px; }
   .hero-grid { padding-top: 50px; }

@@ -1,5 +1,5 @@
 /* Signal Atelier style: evidence-first editorial layout with a technical rail, restrained motion, and a living neural field behind the hero. */
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowUpRight, Download, ExternalLink, Github, Linkedin, Mail, MapPin, Menu, X } from "lucide-react";
 import NeuralField from "@/components/NeuralField";
@@ -20,6 +20,24 @@ function scrollToId(id: string) {
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [filter, setFilter] = useState<"all" | "flagship" | "supporting">("all");
+  const [activeSection, setActiveSection] = useState("01 / PROFILE");
+
+  useEffect(() => {
+    const sections = [
+      ["top", "01 / PROFILE"],
+      ["work", "02 / SELECTED WORK"],
+      ["approach", "03 / HOW I WORK"],
+      ["about", "04 / ABOUT"],
+      ["certifications", "05 / CERTIFICATIONS"],
+      ["contact", "06 / CONTACT"],
+    ] as const;
+    const observer = new IntersectionObserver((entries) => {
+      const visible = entries.filter((entry) => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+      if (visible) setActiveSection(sections.find(([id]) => id === visible.target.id)?.[1] ?? "01 / PROFILE");
+    }, { rootMargin: "-24% 0px -58% 0px", threshold: [0.1, 0.35, 0.7] });
+    sections.forEach(([id]) => { const element = document.getElementById(id); if (element) observer.observe(element); });
+    return () => observer.disconnect();
+  }, []);
   const visibleProjects = useMemo(() => filter === "all" ? projects : projects.filter((project) => filter === "flagship" ? project.number < "04" : project.number >= "04"), [filter]);
 
   return (
@@ -36,9 +54,9 @@ export default function Home() {
         <button className="menu-toggle" onClick={() => setMenuOpen((open) => !open)} aria-label="Toggle navigation" aria-expanded={menuOpen}>{menuOpen ? <X size={21} /> : <Menu size={21} />}</button>
       </header>
 
-      <main id="top"><div className="ledger-rail" aria-hidden="true"><span>AZ / FIELD NOTES</span><i /><span>DATA → MODEL → SYSTEM</span></div>
+      <main id="top"><div className="ledger-rail" aria-live="polite"><span className="ledger-current">{activeSection}</span><i /><span>DATA → MODEL → SYSTEM</span></div>
         <section className="hero-section">
-          <div className="hero-network"><NeuralField /><div className="network-scanline" /></div>
+          <div className="hero-network"><NeuralField /><div className="network-scanline" /><div className="network-hint"><span className="live-dot" /> Move to wake · click to send signal</div></div>
           <div className="hero-content container">
             <div className="hero-kicker"><span className="live-dot" /> Available for a 2027 PFE · Ariana, Tunisia</div>
             <div className="hero-grid">
@@ -80,7 +98,7 @@ export default function Home() {
 
         <section id="about" className="about-section container section-block"><div className="about-grid"><div><p className="section-index">04 / ABOUT</p><h2>Curious by default.<br /><em>Rigorous by practice.</em></h2><p className="about-copy">I am a Computer Engineering student at ESPRIT specializing in Data Science. My direction follows a clear progression from data science foundations and machine learning to AI engineering, production systems, and agentic workflows.</p><p className="about-copy">I am strengthening probability and statistics, algorithms, system design, microservices, and MLOps while continuing to build practical projects in NLP, generative AI, document intelligence, search intelligence, and analytics.</p></div><div className="skill-panel"><span className="mono-label">/ WORKING TOOLKIT</span><div className="skill-cloud">{skills.map((skill) => <span key={skill}>{skill}</span>)}</div><div className="about-details"><div><span className="mono-label">EDUCATION</span><p>Data Science Engineering<br />ESPRIT · Expected 2027</p></div><div><span className="mono-label">LANGUAGES</span><p>Arabic · French · English</p></div></div></div></div></section>
 
-        <section className="cert-section section-block"><div className="container"><div className="section-heading"><div><p className="section-index">05 / CERTIFICATIONS</p><h2>Learning, indexed.</h2></div><p className="section-intro">A living record of the foundations supporting the work—not a substitute for the work itself.</p></div><div className="cert-grid">{certificates.map((cert, index) => <div className="cert-item" key={cert.title}><span className="cert-number">0{index + 1}</span><div><h3>{cert.title}</h3><p>{cert.issuer} · {cert.year}</p></div><ArrowUpRight size={15} /></div>)}</div></div></section>
+        <section id="certifications" className="cert-section section-block"><div className="container"><div className="section-heading"><div><p className="section-index">05 / CERTIFICATIONS</p><h2>Learning, indexed.</h2></div><p className="section-intro">A living record of the foundations supporting the work—not a substitute for the work itself.</p></div><div className="cert-grid">{certificates.map((cert, index) => <div className="cert-item" key={cert.title}><span className="cert-number">0{index + 1}</span><div><h3>{cert.title}</h3><p>{cert.issuer} · {cert.year}</p></div><ArrowUpRight size={15} /></div>)}</div></div></section>
 
         <section id="contact" className="contact-section section-block"><div className="container contact-inner"><div><p className="section-index">06 / CONTACT</p><h2>Have a real problem<br /><em>worth investigating?</em></h2><p className="contact-copy">I am looking for a PFE where I can contribute to a serious Data Science, ML engineering, AI engineering, agentic AI, or research project.</p></div><div className="contact-card"><a href={`mailto:${profile.email}`} className="contact-email">{profile.email} <ArrowUpRight size={18} /></a><div className="contact-links"><a href={profile.links.linkedin} target="_blank" rel="noreferrer"><Linkedin size={16} /> LinkedIn</a><a href={profile.links.github} target="_blank" rel="noreferrer"><Github size={16} /> GitHub</a><a href={cvUrl} download="Aziz_Messaoud_CV.pdf"><Download size={16} /> Download CV</a></div><p className="contact-location"><MapPin size={15} /> {profile.location}</p></div></div></section>
       </main>

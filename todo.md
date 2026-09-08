@@ -10,4 +10,13 @@
 - [x] Improve the homepage visual hierarchy, typography, project cards, navigation, and responsive layout.
 - [x] Add or correct verified project links without inventing private URLs.
 - [x] Run type-check/build validation and verify desktop/mobile screenshots.
-- [ ] Save a checkpoint before delivery and document how to update projects and certificates later.
+- [x] Save a checkpoint before delivery and document how to update projects and certificates later.
+- [x] Clone and inspect the supplied UI/UX Pro Max skill repository.
+- [x] Extract only the applicable UI/UX recommendations: keep the visual system coherent, use purposeful hover/focus states, preserve mobile-first responsive behavior, use clear project affordances, and keep accessibility visible rather than decorative.
+- [x] Make the neural-network background visibly interactive with pointer attraction, click activation, pulse propagation, and quality fallbacks.
+- [x] Apply the selected design refinements without weakening the Signal Atelier direction.
+- [x] Defer LinkedIn review; Aziz will update LinkedIn manually later.
+- [x] Add section index numbers to the persistent banner/ledger as the user scrolls.
+- [x] Leave LinkedIn-derived portfolio content unchanged until verified manually.
+- [x] Re-run type-check/build and verify desktop/mobile interaction behavior.
+- [ ] Save a new checkpoint for the neural-network enhancement.
