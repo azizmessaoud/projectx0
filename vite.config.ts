@@ -1,4 +1,3 @@
-import { jsxLocPlugin } from "@builder.io/vite-plugin-jsx-loc";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import fs from "node:fs";
@@ -98,6 +97,19 @@ function vitePluginManusDebugCollector(): Plugin {
     },
 
     configureServer(server: ViteDevServer) {
+      const debugCollectorPath = path.resolve(__dirname, "client/tools/debug-collector.js");
+
+      server.middlewares.use("/__manus__/debug-collector.js", (_req, res, next) => {
+        try {
+          const content = fs.readFileSync(debugCollectorPath, "utf-8");
+          res.writeHead(200, { "Content-Type": "application/javascript" });
+          res.end(content);
+        } catch {
+          res.writeHead(404, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ success: false, error: "debug-collector not found" }));
+        }
+      });
+
       // POST /__manus__/logs: Browser sends logs (written directly to files)
       server.middlewares.use("/__manus__/logs", (req, res, next) => {
         if (req.method !== "POST") {
@@ -203,10 +215,18 @@ function vitePluginStorageProxy(): Plugin {
   };
 }
 
-const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime(), vitePluginManusDebugCollector(), vitePluginStorageProxy()];
+const isProduction = process.env.NODE_ENV === "production";
+const plugins = [
+  react(),
+  tailwindcss(),
+  ...(isProduction ? [] : [vitePluginManusRuntime()]),
+  vitePluginManusDebugCollector(),
+  vitePluginStorageProxy(),
+];
 
 export default defineConfig({
   plugins,
+  base: "/",
   resolve: {
     alias: {
       "@": path.resolve(import.meta.dirname, "client", "src"),
@@ -219,6 +239,18 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        manualChunks(id: string) {
+          if (!id.includes("node_modules")) return;
+          if (id.includes("react-dom") || id.includes("/react/") || id.includes("scheduler")) return "react-vendor";
+          if (id.includes("framer-motion") || id.includes("motion-dom") || id.includes("motion-utils") || id.includes("/motion/")) return "motion-vendor";
+          if (id.includes("lucide")) return "lucide-vendor";
+          if (id.includes("@radix-ui") || id.includes("radix")) return "radix-vendor";
+          return "vendor";
+        },
+      },
+    },
   },
   server: {
     port: 3000,
