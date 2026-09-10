@@ -2,12 +2,17 @@
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
-import { Route, Switch } from "wouter";
+import { Route, Router as WouterRouter, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 
-function Router() {
+// Vite's relative base allows this bundle to be served from either the custom
+// domain root or the GitHub Pages project subpath. Derive Wouter's base from
+// the emitted entry chunk so `/new-ui/` maps to the application's `/` route.
+const routerBase = new URL(import.meta.url).pathname.replace(/\/assets\/[^/]+$/, "/");
+
+function Routes() {
   return (
     <Switch>
       <Route path="/" component={Home} />
@@ -23,7 +28,9 @@ export default function App() {
       <ThemeProvider defaultTheme="dark">
         <TooltipProvider>
           <Toaster />
-          <Router />
+          <WouterRouter base={routerBase}>
+            <Routes />
+          </WouterRouter>
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>
