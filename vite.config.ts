@@ -219,8 +219,7 @@ const isProduction = process.env.NODE_ENV === "production";
 const plugins = [
   react(),
   tailwindcss(),
-  ...(isProduction ? [] : [vitePluginManusRuntime()]),
-  vitePluginManusDebugCollector(),
+  ...(isProduction ? [] : [vitePluginManusRuntime(), vitePluginManusDebugCollector()]),
   vitePluginStorageProxy(),
 ];
 

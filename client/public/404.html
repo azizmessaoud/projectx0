@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="robots" content="noindex" />
+    <title>Aziz Messaoud — Data Science Portfolio</title>
+    <script>
+      const path = window.location.pathname;
+      const base = path.startsWith('/new-ui') ? '/new-ui' : '';
+      window.location.replace(`${base}/?redirect=${encodeURIComponent(path.replace(base, ''))}${window.location.search ? `&${window.location.search.slice(1)}` : ''}${window.location.hash}`);
+    </script>
+  </head>
+  <body></body>
+</html>
