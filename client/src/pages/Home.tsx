@@ -57,6 +57,7 @@ function ProjectSwirl({ number }: { number: string }) {
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [filter, setFilter] = useState<"all" | "flagship" | "supporting">("all");
+  const [animationPaused, setAnimationPaused] = useState(false);
 
   const visibleProjects = useMemo(() => filter === "all" ? projects : projects.filter((project) => filter === "flagship" ? project.featured : !project.featured), [filter]);
 
@@ -76,7 +77,15 @@ export default function Home() {
 
       <main>
         <section id="top" className="hero-section">
-          <div className="hero-network"><Suspense fallback={<div className="network-scanline" />}><NeuralField /></Suspense><div className="network-scanline" /><div className="network-hint"><span className="live-dot" /> Move to wake · click to send signal</div></div>
+          <div className="hero-network">
+            <Suspense fallback={<div className="network-scanline" />}><NeuralField paused={animationPaused} /></Suspense>
+            <div className="network-scanline" />
+            <p className="sr-only">Interactive background animation. It is decorative and can be ignored.</p>
+            <div className="network-controls">
+              <div className="network-hint"><span className="live-dot" /> Move to wake · click to send signal</div>
+              <button className="animation-toggle" type="button" aria-pressed={animationPaused} onClick={() => setAnimationPaused((paused) => !paused)}>{animationPaused ? "Play animation" : "Pause animation"}</button>
+            </div>
+          </div>
           <div className="hero-content container">
             <div className="hero-kicker"><span className="live-dot" /> Available for a 2027 PFE — a 6-month end-of-studies internship · Ariana, Tunisia</div>
             <div className="hero-grid">
