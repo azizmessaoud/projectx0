@@ -238,17 +238,10 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    // Keep Vite’s default dependency ordering. The previous manual React/Radix
+    // split created a circular chunk graph and failed at runtime on GitHub Pages.
     rollupOptions: {
-      output: {
-        manualChunks(id: string) {
-          if (!id.includes("node_modules")) return;
-          if (id.includes("react-dom") || id.includes("/react/") || id.includes("scheduler")) return "react-vendor";
-          if (id.includes("framer-motion") || id.includes("motion-dom") || id.includes("motion-utils") || id.includes("/motion/")) return "motion-vendor";
-          if (id.includes("lucide")) return "lucide-vendor";
-          if (id.includes("@radix-ui") || id.includes("radix")) return "radix-vendor";
-          return "vendor";
-        },
-      },
+      output: {},
     },
   },
   server: {
