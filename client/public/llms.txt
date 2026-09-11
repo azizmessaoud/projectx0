@@ -1,12 +1,11 @@
 # Aziz Messaoud
-Data Science Student & AI Systems Builder
+Data Science Student & AI Systems
 
 ## Identity
-Aziz Messaoud is a Data Science student at ESPRIT in Tunisia focused on practical AI systems, machine learning, NLP, and AI engineering. He bridges the gap between research exploration and production-ready applications.
+Aziz Messaoud is a Data Science student at ESPRIT in Tunisia focused on practical AI systems, machine learning, NLP, and AI engineering. He bridges the gap between research exploration and reliable applications.
 
 ## Website
-URL: https://azizmessaoud.github.io/new-ui/
-Canonical: https://azizm.me/
+URL: https://azizm.me/
 
 ## Areas of Focus
 - Data Science & Machine Learning
@@ -33,6 +32,6 @@ Canonical: https://azizm.me/
 - GitHub: https://github.com/azizmessaoud/
 - Kaggle: https://www.kaggle.com/azizmessaoud
 - LeetCode: https://leetcode.com/u/azizmessaoud/
-- Codeforces: https://codeforces.com/profile/rebellion2002
+- Codeforces: https://codeforces.com/profile/azizmessaoud
 - Zindi: https://zindi.org/users/azizmessaoud
 - Devpost: https://devpost.com/azizmessaoud

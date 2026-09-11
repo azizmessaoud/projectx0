@@ -1,5 +1,5 @@
 /* Signal Atelier style: evidence-first editorial layout with a technical rail, restrained motion, and a living neural field behind the hero. */
-import { lazy, Suspense, useMemo, useState, useEffect } from "react";
+import { lazy, Suspense, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowUpRight, Download, ExternalLink, Github, Linkedin, Mail, MapPin, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -55,36 +55,6 @@ export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [filter, setFilter] = useState<"all" | "flagship" | "supporting">("all");
   const [animationPaused, setAnimationPaused] = useState(false);
-
-  useEffect(() => {
-    const jsonLd = {
-      "@context": "https://schema.org",
-      "@graph": [
-        {
-          "@type": "Person",
-          "@id": "https://azizm.me/#person",
-          "name": "Aziz Messaoud",
-          "url": "https://azizm.me/",
-          "jobTitle": profile.role,
-          "description": profile.headline,
-          "sameAs": Object.values(profile.links),
-        },
-        ...projects.map(p => ({
-          "@type": "CreativeWork",
-          "name": p.title,
-          "description": p.summary,
-          "creator": { "@id": "https://azizm.me/#person" },
-          "url": p.link,
-          "keywords": p.tags.join(", "),
-        }))
-      ]
-    };
-    const script = document.createElement("script");
-    script.type = "application/ld+json";
-    script.text = JSON.stringify(jsonLd);
-    document.head.appendChild(script);
-    return () => { document.head.removeChild(script); };
-  }, []);
 
   const visibleProjects = useMemo(() => filter === "all" ? projects : projects.filter((project) => filter === "flagship" ? project.featured : !project.featured), [filter]);
 
