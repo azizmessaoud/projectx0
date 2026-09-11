@@ -1,0 +1,25 @@
+{
+  "name": "Aziz Messaoud Portfolio",
+  "short_name": "Aziz Messaoud",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#06111d",
+  "theme_color": "#42b7ff",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/opengraph.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "/opengraph.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ]
+}

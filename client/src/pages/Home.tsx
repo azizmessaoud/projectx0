@@ -1,5 +1,5 @@
 /* Signal Atelier style: evidence-first editorial layout with a technical rail, restrained motion, and a living neural field behind the hero. */
-import { lazy, Suspense, useMemo, useState } from "react";
+import { lazy, Suspense, useMemo, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ArrowUpRight, Download, ExternalLink, Github, Linkedin, Mail, MapPin, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -11,9 +11,6 @@ const navItems = [
   ["Work", "work"],
   ["Approach", "approach"],
   ["About", "about"],
-  ["Experience", "experience"],
-  ["Volunteering", "volunteering"],
-  ["Certifications", "certifications"],
   ["Contact", "contact"],
 ] as const;
 
@@ -59,6 +56,36 @@ export default function Home() {
   const [filter, setFilter] = useState<"all" | "flagship" | "supporting">("all");
   const [animationPaused, setAnimationPaused] = useState(false);
 
+  useEffect(() => {
+    const jsonLd = {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Person",
+          "@id": "https://azizm.me/#person",
+          "name": "Aziz Messaoud",
+          "url": "https://azizm.me/",
+          "jobTitle": profile.role,
+          "description": profile.headline,
+          "sameAs": Object.values(profile.links),
+        },
+        ...projects.map(p => ({
+          "@type": "CreativeWork",
+          "name": p.title,
+          "description": p.summary,
+          "creator": { "@id": "https://azizm.me/#person" },
+          "url": p.link,
+          "keywords": p.tags.join(", "),
+        }))
+      ]
+    };
+    const script = document.createElement("script");
+    script.type = "application/ld+json";
+    script.text = JSON.stringify(jsonLd);
+    document.head.appendChild(script);
+    return () => { document.head.removeChild(script); };
+  }, []);
+
   const visibleProjects = useMemo(() => filter === "all" ? projects : projects.filter((project) => filter === "flagship" ? project.featured : !project.featured), [filter]);
 
   return (
@@ -87,15 +114,15 @@ export default function Home() {
             </div>
           </div>
           <div className="hero-content container">
-            <div className="hero-kicker"><span className="live-dot" /> Available for a 2027 PFE — a 6-month end-of-studies internship · Ariana, Tunisia</div>
+            <div className="hero-kicker"><span className="live-dot" /> Seeking a 2027 PFE Internship · Data Science, AI & ML Engineering · Ariana, Tunisia</div>
             <div className="hero-grid">
               <div className="hero-copy">
-                <p className="section-index">01 / PROFILE</p>
-                <h1>Data Science<br /><em>student</em> building<br />practical AI systems.</h1>
-                <p className="hero-lede">I turn data and models into useful, reliable applications—moving from exploration and evaluation to intelligent interfaces, APIs, and workflows.</p>
+                <p className="section-index">01 / IDENTITY</p>
+                <h1>Aziz Messaoud<br /><em>Data Science</em> building<br />practical AI systems.</h1>
+                <p className="hero-lede">I bridge the gap between research and production—turning data and models into reliable, intelligent applications and agentic workflows.</p>
                 <div className="hero-actions">
                   <Button className="signal-button" onClick={() => scrollToId("work")}>Inspect selected work <ArrowUpRight size={17} /></Button>
-                  <a className="text-link" href={cvUrl} target="_blank" rel="noreferrer"><Download size={15} /> View CV</a>
+                  <a className="text-link" href={cvUrl} target="_blank" rel="noreferrer"><Download size={15} /> Download CV</a>
                 </div>
               </div>
               <div className="hero-proof">
@@ -104,7 +131,7 @@ export default function Home() {
                 <div className="hero-note"><span className="mono-label">01</span><p>AI Research is the method: hypothesis, experiment, baseline, evaluation, analysis.</p></div>
               </div>
             </div>
-            <div className="hero-footer"><span>Scroll to inspect the work</span><span className="scroll-line" /><span className="mono-label">01—08</span></div>
+            <div className="hero-footer"><span>Scroll to explore the evidence</span><span className="scroll-line" /><span className="mono-label">01—08</span></div>
           </div>
         </section>
 
@@ -116,7 +143,7 @@ export default function Home() {
           <div className="project-list">
             {visibleProjects.map((project, index) => <motion.article key={project.title} id={project.title === "ALIA" ? "case-alia" : project.title === "HR Document Intelligence" ? "case-hr" : undefined} className={`project-row ${index % 2 ? "reverse" : ""}`} initial={{ opacity: 0, y: 22 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-80px" }} transition={{ duration: 0.55 }}>
               <div className={`project-art ${project.featured ? "featured-art" : "supporting-art"}`}><ProjectSwirl number={project.number} /><span className="art-index">{project.number}</span><span className="art-status">{project.status}</span>{project.featured && <span className="art-feature">FLAGSHIP EVIDENCE</span>}</div>
-              <div className="project-copy"><p className="project-eyebrow">{project.eyebrow}</p><h3>{project.title}</h3><p className="project-summary">{project.summary}</p><div className="project-meta"><div><span className="mono-label">MY CONTRIBUTION</span><p>{project.details}</p></div><div><span className="mono-label">WHAT CAME OF IT</span><p>{project.outcome}</p></div></div><div className="tag-row">{project.tags.map((tag) => <span key={tag}>{tag}</span>)}</div><div className="project-links"><a className="project-link" href={project.link} target={project.link.startsWith("#") ? undefined : "_blank"} rel={project.link.startsWith("#") ? undefined : "noreferrer"}>{project.linkLabel} <ExternalLink size={15} /></a>{project.paperLink && <a className="project-link paper-link" href={project.paperLink} target="_blank" rel="noreferrer">{project.paperLabel ?? "Read paper"} <ExternalLink size={15} /></a>}</div></div>
+              <div className="project-copy"><p className="project-eyebrow">{project.eyebrow}</p><h3>{project.title}</h3><p className="project-summary">{project.summary}</p><div className="project-meta"><div className="meta-item"><span className="mono-label">My Contribution</span><p>{project.details}</p></div><div className="meta-item"><span className="mono-label">What Came of It</span><p>{project.outcome}</p></div></div><div className="tag-row"><span className="mono-label tech-stack-label">Tech Stack:</span>{project.tags.map((tag) => <span key={tag}>{tag}</span>)}</div><div className="project-links"><a className="project-link" href={project.link} target={project.link.startsWith("#") ? undefined : "_blank"} rel={project.link.startsWith("#") ? undefined : "noreferrer"}>{project.linkLabel} <ExternalLink size={15} /></a>{project.paperLink && <a className="project-link paper-link" href={project.paperLink} target="_blank" rel="noreferrer">{project.paperLabel ?? "Read paper"} <ExternalLink size={15} /></a>}</div></div>
             </motion.article>)}
           </div>
         </section>
@@ -125,7 +152,44 @@ export default function Home() {
           <div className="container"><div className="section-heading"><div><p className="section-index">03 / HOW I WORK</p><h2>From signal<br /><em>to system.</em></h2></div><p className="section-intro">The through-line is simple: understand the data, make the decision explicit, test the system, and explain what remains uncertain.</p></div><div className="approach-grid"><div className="approach-step"><span>01</span><h3>Frame</h3><p>Turn an ambiguous goal into a measurable research or product question.</p></div><div className="approach-step"><span>02</span><h3>Build</h3><p>Use models, APIs, agents, and interfaces that fit the actual constraints.</p></div><div className="approach-step"><span>03</span><h3>Evaluate</h3><p>Compare against a baseline, document the metric, and make the limitation visible.</p></div><div className="approach-step"><span>04</span><h3>Explain</h3><p>Leave behind a case another person can inspect, reproduce, and challenge.</p></div></div></div>
         </section>
 
-        <section id="about" className="about-section container section-block"><div className="about-grid"><div><p className="section-index">04 / ABOUT</p><h2>Curious by default.<br /><em>Rigorous by practice.</em></h2><p className="about-copy">I am a Computer Engineering student at ESPRIT specializing in Data Science. My direction follows a clear progression from data science foundations and machine learning to AI engineering, production systems, and agentic workflows.</p><p className="about-copy">I am strengthening probability and statistics, algorithms, system design, microservices, and MLOps while continuing to build practical projects in NLP, generative AI, document intelligence, search intelligence, and analytics.</p></div><div className="skill-panel"><span className="mono-label">/ WORKING TOOLKIT</span><div className="skill-cloud">{skills.map((skill) => <span key={skill}>{skill}</span>)}</div><div className="about-details"><div><span className="mono-label">EDUCATION</span><p>Data Science Engineering<br />ESPRIT · Expected 2027</p></div><div><span className="mono-label">LANGUAGES</span><p>Arabic · French · English</p></div></div></div></div></section>
+        <section id="about" className="about-section container section-block">
+  <div className="about-grid">
+    <div>
+      <p className="section-index">04 / ABOUT</p>
+      <h2>Curious by default.<br /><em>Rigorous by practice.</em></h2>
+      <p className="about-copy la-quote">Aziz Messaoud is a Data Science student at ESPRIT in Tunisia focused on practical AI systems, machine learning, NLP, and AI engineering.</p>
+      <p className="about-copy">I am a Computer Engineering student specializing in Data Science. My direction follows a clear progression from data science foundations and machine learning to AI engineering, production systems, and agentic workflows.</p>
+      <p className="about-copy">I am strengthening probability and statistics, algorithms, system design, microservices, and MLOps while continuing to build practical projects in NLP, generative AI, document intelligence, search intelligence, and analytics.</p>
+    </div>
+    <div className="skill-panel">
+      <span className="mono-label">/ WORKING TOOLKIT</span>
+      <div className="skill-cloud">
+        {skills.map((skill) => <span key={skill}>{skill}</span>)}
+      </div>
+      <div className="about-facts">
+        <dl>
+          <div className="fact-row">
+            <dt>Education</dt>
+            <dd>Data Science Engineering<br />ESPRIT · Expected 2027</dd>
+          </div>
+          <div className="fact-row">
+            <dt>Focus</dt>
+            <dd>AI Systems · ML Engineering · NLP</dd>
+          </div>
+          <div className="fact-row">
+            <dt>Location</dt>
+            <dd>{profile.location}</dd>
+          </div>
+          <div className="fact-row">
+            <dt>Languages</dt>
+            <dd>Arabic · French · English</dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+  </div>
+</section>
+
 
         <section id="experience" className="exp-section section-block"><div className="container"><div className="section-heading"><div><p className="section-index">05 / EXPERIENCE</p><h2>Applied expertise.</h2></div><p className="section-intro">Professional engagements focused on AI implementation, ML research, and software engineering.</p></div><div className="exp-grid">{experiences.map((exp, index) => <div className="exp-item" key={exp.company}><div className="exp-header"><span className="exp-number">0{index + 1}</span><div><h3>{exp.role}</h3><p className="exp-company">{exp.company} · {exp.period}</p></div><span className="exp-location">{exp.location}</span></div><ul className="exp-desc">{exp.highlights.map((highlight) => <li key={highlight}>{highlight}</li>)}</ul></div>)}</div></div></section>
 

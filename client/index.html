@@ -5,24 +5,25 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#06111d" />
-    <meta name="description" content="Aziz Messaoud is a Data Science student building practical machine learning, AI engineering, and agentic AI systems for a 2027 PFE." />
+    <meta name="description" content="Aziz Messaoud is a Data Science student focused on practical machine learning, AI engineering, NLP, document intelligence, and search systems." />
     <meta name="author" content="Aziz Messaoud" />
     <meta name="robots" content="index, follow" />
     <link rel="canonical" href="https://azizm.me/" />
-    <title>Aziz Messaoud — Data Science Student &amp; AI Systems Portfolio</title>
+    <title>Aziz Messaoud — Data Science Student & AI Systems</title>
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Aziz Messaoud" />
     <meta property="og:url" content="https://azizm.me/" />
-    <meta property="og:title" content="Aziz Messaoud — Data Science Student &amp; AI Systems Portfolio" />
-    <meta property="og:description" content="Practical machine learning, AI engineering, and agentic AI systems from a Data Science foundation." />
+    <meta property="og:title" content="Aziz Messaoud — Data Science Student & AI Systems" />
+    <meta property="og:description" content="Aziz Messaoud is a Data Science student focused on practical machine learning, AI engineering, NLP, document intelligence, and search systems." />
     <meta property="og:image" content="https://azizm.me/opengraph.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
     <meta property="og:locale" content="en_US" />
 
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@AzizMessaoud" />
-    <meta name="twitter:title" content="Aziz Messaoud — Data Science Student &amp; AI Systems Portfolio" />
-    <meta name="twitter:description" content="Practical machine learning, AI engineering, and agentic AI systems from a Data Science foundation." />
+    <meta name="twitter:title" content="Aziz Messaoud — Data Science Student & AI Systems" />
+    <meta name="twitter:description" content="Aziz Messaoud is a Data Science student focused on practical machine learning, AI engineering, NLP, document intelligence, and search systems." />
     <meta name="twitter:image" content="https://azizm.me/opengraph.jpg" />
 
     <script type="application/ld+json">
@@ -30,33 +31,85 @@
       "@context": "https://schema.org",
       "@graph": [
         {
+          "@type": "ProfilePage",
+          "@id": "https://azizm.me/#profile",
+          "url": "https://azizm.me/",
+          "mainEntity": { "@id": "https://azizm.me/#person" }
+        },
+        {
           "@type": "Person",
-          "@id": "https://azizm.me/#aziz-messaoud",
+          "@id": "https://azizm.me/#person",
           "name": "Aziz Messaoud",
           "url": "https://azizm.me/",
-          "jobTitle": "Data Science Student",
           "image": "https://azizm.me/opengraph.jpg",
+          "jobTitle": "Data Science Student",
+          "description": "Aziz Messaoud is a Data Science student focused on practical machine learning, AI engineering, NLP, document intelligence, and search systems.",
           "email": "mailto:aziz.messaoud@esprit.tn",
-          "address": { "@type": "PostalAddress", "addressLocality": "Ariana", "addressCountry": "TN" },
-          "knowsAbout": ["Data Science", "Machine Learning", "Artificial Intelligence", "Natural Language Processing", "MLOps", "Agentic AI"],
-          "sameAs": ["https://www.linkedin.com/in/azizmessaoud/", "https://github.com/azizmessaoud/", "https://www.kaggle.com/azizmessaoud", "https://leetcode.com/u/azizmessaoud/", "https://codeforces.com/profile/rebellion2002", "https://zindi.org/users/azizmessaoud", "https://devpost.com/azizmessaoud"]
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Ariana",
+            "addressCountry": "TN"
+          },
+          "knowsAbout": [
+            "Data Science",
+            "Machine Learning",
+            "Natural Language Processing",
+            "Generative AI",
+            "AI Engineering",
+            "Document Intelligence",
+            "Search Intelligence",
+            "MLOps"
+          ],
+          "sameAs": [
+            "https://www.linkedin.com/in/azizmessaoud/",
+            "https://github.com/azizmessaoud/",
+            "https://www.kaggle.com/azizmessaoud",
+            "https://leetcode.com/u/azizmessaoud/",
+            "https://codeforces.com/profile/azizmessaoud",
+            "https://zindi.org/users/azizmessaoud",
+            "https://devpost.com/azizmessaoud"
+          ]
         },
-        { "@type": "WebSite", "@id": "https://azizm.me/#website", "url": "https://azizm.me/", "name": "Aziz Messaoud — AI Systems Portfolio", "author": { "@id": "https://azizm.me/#aziz-messaoud" } },
-        { "@type": "CreativeWork", "name": "FlyRank Search Intelligence", "url": "https://github.com/azizmessaoud/flyrank", "author": { "@id": "https://azizm.me/#aziz-messaoud" }, "description": "A fixed-budget review queue using a gradient-boosted ranking model evaluated with Precision@50." },
-        { "@type": "CreativeWork", "name": "ALIA", "url": "https://azizm.me/#case-alia", "author": { "@id": "https://azizm.me/#aziz-messaoud" }, "description": "An AI-powered medical sales-training system with a browser avatar and automated debrief generation." },
-        { "@type": "CreativeWork", "name": "HR Document Intelligence", "url": "https://github.com/azizmessaoud/hr-anomaly-scaffold", "author": { "@id": "https://azizm.me/#aziz-messaoud" }, "description": "A local-first pipeline that extracts, normalizes, validates, and routes HR documents for human review." }
+        {
+          "@type": "WebSite",
+          "@id": "https://azizm.me/#website",
+          "url": "https://azizm.me/",
+          "name": "Aziz Messaoud"
+        },
+        {
+          "@type": "CreativeWork",
+          "name": "FlyRank Search Intelligence",
+          "description": "A fixed-budget review queue for deciding which pages to inspect first using anonymized search data.",
+          "creator": { "@id": "https://azizm.me/#person" },
+          "url": "https://github.com/azizmessaoud/flyrank"
+        },
+        {
+          "@type": "CreativeWork",
+          "name": "ALIA",
+          "description": "An AI-powered medical sales-training system with a real-time browser avatar and automated debrief generation.",
+          "creator": { "@id": "https://azizm.me/#person" },
+          "url": "https://azizm.me/#case-alia"
+        },
+        {
+          "@type": "CreativeWork",
+          "name": "HR Document Intelligence",
+          "description": "A local-first pipeline that extracts, normalizes, validates, and routes heterogeneous HR documents for human review.",
+          "creator": { "@id": "https://azizm.me/#person" },
+          "url": "https://github.com/azizmessaoud/hr-anomaly-scaffold"
+        }
       ]
     }
     </script>
     <script defer src="%VITE_ANALYTICS_ENDPOINT%/script.js" data-website-id="%VITE_ANALYTICS_WEBSITE_ID%"></script>
-    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
-    <link rel="apple-touch-icon" href="./opengraph.jpg" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.json" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet" />
   </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="./src/main.tsx"></script>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

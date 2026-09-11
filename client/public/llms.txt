@@ -1,0 +1,38 @@
+# Aziz Messaoud
+Data Science Student & AI Systems Builder
+
+## Identity
+Aziz Messaoud is a Data Science student at ESPRIT in Tunisia focused on practical AI systems, machine learning, NLP, and AI engineering. He bridges the gap between research exploration and production-ready applications.
+
+## Website
+URL: https://azizmessaoud.github.io/new-ui/
+Canonical: https://azizm.me/
+
+## Areas of Focus
+- Data Science & Machine Learning
+- Natural Language Processing (NLP)
+- Generative AI & LLM Orchestration
+- AI Engineering (APIs, Agents, Workflows)
+- Document Intelligence & Search Intelligence
+- MLOps & Production AI
+
+## Education
+- B.S. in Computer Engineering (Specialization in Data Science), ESPRIT, Tunisia (Expected 2027)
+
+## Selected Projects
+- FlyRank Search Intelligence: Fixed-budget review queue for search data using GBDT.
+- ALIA: AI-powered medical sales-training system with real-time avatar.
+- HR Document Intelligence: Local-first pipeline for heterogeneous HR document processing.
+
+## Professional Experience
+- AI Intern at Sopra HR Software (Anomaly detection, Docling/RapidOCR pipelines).
+- ML Intern at FlyRank AI (Applied ML research, evidence-based communication).
+
+## Important Links
+- LinkedIn: https://www.linkedin.com/in/azizmessaoud/
+- GitHub: https://github.com/azizmessaoud/
+- Kaggle: https://www.kaggle.com/azizmessaoud
+- LeetCode: https://leetcode.com/u/azizmessaoud/
+- Codeforces: https://codeforces.com/profile/rebellion2002
+- Zindi: https://zindi.org/users/azizmessaoud
+- Devpost: https://devpost.com/azizmessaoud
