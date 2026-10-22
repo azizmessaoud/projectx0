@@ -1,0 +1,36 @@
+{
+  "v": 3,
+  "layout": "files",
+  "createdOnFiles": { "v": 1, "at": "2026-10-22T20:30:00Z" },
+  "title": "AzizM",
+  "namespace": "AzizM",
+  "libraries": [],
+  "sections": {},
+  "groups": ["Logos", "Images"],
+  "assetGroups": {
+    "Logos": {
+      "name": "Logos",
+      "tile": "m",
+      "order": ["am-monogram.svg"],
+      "files": {
+        "am-monogram.svg": { "name": "am-monogram.svg", "blob": "a329e95c5245c686305c45df4faf8f68", "size": 979, "type": "image/svg+xml" }
+      }
+    },
+    "Images": {
+      "name": "Images",
+      "tile": "l",
+      "order": ["opengraph-loader.jpg"],
+      "files": {
+        "opengraph-loader.jpg": { "name": "opengraph-loader.jpg", "blob": "eb9e5c4c81e6af8106243d54ab4196e4", "size": 9677, "type": "image/jpeg" }
+      }
+    }
+  },
+  "blobs": {},
+  "docs": { "sections": [] },
+  "lastChange": {
+    "by": "Aziz Messaoud",
+    "at": "2026-10-22T20:30:00Z",
+    "via": "GitHub · azizmessaoud/projectx0@d6edc8c",
+    "note": "Initial system extracted from the compiled portfolio build: 30 colours, 12 text styles, spacing, radii, shadows, 6 components, cover."
+  }
+}

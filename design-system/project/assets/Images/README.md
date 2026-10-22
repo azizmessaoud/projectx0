@@ -1,0 +1,1 @@
+`opengraph-loader.jpg` is the site's 1280×720 social preview: the loader screen with the "AzizM." wordmark, gradient progress bar and mono "Initializing.." line on `background`. Use it as the share image for the portfolio.

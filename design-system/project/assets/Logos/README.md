@@ -1,0 +1,1 @@
+The AM monogram (`am-monogram.svg`, copied from the site's favicon): Space Grotesk 700 letters filled with the `violet-400` → `violet-700` → `blue-500` gradient on a `background` square with a 56px corner radius. Use it on `background`; keep its own fills — it is not single-ink. It renders text, so it shows Space Grotesk only where that font is loaded.

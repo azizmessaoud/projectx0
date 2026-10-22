@@ -1,0 +1,50 @@
+/* AzizM components — hand-written from the compiled site CSS (assets/index-bpezMFQy.css). Tokens come from tokens.css. */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap");
+
+.am-root { background: var(--background); color: var(--foreground); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+.am-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4); padding: var(--space-4); }
+
+/* Button */
+.am-btn { display: inline-flex; align-items: center; gap: var(--space-2); font: inherit; font-size: 14px; line-height: 20px; font-weight: 500; color: var(--foreground); cursor: pointer; transition: all .15s cubic-bezier(.4,0,.2,1); text-decoration: none; }
+.am-btn:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+.am-btn--primary { padding: var(--space-4) var(--space-8); font-size: 16px; line-height: 24px; font-weight: 700; background: var(--primary); color: var(--primary-foreground); border: 0; border-radius: var(--radius-lg); box-shadow: var(--glow-primary); }
+.am-btn--primary:hover { background: #5a20b6e6; }
+.am-btn--pill { padding: var(--space-2) var(--space-6); background: var(--glass-10); border: 1px solid var(--glass-10); border-radius: var(--radius-full); backdrop-filter: blur(4px); }
+.am-btn--pill:hover { background: var(--glass-20); }
+.am-btn--glass { padding: var(--space-2) var(--space-4); background: var(--glass-5); border: 1px solid var(--glass-10); border-radius: var(--radius-lg); }
+.am-btn--glass:hover { background: #5a20b633; border-color: #5a20b680; box-shadow: var(--glow-violet); }
+.am-btn svg { width: 16px; height: 16px; }
+
+/* Card (solid) */
+.am-card { border: 1px solid var(--border); background: var(--card); color: var(--card-foreground); border-radius: var(--radius-xl); box-shadow: var(--shadow-sm); }
+.am-card__header { display: flex; flex-direction: column; gap: 6px; padding: var(--space-6); }
+.am-card__title { font-weight: 600; line-height: 1; letter-spacing: -.025em; }
+.am-card__desc { font-size: 14px; line-height: 20px; color: var(--muted-foreground); }
+.am-card__content { padding: 0 var(--space-6) var(--space-6); }
+
+/* Glass card */
+.am-glass-card { padding: var(--space-6); background: var(--glass-5); border: 1px solid var(--glass-5); border-radius: var(--radius-2xl); backdrop-filter: blur(var(--blur-sm)); transition: border-color .3s; }
+.am-glass-card:hover { border-color: #3c83f680; }
+.am-glass-card h3 { display: flex; align-items: center; gap: var(--space-2); margin: 0 0 var(--space-4); font-size: 20px; line-height: 28px; font-weight: 700; }
+.am-glass-card h3 svg { width: 24px; height: 24px; color: var(--secondary); }
+.am-glass-card ul { margin: 0; padding: 0; list-style: none; color: var(--muted-foreground); }
+.am-glass-card li { display: flex; align-items: center; gap: var(--space-2); margin-top: 10px; }
+.am-bullet { width: 6px; height: 6px; border-radius: var(--radius-full); background: var(--primary); }
+
+/* Tech chip */
+.am-chip { display: inline-block; padding: 6px var(--space-3); font-size: 14px; line-height: 20px; background: var(--glass-5); border: 1px solid var(--glass-5); border-radius: var(--radius-full); transition: transform .3s, box-shadow .3s, border-color .3s, background .3s; }
+.am-chip:hover { transform: scale(1.05) translateY(-4px); border-color: #5a20b680; background: #5a20b61a; box-shadow: var(--glow-violet); }
+
+/* Section heading */
+.am-section-title { display: flex; align-items: center; gap: var(--space-3); margin: 0 0 var(--space-4); font-size: 48px; line-height: 1; font-weight: 700; color: #fff; }
+.am-section-title .am-emoji { font-size: 30px; }
+.am-section-lead { margin: 0; max-width: var(--container-2xl); font-size: 18px; line-height: 28px; color: var(--muted-foreground); }
+
+/* Contact link */
+.am-contact { display: flex; align-items: center; gap: var(--space-4); font-size: 18px; line-height: 28px; color: var(--foreground); text-decoration: none; transition: color .15s; }
+.am-contact:hover { color: var(--secondary); }
+.am-contact__icon { display: flex; align-items: center; justify-content: center; width: 48px; height: 48px; background: var(--glass-5); border: 1px solid var(--glass-10); border-radius: var(--radius-full); transition: all .15s; }
+.am-contact:hover .am-contact__icon { background: #5a20b633; border-color: #5a20b680; }
+.am-contact__icon svg { width: 20px; height: 20px; }
+.am-contact__label { font-size: 14px; line-height: 20px; color: var(--muted-foreground); }
+.am-contact__value { font-weight: 500; }
