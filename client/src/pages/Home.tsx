@@ -296,8 +296,9 @@ export default function Home() {
                 <p className="section-index">07 / Certifications</p>
                 <h2>Certifications</h2>
               </div>
-              <p className="section-intro">Courses I have completed, plus two I plan to take next.</p>
+              <p className="section-intro">{plannedCerts.length ? "Courses I have completed, plus the ones I plan to take next." : "Certifications and courses I have completed."}</p>
             </div>
+            {plannedCerts.length > 0 && (
             <div className="planned-cert-row">
               <p className="planned-label">Next</p>
               <div className="planned-cert-list">
@@ -312,6 +313,7 @@ export default function Home() {
                 ))}
               </div>
             </div>
+            )}
             <div className="cert-grid">
               {earnedCerts.map((cert, index) => {
                 const meta = (

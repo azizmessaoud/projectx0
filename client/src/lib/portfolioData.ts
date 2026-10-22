@@ -145,8 +145,8 @@ export interface Certificate {
 }
 
 export const certificates: Certificate[] = [
-  { title: "Microsoft Azure AI Fundamentals (AI-901)", issuer: "Microsoft", year: "Planned", status: "planned" },
-  { title: "Microsoft Azure Data Fundamentals (DP-900)", issuer: "Microsoft", year: "Planned", status: "planned" },
+  { title: "Microsoft Certified: Azure AI Fundamentals (AI-901)", issuer: "Microsoft", year: "2026", link: "https://learn.microsoft.com/fr-fr/users/azizmessaoud/credentials/1a2d218bd3b89433" },
+  { title: "Microsoft Certified: Azure Data Fundamentals (DP-900)", issuer: "Microsoft", year: "2026", link: "https://learn.microsoft.com/fr-fr/users/azizmessaoud/credentials/9170ffe9ad85882" },
   { title: "Leadership", issuer: "Aspire Institute", year: "2026", link: "https://engage.aspireleaders.org/share/certificate/did:rcw:b3551972-403a-4976-be06-bd9c68b2b605", linkLabel: "Certificate", secondaryLink: "https://engage.aspireleaders.org/share/certificate/did:rcw:aff306a7-d8da-48a8-9ed4-378da59d2512", secondaryLabel: "Letter" },
   { title: "Databricks Academy Accreditation — Generative AI Fundamentals", issuer: "Databricks", year: "2026", link: "https://credentials.databricks.com/ed7432c9-7444-441d-992a-9c19e81acea9#acc.CiyAfHEW" },
   { title: "ML Engineering Internship", issuer: "FlyRank AI", year: "2026", link: "https://internship.flyrank.ai/verify/FR-D11-C2CA8-72DBB?first_name=Aziz" },
