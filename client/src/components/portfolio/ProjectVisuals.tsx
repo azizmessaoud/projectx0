@@ -46,7 +46,7 @@ function HierarchyVisual() {
         </div>
         <p className="tier__link">Directives every 5 s · never writes a light</p>
         <div className="tier tier--key">
-          <p className="tier__level">Junction ×7</p>
+          <p className="tier__level">Junction ×6</p>
           <p className="tier__node">Master, the only writer of its light</p>
           <ol className="chip-row chip-row--order" aria-label="Fixed priority order">
             {priority.map((item) => (
@@ -58,10 +58,10 @@ function HierarchyVisual() {
         <p className="tier__link">Writes</p>
         <div className="tier">
           <p className="tier__level">Street</p>
-          <p className="tier__node">Signal in the SUMO simulation</p>
+          <p className="tier__node">Signal in SUMO, on real Tunis streets (J1–J6)</p>
         </div>
       </div>
-      <figcaption>Language agents (EN · FR · AR) read the decision log only: they explain with checked citations or abstain.</figcaption>
+      <figcaption>CoFlow Synapse reads the decision log only: a verified answer, a template, or an abstention, never an action.</figcaption>
     </figure>
   );
 }
