@@ -58,6 +58,16 @@ export default function ProjectCaseCard({ project, index }: { project: FlagshipP
             <li key={item}>{item}</li>
           ))}
         </ul>
+        {project.teamContribution ? (
+          <>
+            <p className="mono-label case-card__team-label">Rest of the team</p>
+            <ul className="bullet-list">
+              {project.teamContribution.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </>
+        ) : null}
       </div>
 
       <details className="case-card__details">

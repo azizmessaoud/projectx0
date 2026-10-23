@@ -196,6 +196,8 @@ section[tabindex="-1"]:focus { outline: none; }
 .case-card__note { margin-top: 12px; color: var(--color-text-muted); font-size: 16px; }
 .case-card__contribution { grid-area: contribution; }
 .case-card__contribution .bullet-list { margin-top: 10px; }
+.case-card__team-label { margin-top: 18px; }
+.visual__title .owner-tag { margin-left: 8px; letter-spacing: 0; text-transform: none; }
 .case-card__details { grid-area: details; border-top: 1px solid var(--color-border); }
 .case-card__details summary { display: flex; align-items: center; justify-content: space-between; min-height: 52px; cursor: pointer; list-style: none; font-family: var(--font-mono); font-size: 13px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-text-secondary); }
 .case-card__details summary::-webkit-details-marker { display: none; }

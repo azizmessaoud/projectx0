@@ -31,7 +31,9 @@ function HierarchyVisual() {
   const priority = ["Safety", "Emergency", "Directive", "Transit", "Pedestrian", "Normal"];
   return (
     <figure className="visual">
-      <p className="visual__title">Control hierarchy</p>
+      <p className="visual__title">
+        Control hierarchy <span className="owner-tag owner-tag--mine">My design</span>
+      </p>
       <div className="tiers">
         <div className="tier">
           <p className="tier__level">Network</p>

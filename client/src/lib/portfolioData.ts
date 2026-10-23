@@ -62,6 +62,8 @@ export interface FlagshipProject {
   /* Defaults to "My contribution". */
   contributionLabel?: string;
   contribution: string[];
+  /* Work by teammates, listed separately from mine. */
+  teamContribution?: string[];
   /* Shown inside the expandable "Approach and evaluation" section. */
   approach: string[];
   limitations: string[];
@@ -83,9 +85,11 @@ export const flagshipProjects: FlagshipProject[] = [
       { value: "0", label: "pedestrian-clearance truncations, vs 700–1,240 per hour for SUMO's default plans" },
     ],
     resultNote: "Simulation on a schematic network; no deployment.",
-    contributionLabel: "What the team built",
     contribution: [
-      "A control hierarchy over 7 junctions: agents advise, one master per junction is the only writer of its light, and a supermaster coordinates 8 network agents.",
+      "Owned the agentic AI architecture: per junction, 5 agents advise and one master is the only writer of its light; a supermaster coordinates 8 network agents through directives and never writes a light.",
+      "A fixed priority order resolves conflicting requests (safety > emergency > directive > transit > pedestrian > normal), so safety rules are never learned.",
+    ],
+    teamContribution: [
       "Three light agents compared (max-pressure, predictive / MPC, Fitted Q-Iteration RL) across 12 scenarios × 3 seeds.",
       "Language agents in English, French, and Arabic that explain decisions from the log with checked citations, or abstain.",
     ],
@@ -224,7 +228,7 @@ export const supportingProjects: SupportingProject[] = [
 ];
 
 export const proofs = [
-  { label: "Agentic AI", text: "TraffiX multi-agent traffic control", detail: "Team project, in simulation", anchor: "case-traffix" },
+  { label: "Agentic AI", text: "TraffiX multi-agent traffic control", detail: "Owned the agent architecture", anchor: "case-traffix" },
   { label: "Research paper", text: "Ranking webpages for review", detail: "Precision@50: 0.94 vs 0.76", anchor: "case-flyrank" },
   { label: "Internships", text: "Sopra HR Software · FlyRank AI", detail: "AI and ML, 2025–2026", anchor: "experience" },
   { label: "Certified", text: "Oracle OCI Data Science Professional", detail: "+ Microsoft AI-901, DP-900", anchor: "certifications" },
