@@ -20,6 +20,8 @@ const MAX_HOPS = 4;
 const MAX_PULSES = 28;
 const BRAIN_SCALE = 1.4;
 const INTERACTIVE_SELECTOR = "a, button, input, select, textarea, summary, [role='button'], [contenteditable='true']";
+// Content a visitor may still want to select; a gesture starting anywhere else on the field never selects text.
+const CONTENT_SELECTOR = `${INTERACTIVE_SELECTOR}, h1, h2, h3, p, li, abbr, strong, dd, dt, label`;
 
 function breakpointFor(width: number): Breakpoint {
   if (width < 640) return "mobile";
@@ -257,9 +259,13 @@ export default function NeuralField({ paused = false, labels = [] }: { paused?: 
       pulses.push({ from: pulse.to, to: target, progress: 0, speed: pulse.speed * 1.08, strength: pulse.strength * 0.58, hops: pulse.hops + 1 });
     };
 
+    // True while a press that began on the field itself (not on text or a control) is in progress.
+    let fieldGesture = false;
     const sendSignal = (event: PointerEvent) => {
-      if (event.target instanceof Element && event.target.closest(INTERACTIVE_SELECTOR)) return;
       const { x, y, inside } = canvasPoint(event);
+      const onContent = event.target instanceof Element && !!event.target.closest(CONTENT_SELECTOR);
+      fieldGesture = inside && !onContent;
+      if (event.target instanceof Element && event.target.closest(INTERACTIVE_SELECTOR)) return;
       if (paused || reducedMotion || nodes.length < 2 || !inside) return;
       const start = closestNode(x, y).index;
       const fanOut = breakpoint === "desktop" ? 4 : 2;
@@ -419,6 +425,9 @@ export default function NeuralField({ paused = false, labels = [] }: { paused?: 
       pointer.active = point.inside;
     };
     const clearPointer = () => { pointer.active = false; pointer.tx = -1000; pointer.ty = -1000; };
+    const endGesture = () => { fieldGesture = false; };
+    // Clicking, double-clicking, or dragging on the field must not start a text selection in the hero.
+    const blockFieldSelection = (event: Event) => { if (fieldGesture) event.preventDefault(); };
     const resumeOrDraw = () => { cancelAnimationFrame(animationId); lastFrameTime = 0; draw(); };
     const handleVisibilityChange = () => { documentVisible = document.visibilityState === "visible"; resumeOrDraw(); };
     const handleMotionChange = () => { reducedMotion = motionQuery.matches; resize(); resumeOrDraw(); };
@@ -433,6 +442,10 @@ export default function NeuralField({ paused = false, labels = [] }: { paused?: 
     window.addEventListener("pointermove", handlePointer, { passive: true });
     window.addEventListener("pointerdown", sendSignal);
     window.addEventListener("blur", clearPointer);
+    window.addEventListener("pointerup", endGesture);
+    window.addEventListener("pointercancel", endGesture);
+    window.addEventListener("keydown", endGesture);
+    document.addEventListener("selectstart", blockFieldSelection);
     document.addEventListener("visibilitychange", handleVisibilityChange);
     motionQuery.addEventListener("change", handleMotionChange);
     return () => {
@@ -444,6 +457,10 @@ export default function NeuralField({ paused = false, labels = [] }: { paused?: 
       window.removeEventListener("pointermove", handlePointer);
       window.removeEventListener("pointerdown", sendSignal);
       window.removeEventListener("blur", clearPointer);
+      window.removeEventListener("pointerup", endGesture);
+      window.removeEventListener("pointercancel", endGesture);
+      window.removeEventListener("keydown", endGesture);
+      document.removeEventListener("selectstart", blockFieldSelection);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       motionQuery.removeEventListener("change", handleMotionChange);
     };

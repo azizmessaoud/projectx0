@@ -138,6 +138,9 @@ section[tabindex="-1"]:focus { outline: none; }
 /* ---- Hero ------------------------------------------------------------------ */
 .hero { position: relative; isolation: isolate; overflow: hidden; border-bottom: 1px solid var(--color-border); }
 .hero__field { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
+/* Clicking or dragging on the field never selects text; the copy itself stays selectable. */
+.hero__field, .hero__inner { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
+.hero__copy > *, .proof-strip, .field-control__note { -webkit-user-select: text; user-select: text; -webkit-touch-callout: default; }
 .hero__field::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, var(--color-bg) 0%, rgba(6, 17, 29, 0.9) 38%, rgba(6, 17, 29, 0.35) 70%, rgba(6, 17, 29, 0.2) 100%), linear-gradient(180deg, transparent 60%, var(--color-bg) 100%); }
 .neural-field { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .hero__inner { display: grid; gap: 40px; padding-top: 72px; padding-bottom: 32px; }
