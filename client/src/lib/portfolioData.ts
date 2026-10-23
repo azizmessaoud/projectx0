@@ -10,6 +10,7 @@ export const profile = {
   lede: "I work across applied machine learning, AI engineering, and agentic systems, from research and experiments to measurable, testable software.",
   education: "Data Science Engineering · ESPRIT · Tunisia",
   availability: "Seeking a 2027 PFE internship",
+  targets: "AI/ML engineering · applied data science · AI research",
   email: "aziz.messaoud@esprit.tn",
   location: "Ariana, Tunisia",
   links: {
@@ -18,8 +19,6 @@ export const profile = {
     portfolio: "https://azizm.me/",
     kaggle: "https://www.kaggle.com/azizmessaoud",
     leetcode: "https://leetcode.com/u/azizmessaoud/",
-    codeforces: "https://codeforces.com/profile/azizmessaoud",
-    zindi: "https://zindi.org/users/azizmessaoud",
     devpost: "https://devpost.com/azizmessaoud",
   },
 };
@@ -46,6 +45,8 @@ export interface ProjectLink {
 export interface ResultFigure {
   value?: string;
   label: string;
+  /* What was measured and under which conditions. */
+  conditions?: string;
 }
 
 export interface FlagshipProject {
@@ -59,6 +60,8 @@ export interface FlagshipProject {
   result: ResultFigure[];
   /* One short caveat shown with the result. */
   resultNote: string;
+  /* Where the result can be checked (notebook output, report section, repository). */
+  evidence?: ProjectLink;
   /* Defaults to "My contribution". */
   contributionLabel?: string;
   contribution: string[];
@@ -78,37 +81,44 @@ export const flagshipProjects: FlagshipProject[] = [
     title: "TraffiX",
     category: "Agentic AI · Multi-agent control",
     status: "In progress · team of 6 · simulation",
-    problem:
-      "Traffic lights in central Tunis must serve cars, pedestrians, buses, and ambulances, while every decision stays explainable and no learned model can override safety rules.",
+    problem: "Run six Tunis traffic lights for cars, pedestrians, buses, and ambulances, without a learned model overriding safety.",
     result: [
       {
-        label:
-          "A working agent hierarchy on six real junctions of Tunis centre-ville (OpenStreetMap, in SUMO): far fewer greens during pedestrian crossings and lower pedestrian waits than SUMO's signal plans.",
+        value: "−95%",
+        label: "car greens started while pedestrians were crossing",
+        conditions: "≈18 per run vs 331–405 with actuated signals · 3 scenarios × 3 seeds",
+      },
+      {
+        value: "−19%",
+        label: "pedestrian wait at the morning peak",
+        conditions: "116.3 s vs 144.1 s actuated · 3 seeds",
       },
     ],
-    resultNote: "3 seeds, synthetic demand: car waits are mixed, ambulances slower, and nothing is significant yet. No deployment.",
+    resultNote: "Simulated, synthetic demand; not yet significant. Ambulances are 13% slower.",
+    evidence: {
+      label: "Validation report, §5.3",
+      href: "https://github.com/azizmessaoud/traffix/blob/main/docs/presentation/prototype-validation.md#53-controller-results-tunis-map-3-seeds",
+      kind: "paper",
+    },
     contribution: [
-      "Owned the agentic AI architecture: per light, one master is the only writer and resolves agent requests in a fixed order (safety > emergency > directive > transit > pedestrian > normal); a supermaster coordinates 8 network agents and never writes a light.",
-      "In the control pair: SUMO integration, observations, the signal controller, and the safety rules.",
+      "Owned the agentic AI architecture: one master writes each light; a supermaster coordinates them.",
+      "Control pair: SUMO integration, signal controller, safety rules.",
     ],
-    teamContribution: [
-      "CoFlow Synapse: explanations from the decision log that are verified, fall back to a template, or abstain, each with seven provenance fields.",
-      "Scenario manifests, Parquet / DuckDB evidence, KPIs, and the OpenStreetMap network of Tunis centre-ville.",
-    ],
+    teamContribution: ["Synapse explanations, scenarios, evidence store, KPIs, and the OpenStreetMap network."],
     approach: [
-      "A single-junction platform (J0) came first as the benchmark: five domain agents, one signal writer, deterministic safety, baselines, and failure injection, checked by tests.",
-      "A check script enforces the architecture: only masters reach the light executor, and the language layer cannot import anything that touches the simulation.",
+      "Masters resolve requests in a fixed order (safety > emergency > directive > transit > pedestrian > normal); safety rules are never learned.",
+      "Evaluation on the real six-junction map, 20 Oct 2026: SUMO fixed-time and actuated plans vs TraffiX with rules and with trained models, 3 scenarios × 3 seeds, paired t-tests.",
+      "115 automated tests and the architecture check pass in CI; 7 of 11 trained models beat the rule they replace.",
       "On stale data, a master falls back from max-pressure to actuated, then fixed-time control.",
-      "Evaluation uses paired seeds against fixed-time and actuated baselines, with ablations and failure injection; null and negative results are kept.",
-      "On the earlier schematic network of traffix3, the same hierarchy cut morning-peak car waiting by 10% vs actuated signals (2,600 vehicles/h, 3 seeds).",
+      "On traffix3's earlier schematic network, the same hierarchy cut morning-peak car waiting by 10% vs actuated signals (2,600 vehicles/h, 3 seeds).",
     ],
     limitations: [
-      "Road demand is synthetic, generated from a calendar model; bus headways are assumed.",
-      "On the real map, sensor health and incident detection currently use rules: the retrained models did not beat them or lacked labelled incidents.",
-      "Course project running until December 2026; results will change as the models are retrained.",
+      "None of the differences is significant at p < 0.05 with 3 seeds; ambulance trips take 240 s vs 213 s with actuated signals.",
+      "Road demand is synthetic, and 18 of 21 junction roads use unverified lane counts.",
+      "Course project running until December 2026; results will change as models are retrained.",
     ],
     visual: "hierarchy",
-    tags: ["Python", "SUMO", "OpenStreetMap", "FastAPI", "DuckDB", "React"],
+    tags: ["Python", "SUMO", "OpenStreetMap", "FastAPI", "DuckDB"],
     links: [{ label: "View code", href: "https://github.com/azizmessaoud/traffix", kind: "code" }],
   },
   {
@@ -116,29 +126,38 @@ export const flagshipProjects: FlagshipProject[] = [
     title: "FlyRank Search Intelligence",
     category: "Applied ML · Search ranking",
     status: "Research paper · internship capstone",
-    problem: "An editorial team can only review some of its pages each week: which ones should a person look at first?",
+    problem: "Which pages should an editorial team review first when it cannot check them all?",
     result: [
-      { value: "0.94", label: "Precision@50 for the Random Forest, vs 0.76 for a transparent baseline" },
-      { value: "0.50", label: "R² on 1,583 rows from 8 clients never seen in training (baseline 0.26)" },
+      {
+        value: "0.94",
+        label: "Precision@50, vs 0.76 for a fixed baseline",
+        conditions: "Top 50 of 1,583 held-out pages, 8 unseen clients · hit = ≥ 8 clicks next week",
+      },
     ],
-    resultNote: "One decision date and one outcome week; observational, not a production result.",
+    resultNote: "One decision date, one outcome week; observational, not production.",
+    evidence: {
+      label: "Metric receipt: w05_model.ipynb, cell 8",
+      href: "https://github.com/azizmessaoud/flyrank/blob/main/work/notebooks/w05_model.ipynb",
+      kind: "code",
+    },
     contribution: [
-      "Framed the task: March 31, 2026 signals as features, Google Search Console clicks for April 1–7 as the outcome.",
-      "Fixed a readable baseline before touching the label, then trained a Random Forest regressor.",
-      "Validated on a grouped holdout with zero client overlap, and wrote the paper.",
+      "Framed the task and its time boundary.",
+      "Set a readable baseline first, then trained a Random Forest.",
+      "Validated on unseen clients; wrote the paper.",
     ],
     approach: [
-      "Precision@50 is the share of the 50 top-ranked pages whose next-week clicks reach the training 75th-percentile threshold of 8 clicks. It measures whether the top of the queue is worth a reviewer's time.",
-      "Baseline: 100 × (0.60 × capped content age + 0.40 × capped same-day impressions), set before the label was used.",
-      "Model: Random Forest, 150 trees, depth 14, seed 42, training-median imputation, 7 same-day features from GSC, GA4, search volume, and content age.",
-      "GroupShuffleSplit keeps whole clients out of training: 11,802 rows from 21 clients for training, 1,583 rows from 8 clients for testing. A deliberately leaked feature inflated the score and was removed before the honest run.",
+      "Precision@50: among the 50 top-ranked test pages, the share whose next-week Search Console clicks reach 8, the 75th percentile of the training outcome. It asks whether the top of the queue is worth a reviewer's time.",
+      "Baseline, fixed before the label was used: 100 × (0.60 × capped content age + 0.40 × capped same-day impressions), scored on the same test rows.",
+      "Model: Random Forest, 150 trees, depth 14, min leaf 3, seed 42, training-median imputation, 7 same-day features (GSC, GA4, search volume, content age).",
+      "Split: GroupShuffleSplit by client, 25% of clients held out (11,802 train rows / 21 clients, 1,583 test rows / 8 clients, zero overlap). R² 0.50 vs 0.26 on the same rows.",
+      "Reproduce: run work/notebooks/w05_model.ipynb with approved access to the gated FlyRank warehouse on Hugging Face (HF_TOKEN). Library versions are lower-bounded, not pinned, in requirements.txt.",
     ],
     limitations: [
-      "Observational analysis: it does not show that refreshing a page causes more traffic.",
+      "Observational: it does not show that refreshing a page causes more traffic.",
       "One decision date and one outcome week; the sealed June 2026 period is still to be validated.",
     ],
     visual: "ranking",
-    tags: ["Python", "scikit-learn", "Random Forest", "Grouped holdout"],
+    tags: ["Python", "scikit-learn", "DuckDB", "Grouped holdout"],
     links: [
       { label: "Read the paper", href: "https://azizmessaoud.github.io/flyrank/paper/", kind: "paper" },
       { label: "View code", href: "https://github.com/azizmessaoud/flyrank", kind: "code" },
@@ -149,24 +168,25 @@ export const flagshipProjects: FlagshipProject[] = [
     title: "ALIA",
     category: "AI engineering · Conversational avatar",
     status: "Team prototype · NDA",
-    problem: "Medical sales representatives need realistic practice conversations and structured feedback afterwards.",
-    result: [{ value: "97–99", label: "out of 100 in our visual checks of the generated debrief decks, on synthetic sessions" }],
-    resultNote: "Not yet tested with real trainers. Source code is under NDA (Vital Laboratories Tunisia).",
-    contribution: [
-      "Built the in-browser avatar fallback with TalkingHead.js and Three.js.",
-      "Built the standalone agent that turns a finished session into a PowerPoint debrief.",
+    problem: "Sales representatives need realistic practice conversations and structured feedback.",
+    result: [
+      {
+        value: "97–99",
+        label: "out of 100 on visual checks of the generated debrief decks",
+        conditions: "Synthetic sessions · internal visual QA",
+      },
     ],
+    resultNote: "Not tested with real trainers yet. Code under NDA (Vital Laboratories Tunisia).",
+    contribution: ["Browser avatar fallback (TalkingHead.js + Three.js).", "Agent that turns a session into a PowerPoint debrief."],
     approach: [
       "The fallback exists because browsers did not handle the preferred avatar rendering path consistently.",
       "The browser and backend talk over WebSockets; a Groq-hosted LLM generates the conversation replies.",
-      "Debrief decks were checked visually on synthetic sessions and scored 97–99/100.",
     ],
     limitations: [
       "No evaluation with real trainers or representatives yet.",
-      "Speech recognition and synthesis are not described here: the public case study does not document which components the team used.",
     ],
     visual: "avatar",
-    tags: ["Three.js", "TalkingHead.js", "WebSockets", "Python", "Groq LLM"],
+    tags: ["Three.js", "TalkingHead.js", "WebSockets", "Groq LLM"],
     links: [{ label: "Request details", href: "mailto:aziz.messaoud@esprit.tn?subject=ALIA%20case%20study", kind: "contact" }],
   },
   {
@@ -174,28 +194,35 @@ export const flagshipProjects: FlagshipProject[] = [
     title: "HR Document Intelligence",
     category: "Document AI · Data quality",
     status: "Working prototype · synthetic data",
-    problem: "Scanned payroll files, contracts, and employee records need checking and explaining before anything reaches the HR system.",
+    problem: "Scanned HR documents need checking and explaining before they reach the HR system.",
     result: [
-      { label: "An end-to-end FastAPI prototype: every document gets a status and an explanation for each flag, with sensitive values masked." },
+      {
+        label: "FastAPI prototype: each document gets a status and an explained, masked flag per problem.",
+        conditions: "Synthetic PDFs and images · deterministic local tests",
+      },
     ],
-    resultNote: "Runs on synthetic documents only; OCR accuracy on real documents has not been measured.",
+    resultNote: "OCR accuracy on real documents has not been measured.",
+    evidence: {
+      label: "Synthetic sample documents",
+      href: "https://github.com/azizmessaoud/hr-anomaly-scaffold/tree/main/data/synthetic",
+      kind: "code",
+    },
     contribution: [
-      "Built extraction with Docling, falling back to RapidOCR when confidence or completeness is low.",
-      "Mapped documents to one canonical HR record and wrote the format and business validation rules.",
-      "Wrapped it in a FastAPI service that never writes to the HR system automatically.",
+      "Docling extraction with a RapidOCR fallback.",
+      "Canonical HR record and validation rules.",
+      "FastAPI service; never writes to the HR system.",
     ],
     approach: [
       "Pre-flight checks reject bad uploads first: extension, size (10 MiB default), PDF signature, and image readability.",
       "Payroll fields (name, CIN, CNSS, hire date, gross salary) are checked for missing values, formats, impossible dates, negative salaries, and contradictory statuses; statistical detectors run once a cohort baseline exists.",
       "Each flag carries a rule, severity, expected condition, explanation, and remediation. The report never returns the original record.",
-      "Tests are deterministic and run locally without network access.",
     ],
     limitations: [
       "Demo mode with in-memory jobs; worker queues (Celery, Redis) and PostgreSQL are planned, not built.",
       "CSV and Excel inputs are out of scope for the current OCR pipeline.",
     ],
     visual: "documents",
-    tags: ["Python", "FastAPI", "Docling", "RapidOCR", "pytest"],
+    tags: ["Python", "FastAPI", "Docling", "RapidOCR"],
     links: [{ label: "View code", href: "https://github.com/azizmessaoud/hr-anomaly-scaffold", kind: "code" }],
   },
 ];
@@ -219,7 +246,7 @@ export const supportingProjects: SupportingProject[] = [
     title: "ClusterCrew Analytics",
     description: "Healthcare analytics dashboards for exploring operational data.",
     tags: ["Power BI", "Data visualization", "Healthcare BI"],
-    link: { label: "Live demo", href: "https://clustercrew-analytics.onrender.com/overview", kind: "demo" },
+    link: { label: "Live demo (wakes in about a minute)", href: "https://clustercrew-analytics.onrender.com/overview", kind: "demo" },
   },
   {
     title: "InnoTravel",
@@ -411,11 +438,11 @@ export const priorityCredentials: Credential[] = [
 ];
 
 export const additionalCredentials: Credential[] = [
-  { title: "Introduction to Transformer-Based NLP", issuer: "NVIDIA", year: "2025", type: "Course", link: "https://learn.nvidia.com/certificates?id=ThehODKqTASFT20JoM1-4w" },
-  { title: "Fundamentals of Deep Learning", issuer: "NVIDIA", year: "2025", type: "Course", link: "https://learn.nvidia.com/certificates?id=_2SSDT3sQLis1uAoAh2SNA" },
+  { title: "Introduction to Transformer-Based NLP", issuer: "NVIDIA", year: "2025", type: "Course", link: "https://learn.nvidia.com/certificates?id=_2SSDT3sQLis1uAoAh2SNA" },
+  { title: "Fundamentals of Deep Learning", issuer: "NVIDIA", year: "2025", type: "Course", link: "https://learn.nvidia.com/certificates?id=ThehODKqTASFT20JoM1-4w" },
   { title: "Getting Started with Deep Learning", issuer: "NVIDIA", year: "2025", type: "Course", link: "https://learn.nvidia.com/certificates?id=eotempvJT_-jMSt2HqvJwg" },
   { title: "Intermediate Machine Learning", issuer: "Kaggle", year: "2025", type: "Course", link: "https://www.kaggle.com/learn/certification/azizmessaoud2002/intermediate-machine-learning" },
-  { title: "Intro to Machine Learning", issuer: "Kaggle", year: "2025", type: "Course", link: "https://www.kaggle.com/learn/certification/azizmessaoud2002/intro-to-machine-learning" },
+  { title: "Intro to Machine Learning", issuer: "Kaggle", year: "2024", type: "Course", link: "https://www.kaggle.com/learn/certification/azizmessaoud2002/intro-to-machine-learning" },
   { title: "Neo4j Fundamentals", issuer: "Neo4j", year: "2025", type: "Course", link: "https://graphacademy.neo4j.com/c/19de2cc3-211a-4104-b685-80e20558cc4c" },
   { title: "AI Fundamentals with Capstone", issuer: "IBM SkillsBuild", year: "2025", type: "Certificate", link: "https://www.credly.com/badges/211a4060-9485-4b3a-9fb9-e2d53c08e888/" },
   { title: "Elements of AI for Business", issuer: "MinnaLearn", year: "2025", type: "Course", link: "https://courses.minnalearn.com/certificate/en/elements-of-ai-for-business/c1bde2fc-3df9-41cc-903b-f90636bb12a8" },

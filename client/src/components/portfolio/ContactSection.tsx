@@ -19,7 +19,7 @@ export default function ContactSection() {
           index="08"
           label="Contact"
           title="Let's build something that holds up."
-          intro="Available to discuss a 2027 PFE in Data Science, ML Engineering, or Applied AI."
+          intro="Available to discuss a 2027 PFE (final-year internship) in AI/ML engineering, applied data science, or AI research."
         />
         <ul className="contact-grid">
           {primaryContacts.map(({ label, value, href, Icon }) => {

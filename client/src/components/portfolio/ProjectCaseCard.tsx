@@ -44,11 +44,19 @@ export default function ProjectCaseCard({ project, index }: { project: FlagshipP
           {project.result.map((figure) => (
             <li key={figure.label} className={figure.value ? undefined : "is-text"}>
               {figure.value ? <span className="result-figures__value">{figure.value}</span> : null}
-              <span className="result-figures__label">{figure.label}</span>
+              <span className="result-figures__label">
+                {figure.label}
+                {figure.conditions ? <span className="result-figures__conditions">{figure.conditions}</span> : null}
+              </span>
             </li>
           ))}
         </ul>
         <p className="case-card__note">{project.resultNote}</p>
+        {project.evidence ? (
+          <a className="text-link case-card__evidence" href={project.evidence.href} target="_blank" rel="noreferrer">
+            Evidence: {project.evidence.label} <ArrowUpRight size={14} aria-hidden="true" />
+          </a>
+        ) : null}
       </div>
 
       <div className="case-card__contribution">

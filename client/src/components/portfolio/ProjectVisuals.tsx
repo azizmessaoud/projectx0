@@ -27,7 +27,6 @@ function Rail({ steps }: { steps: RailStep[] }) {
 }
 
 function HierarchyVisual() {
-  const networkAgents = ["Forecast", "Incidents", "Rerouting", "Emergency route", "Corridor", "Transit", "Weather", "Notification"];
   const priority = ["Safety", "Emergency", "Directive", "Transit", "Pedestrian", "Normal"];
   return (
     <figure className="visual">
@@ -37,14 +36,9 @@ function HierarchyVisual() {
       <div className="tiers">
         <div className="tier">
           <p className="tier__level">Network</p>
-          <p className="tier__node">Supermaster</p>
-          <ul className="chip-row" aria-label="Network agents">
-            {networkAgents.map((agent) => (
-              <li key={agent}>{agent}</li>
-            ))}
-          </ul>
+          <p className="tier__node">Supermaster + 8 network agents</p>
         </div>
-        <p className="tier__link">Directives every 5 s · never writes a light</p>
+        <p className="tier__link">Directives every 5 s</p>
         <div className="tier tier--key">
           <p className="tier__level">Junction ×6</p>
           <p className="tier__node">Master, the only writer of its light</p>
@@ -53,7 +47,7 @@ function HierarchyVisual() {
               <li key={item}>{item}</li>
             ))}
           </ol>
-          <p className="tier__note">Advised by 5 agents: traffic light, pedestrian, transit, emergency, sensor health</p>
+          <p className="tier__note">+ 5 advisory agents per junction</p>
         </div>
         <p className="tier__link">Writes</p>
         <div className="tier">
@@ -61,7 +55,7 @@ function HierarchyVisual() {
           <p className="tier__node">Signal in SUMO, on real Tunis streets (J1–J6)</p>
         </div>
       </div>
-      <figcaption>CoFlow Synapse reads the decision log only: a verified answer, a template, or an abstention, never an action.</figcaption>
+      <figcaption>Synapse explains from the decision log; it never acts.</figcaption>
     </figure>
   );
 }
@@ -95,7 +89,7 @@ function RankingVisual() {
           </div>
         ))}
       </div>
-      <div className="timeline-split" aria-label="Time boundary">
+      <p className="timeline-split">
         <span>
           <strong>Mar 31, 2026</strong> features
         </span>
@@ -103,8 +97,7 @@ function RankingVisual() {
         <span>
           <strong>Apr 1–7</strong> clicks to predict
         </span>
-      </div>
-      <figcaption>Train: 11,802 rows from 21 clients. Test: 1,583 rows from 8 other clients, zero overlap.</figcaption>
+      </p>
     </figure>
   );
 }
@@ -119,7 +112,7 @@ function AvatarVisual() {
           { label: "Real-time session", detail: "WebSockets to the backend", tag: "team" },
           { label: "Conversation replies", detail: "Groq-hosted LLM", tag: "team" },
           { label: "Avatar fallback", detail: "TalkingHead.js + Three.js", tag: "mine" },
-          { label: "Debrief deck", detail: "Agent builds a PowerPoint after the session", tag: "mine" },
+          { label: "Debrief deck", detail: "PowerPoint built after the session", tag: "mine" },
         ]}
       />
       <figcaption>
@@ -135,11 +128,11 @@ function DocumentVisual() {
       <p className="visual__title">Document pipeline</p>
       <Rail
         steps={[
-          { label: "Ingest", detail: "PDF or image · pre-flight checks" },
-          { label: "Extract", detail: "Docling with a confidence score", branch: "RapidOCR fallback when confidence is low" },
-          { label: "Validate", detail: "Canonical HR record · format and business rules" },
-          { label: "Explain", detail: "Rule, severity, remediation · values masked" },
-          { label: "Human review", detail: "Nothing is written to the HR system automatically" },
+          { label: "Ingest", detail: "PDF or image, pre-flight checks" },
+          { label: "Extract", detail: "Docling, with a confidence score", branch: "RapidOCR if confidence is low" },
+          { label: "Validate", detail: "Format and business rules" },
+          { label: "Explain", detail: "Rule, severity, fix · values masked" },
+          { label: "Human review", detail: "No automatic write to the HR system" },
         ]}
       />
       <ul className="status-row" aria-label="Possible report statuses">

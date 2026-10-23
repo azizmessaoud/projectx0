@@ -80,7 +80,7 @@ export default function Home() {
               <SectionHeader id="about" index="04" label="About" title="About" />
               <p>
                 I study Data Science Engineering at ESPRIT in Tunisia and graduate in 2027. I am looking for a final-year (PFE)
-                internship in applied machine learning or AI engineering.
+                internship in AI/ML engineering, applied data science, or AI research.
               </p>
               <p>
                 My recent work sits between an experiment and a working tool: ranking pages for human review, checking HR
@@ -89,7 +89,7 @@ export default function Home() {
                 its output.
               </p>
             </div>
-            <aside className="about__panel" aria-label="Profile summary">
+            <div className="about__panel">
               <img
                 className="about__portrait"
                 src={`${import.meta.env.BASE_URL}portrait.jpg`}
@@ -106,7 +106,7 @@ export default function Home() {
                 </div>
                 <div>
                   <dt>Looking for</dt>
-                  <dd>2027 PFE · Data Science, ML / AI Engineering, Applied AI</dd>
+                  <dd>2027 PFE · AI/ML engineering, applied data science, AI research</dd>
                 </div>
                 <div>
                   <dt>Languages</dt>
@@ -121,7 +121,7 @@ export default function Home() {
                     <li key={skill}>{skill}</li>
                   ))}
               </ul>
-            </aside>
+            </div>
           </div>
         </section>
 

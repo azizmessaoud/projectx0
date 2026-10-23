@@ -2,7 +2,7 @@
 Data Science Engineering student at ESPRIT
 
 ## Identity
-I build practical AI systems, connecting applied machine learning, AI engineering, and research through measurable experiments and reliable software. I am a Data Science Engineering student at ESPRIT (expected 2027) seeking a 2027 PFE internship.
+I build practical AI systems, connecting applied machine learning, AI engineering, and research through measurable experiments and reliable software. I am a Data Science Engineering student at ESPRIT (expected 2027) seeking a 2027 PFE internship in AI/ML engineering, applied data science, or AI research.
 
 ## Website
 URL: https://azizm.me/
@@ -31,6 +31,4 @@ URL: https://azizm.me/
 - GitHub: https://github.com/azizmessaoud/
 - Kaggle: https://www.kaggle.com/azizmessaoud
 - LeetCode: https://leetcode.com/u/azizmessaoud/
-- Codeforces: https://codeforces.com/profile/azizmessaoud
-- Zindi: https://zindi.org/users/azizmessaoud
 - Devpost: https://devpost.com/azizmessaoud

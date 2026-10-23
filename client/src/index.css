@@ -151,7 +151,10 @@ section[tabindex="-1"]:focus { outline: none; }
 .hero__meta { margin-top: 2px; color: var(--color-text-secondary); font-size: 16px; }
 .hero h1 { margin-top: 20px; font-family: var(--font-display); font-size: 60px; font-weight: 600; line-height: 1.02; letter-spacing: -0.03em; }
 .hero__lede { margin-top: 20px; max-width: 620px; color: var(--color-text-secondary); font-size: 19px; line-height: 1.55; }
-.hero__availability { display: inline-flex; align-items: center; gap: 10px; margin-top: 24px; font-family: var(--font-mono); font-size: 13px; font-weight: 500; color: var(--color-text); }
+.hero__availability { display: flex; align-items: baseline; gap: 12px; margin-top: 24px; padding: 12px 16px; border: 1px solid var(--color-border-strong); border-left: 2px solid var(--color-accent); background: rgba(11, 26, 41, 0.85); max-width: 620px; }
+.hero__availability .status-dot { align-self: center; }
+.hero__availability strong { display: block; font-size: 17px; font-weight: 600; color: var(--color-text); }
+.hero__targets { display: block; margin-top: 2px; color: var(--color-text-secondary); font-family: var(--font-mono); font-size: 13px; }
 .hero__actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
 .proof-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border: 1px solid var(--color-border); background: rgba(11, 26, 41, 0.85); }
 .proof-strip li + li { border-left: 1px solid var(--color-border); }
@@ -195,6 +198,8 @@ section[tabindex="-1"]:focus { outline: none; }
 .is-text .result-figures__label { grid-column: 1 / -1; }
 .result-figures__value { min-width: 2ch; font-family: var(--font-display); font-size: 40px; font-weight: 600; line-height: 1; letter-spacing: -0.02em; color: var(--color-text); }
 .result-figures__label { font-size: 16px; line-height: 1.45; color: var(--color-text); }
+.result-figures__conditions { display: block; margin-top: 4px; color: var(--color-text-secondary); font-family: var(--font-mono); font-size: 13px; line-height: 1.5; }
+.case-card__evidence { margin-top: 4px; }
 .is-text .result-figures__label { font-family: var(--font-display); font-size: 20px; font-weight: 500; line-height: 1.35; }
 .case-card__note { margin-top: 12px; color: var(--color-text-muted); font-size: 16px; }
 .case-card__contribution { grid-area: contribution; }

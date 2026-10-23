@@ -48,7 +48,10 @@ export default function HeroSection() {
           <p className="hero__lede">{profile.lede}</p>
           <p className="hero__availability">
             <span className="status-dot" aria-hidden="true" />
-            {profile.availability}
+            <span>
+              <strong>{profile.availability}</strong>
+              <span className="hero__targets">{profile.targets}</span>
+            </span>
           </p>
           <div className="hero__actions">
             <a
