@@ -18,7 +18,7 @@ URL: https://azizm.me/
 
 ## Selected Projects
 - FlyRank Search Intelligence (research paper): ranks webpages for human review. On a grouped holdout of 8 unseen clients, a Random Forest reached Precision@50 0.94 vs 0.76 for a transparent baseline. Observational, directional result. Paper: https://azizmessaoud.github.io/flyrank/paper/
-- TraffiX (team project, simulation): hierarchical multi-agent traffic-light control for a schematic central-Tunis network in SUMO; in the morning-peak scenario it cut car waiting by 10% vs actuated control. Code: https://github.com/aymenhamzik/traffix3
+- TraffiX (team project, simulation): hierarchical multi-agent traffic-light control for a schematic central-Tunis network in SUMO; in the morning-peak scenario it cut car waiting by 10% vs actuated control. Code: https://github.com/azizmessaoud/traffix
 - ALIA: medical sales-training tool with a browser avatar and PowerPoint debriefs.
 - HR Document Intelligence: working prototype (synthetic data) using Docling, RapidOCR fallback, validation rules, and FastAPI to flag HR document anomalies for human review.
 

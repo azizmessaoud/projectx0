@@ -106,7 +106,7 @@ export const flagshipProjects: FlagshipProject[] = [
     ],
     visual: "hierarchy",
     tags: ["Python", "SUMO", "scikit-learn", "Fitted Q-Iteration", "FastAPI", "React"],
-    links: [{ label: "View code", href: "https://github.com/aymenhamzik/traffix3", kind: "code" }],
+    links: [{ label: "View code", href: "https://github.com/azizmessaoud/traffix", kind: "code" }],
   },
   {
     id: "case-flyrank",
