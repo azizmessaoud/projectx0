@@ -19,18 +19,13 @@ The build emits the static GitHub Pages artifact into `dist/public`.
 
 ## GitHub Pages deployment
 
-The repository deploys through `.github/workflows/deploy.yml`. Every push to `main` builds the application and publishes `dist/public` with GitHub Pages Actions.
+`.github/workflows/deploy.yml` builds and publishes `dist/public` on every push to `main` (Settings → Pages → Source: GitHub Actions).
 
-The project is configured for the repository URL:
+- The site is served from the custom domain in `client/public/CNAME` (`azizm.me`). Keep that file unless the domain changes.
+- The Vite base is relative (`./`), so assets also resolve from a project subpath; `404.html` and `.nojekyll` are included.
+- The CV link points to Google Drive (`cvUrl` in `client/src/lib/portfolioData.ts`).
+- Analytics placeholders in `client/index.html` are filled from the workflow's `VITE_ANALYTICS_*` variables; local builds warn about them and that is expected.
 
-```text
-https://azizmessaoud.github.io/new-ui/
-```
+## Editing content
 
-The Vite base is relative, the HTML entry script is relative, and the artifact includes `.nojekyll` and a 404 fallback so the app works from the `/new-ui/` subpath. In the repository settings, open **Settings → Pages** and select **GitHub Actions** as the source if it is not already selected.
-
-## Important deployment notes
-
-Do not add a `CNAME` file if the intended URL is the GitHub Pages project URL. A `CNAME` file makes a custom domain the Pages site’s canonical host. If `azizm.me` is restored later, add the CNAME back and configure the custom domain in GitHub Pages.
-
-The portfolio uses a single-page route and relative static assets. If additional client-side routes are added later, keep the 404 fallback and test direct navigation to each route on GitHub Pages.
+All copy, links, metrics and credentials live in `client/src/lib/portfolioData.ts`. Keep every metric traceable to its source (paper, repository, or verification link). Components are in `client/src/components/portfolio/`; design tokens are at the top of `client/src/index.css`.

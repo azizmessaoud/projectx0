@@ -2,7 +2,7 @@
 Data Science Engineering student at ESPRIT
 
 ## Identity
-I am a Data Science Engineering student at ESPRIT. My recent work includes HR document processing, search ranking, and browser-based AI tools.
+I build practical AI systems, connecting applied machine learning, AI engineering, and research through measurable experiments and reliable software. I am a Data Science Engineering student at ESPRIT (expected 2027) seeking a 2027 PFE internship.
 
 ## Website
 URL: https://azizm.me/
@@ -17,9 +17,9 @@ URL: https://azizm.me/
 - Computer Engineering, specialization in Data Science, ESPRIT, Tunisia (expected 2027)
 
 ## Selected Projects
-- FlyRank Search Intelligence: ranks pages for review when only a limited number can be checked. Precision@50 from 0.24 to 0.74 vs a simple baseline.
+- FlyRank Search Intelligence (research paper): ranks webpages for human review. On a grouped holdout of 8 unseen clients, a Random Forest reached Precision@50 0.94 vs 0.76 for a transparent baseline. Observational, directional result. Paper: https://azizmessaoud.github.io/flyrank/paper/
 - ALIA: medical sales-training tool with a browser avatar and PowerPoint debriefs.
-- HR Document Intelligence: local prototype that extracts HR fields with OCR and flags missing or suspicious values.
+- HR Document Intelligence: working prototype (synthetic data) using Docling, RapidOCR fallback, validation rules, and FastAPI to flag HR document anomalies for human review.
 
 ## Professional Experience
 - AI Intern at Sopra HR Software (HR anomaly detection, Docling/RapidOCR, FastAPI validation)

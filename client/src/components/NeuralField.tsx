@@ -1,4 +1,4 @@
-/* 3D neural lattice: perspective projection, slow orbit, pausable, cheaper on touch. */
+/* 3D neural lattice behind the hero: perspective projection, slow orbit, pausable, static under reduced motion. */
 import { useEffect, useRef } from "react";
 
 type Breakpoint = "mobile" | "tablet" | "desktop";
@@ -138,8 +138,8 @@ export default function NeuralField({ paused = false }: { paused?: boolean }) {
       const focal = size * 1.15;
       const depth = focal / (focal + rz * size * 0.42 + size * 0.55);
       return {
-        x: width * 0.58 + rx * depth * size * 0.52,
-        y: height * 0.4 + ry * depth * size * 0.42,
+        x: width * (breakpoint === "desktop" ? 0.72 : 0.6) + rx * depth * size * 0.52,
+        y: height * (breakpoint === "mobile" ? 0.3 : 0.46) + ry * depth * size * 0.42,
         z: rz,
         scale: depth,
       };
@@ -189,7 +189,7 @@ export default function NeuralField({ paused = false }: { paused?: boolean }) {
     const sendSignal = (event: PointerEvent) => {
       if (event.target instanceof Element && event.target.closest(INTERACTIVE_SELECTOR)) return;
       const { x, y, inside } = canvasPoint(event);
-      if (reducedMotion || nodes.length < 2 || !inside) return;
+      if (paused || reducedMotion || nodes.length < 2 || !inside) return;
       const start = closestNode(x, y).index;
       const fanOut = breakpoint === "desktop" ? 4 : 2;
       neighborsOf(start).slice().sort((a, b) => a.distance - b.distance).slice(0, fanOut).forEach((edge, index) => {
@@ -209,12 +209,12 @@ export default function NeuralField({ paused = false }: { paused?: boolean }) {
         const alpha = Math.min(1, 0.16 + point.scale * 0.62 + glow * 0.4);
         ctx.beginPath();
         ctx.arc(point.x, point.y, radius, 0, Math.PI * 2);
-        ctx.fillStyle = isNear ? `rgba(232,214,168,${alpha})` : `rgba(154,176,189,${alpha * 0.75})`;
+        ctx.fillStyle = isNear ? `rgba(66,183,255,${alpha})` : `rgba(145,168,187,${alpha * 0.7})`;
         ctx.fill();
         if (glow > 0.2) {
           ctx.beginPath();
           ctx.arc(point.x, point.y, radius * 2.4, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(213,177,106,${glow * 0.18})`;
+          ctx.fillStyle = `rgba(66,183,255,${glow * 0.16})`;
           ctx.fill();
         }
       });
@@ -243,7 +243,7 @@ export default function NeuralField({ paused = false }: { paused?: boolean }) {
         ctx.beginPath();
         ctx.moveTo(a.x, a.y);
         ctx.lineTo(b.x, b.y);
-        ctx.strokeStyle = `rgba(213,177,106,${0.05 + depth * 0.22 + boost * 0.35})`;
+        ctx.strokeStyle = `rgba(66,183,255,${0.04 + depth * 0.18 + boost * 0.35})`;
         ctx.lineWidth = 0.55 + depth * 1.45 + boost * 0.85;
         ctx.stroke();
       });
@@ -261,7 +261,7 @@ export default function NeuralField({ paused = false }: { paused?: boolean }) {
         const scale = start.scale + (target.scale - start.scale) * pulse.progress;
         ctx.beginPath();
         ctx.arc(x, y, 2.2 + scale * 2.6 + pulse.strength * 1.4, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(239,246,248,${0.4 + pulse.strength * 0.45})`;
+        ctx.fillStyle = `rgba(237,247,255,${0.4 + pulse.strength * 0.45})`;
         ctx.fill();
       });
       for (let index = pulses.length - 1; index >= 0; index -= 1) if (pulses[index].progress >= 1) pulses.splice(index, 1);
