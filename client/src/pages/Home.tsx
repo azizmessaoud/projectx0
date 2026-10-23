@@ -45,7 +45,7 @@ export default function Home() {
               index="02"
               label="Selected work"
               title="Selected work"
-              intro="Three systems with the problem, my part, and the evidence. Limitations are stated where they matter."
+              intro="Four systems with the problem, who built what, and the evidence. Limitations are stated where they matter."
             />
             <div className="case-list">
               {flagshipProjects.map((project, index) => (

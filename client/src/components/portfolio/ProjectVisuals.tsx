@@ -115,8 +115,28 @@ function DocumentVisual() {
   );
 }
 
+function HierarchyVisual() {
+  return (
+    <div className="visual">
+      <p className="visual__title mono-label">Control hierarchy</p>
+      <Pipeline
+        caption="Safety rules and the priority order are never learned; a script checks that only masters write lights and that agents never read the calendar assumptions."
+        steps={[
+          { label: "Supermaster + 8 network agents", detail: "Forecast, incidents, rerouting, emergency route, corridor, transit, weather, notification" },
+          { label: "Directives, every 5 s", detail: "Advice to the masters; the supermaster never writes a light" },
+          { label: "Master per junction (×7)", detail: "Safety > emergency > directive > transit > pedestrian > normal" },
+          { label: "5 junction agents advise", detail: "Traffic light, pedestrian, transit, emergency, sensor health", branch: true },
+          { label: "Traffic light in SUMO", detail: "Written only by its master" },
+          { label: "Synapse explainer", detail: "Reads the decision log only; cites it or abstains (EN · FR · AR)" },
+        ]}
+      />
+    </div>
+  );
+}
+
 export default function ProjectVisual({ kind }: { kind: FlagshipProject["visual"] }) {
   if (kind === "ranking") return <RankingVisual />;
   if (kind === "avatar") return <AvatarVisual />;
+  if (kind === "hierarchy") return <HierarchyVisual />;
   return <DocumentVisual />;
 }

@@ -47,6 +47,9 @@ export interface Metric {
   label: string;
   baseline: number;
   model: number;
+  /* Bar scale; defaults to 1 for scores in [0, 1]. */
+  max?: number;
+  decimals?: number;
 }
 
 export interface FlagshipProject {
@@ -59,7 +62,11 @@ export interface FlagshipProject {
   outcome: string;
   outcomeNote?: string;
   metrics?: Metric[];
-  visual: "ranking" | "avatar" | "documents";
+  /* Column names for the metric table; defaults to Baseline / Model. */
+  metricColumns?: [string, string];
+  /* Heading for the contribution list; defaults to "My contribution". */
+  contributionLabel?: string;
+  visual: "ranking" | "avatar" | "documents" | "hierarchy";
   tags: string[];
   links: ProjectLink[];
 }
@@ -127,6 +134,31 @@ export const flagshipProjects: FlagshipProject[] = [
     visual: "documents",
     tags: ["Python", "FastAPI", "Docling", "RapidOCR", "pytest"],
     links: [{ label: "View code", href: "https://github.com/azizmessaoud/hr-anomaly-scaffold", kind: "code" }],
+  },
+  {
+    id: "case-traffix",
+    title: "TraffiX",
+    category: "Agentic AI · Multi-agent traffic control",
+    status: "Team project · simulation",
+    problem:
+      "Traffic lights in central Tunis have to serve cars, pedestrians, buses, and ambulances through rush hours, Ramadan, rain, and incidents, while safety rules stay out of reach of any learned model.",
+    contributionLabel: "Team contribution",
+    contribution: [
+      "A hierarchy on a simulated network of 7 junctions: per junction, 5 agents advise and a master is the only writer of its light; a supermaster runs 8 network agents and sends directives but never writes a light.",
+      "Three traffic-light agents compared (max-pressure, predictive / MPC, Fitted Q-Iteration RL) over 5 controllers × 12 scenarios × 3 seeds, with models trained on 2025 dates and tested on 2026.",
+      "Synapse language agents in English, French, and Arabic that explain decisions from the log with checked citations or abstain, and an operator copilot whose suggestions are recorded, never applied.",
+    ],
+    outcome: "In the morning-peak scenario, TraffiX cut car waiting by 10% vs actuated control (significant over 3 seeds), with zero pedestrian-clearance truncations vs 700–1,240 per hour for SUMO's plans.",
+    outcomeNote:
+      "Simulation on a schematic network at 2,600 vehicles/h; no deployment. Max-pressure is still the best light agent; junction-only control beat the full hierarchy in the combined scenario, and every controller congests in rain with a flooded street.",
+    metricColumns: ["Actuated", "TraffiX"],
+    metrics: [
+      { label: "Car wait, morning peak (s)", baseline: 20.4, model: 18.3, max: 25, decimals: 1 },
+      { label: "Car wait, Ramadan pre-iftar (s)", baseline: 22.3, model: 21.0, max: 25, decimals: 1 },
+    ],
+    visual: "hierarchy",
+    tags: ["Python", "SUMO", "scikit-learn", "Fitted Q-Iteration", "FastAPI", "React", "Claude / Groq"],
+    links: [{ label: "View code", href: "https://github.com/aymenhamzik/traffix3", kind: "code" }],
   },
 ];
 

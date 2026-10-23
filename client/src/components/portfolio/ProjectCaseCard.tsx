@@ -16,31 +16,37 @@ export function ProjectLinkButton({ link }: { link: ProjectLink }) {
   );
 }
 
-function MetricBars({ metrics }: { metrics: Metric[] }) {
+function MetricBars({ metrics, columns = ["Baseline", "Model"] }: { metrics: Metric[]; columns?: [string, string] }) {
   return (
     <table className="metric-table">
-      <caption className="sr-only">Model compared with baseline on the grouped holdout</caption>
+      <caption className="sr-only">
+        {columns[1]} compared with {columns[0]}
+      </caption>
       <thead>
         <tr>
           <th scope="col">Metric</th>
-          <th scope="col">Baseline</th>
-          <th scope="col">Model</th>
+          <th scope="col">{columns[0]}</th>
+          <th scope="col">{columns[1]}</th>
         </tr>
       </thead>
       <tbody>
-        {metrics.map((metric) => (
-          <tr key={metric.label}>
-            <th scope="row">{metric.label}</th>
-            <td>
-              <span className="metric-bar metric-bar--baseline" style={{ width: `${metric.baseline * 100}%` }} />
-              <span className="metric-value">{metric.baseline.toFixed(2)}</span>
-            </td>
-            <td>
-              <span className="metric-bar" style={{ width: `${metric.model * 100}%` }} />
-              <span className="metric-value">{metric.model.toFixed(2)}</span>
-            </td>
-          </tr>
-        ))}
+        {metrics.map((metric) => {
+          const scale = metric.max ?? 1;
+          const decimals = metric.decimals ?? 2;
+          return (
+            <tr key={metric.label}>
+              <th scope="row">{metric.label}</th>
+              <td>
+                <span className="metric-bar metric-bar--baseline" style={{ width: `${(metric.baseline / scale) * 100}%` }} />
+                <span className="metric-value">{metric.baseline.toFixed(decimals)}</span>
+              </td>
+              <td>
+                <span className="metric-bar" style={{ width: `${(metric.model / scale) * 100}%` }} />
+                <span className="metric-value">{metric.model.toFixed(decimals)}</span>
+              </td>
+            </tr>
+          );
+        })}
       </tbody>
     </table>
   );
@@ -60,7 +66,7 @@ export default function ProjectCaseCard({ project, index }: { project: FlagshipP
       <div className="case-card__outcome">
         <p className="mono-label">Verified outcome</p>
         <p className="case-card__result">{project.outcome}</p>
-        {project.metrics ? <MetricBars metrics={project.metrics} /> : null}
+        {project.metrics ? <MetricBars metrics={project.metrics} columns={project.metricColumns} /> : null}
         {project.outcomeNote ? <p className="case-card__caveat">{project.outcomeNote}</p> : null}
       </div>
 
@@ -74,7 +80,7 @@ export default function ProjectCaseCard({ project, index }: { project: FlagshipP
       </div>
 
       <div className="case-card__contribution">
-        <p className="mono-label">My contribution</p>
+        <p className="mono-label">{project.contributionLabel ?? "My contribution"}</p>
         <ul>
           {project.contribution.map((item) => (
             <li key={item}>{item}</li>

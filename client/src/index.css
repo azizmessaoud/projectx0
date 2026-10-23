@@ -197,7 +197,7 @@ section[tabindex="-1"]:focus { outline: none; }
 .metric-table { width: 100%; margin-top: 16px; border-collapse: collapse; font-size: 14px; }
 .metric-table th, .metric-table td { padding: 6px 0; text-align: left; font-weight: 400; vertical-align: middle; }
 .metric-table thead th { color: var(--color-text-muted); font-family: var(--font-mono); font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; }
-.metric-table tbody th { padding-right: 12px; color: var(--color-text-secondary); white-space: nowrap; }
+.metric-table tbody th { padding-right: 12px; color: var(--color-text-secondary); overflow-wrap: anywhere; }
 .metric-table td { width: 34%; padding-right: 12px; }
 .metric-bar { display: block; height: 6px; background: var(--color-accent); }
 .metric-bar--baseline { background: var(--color-border-strong); }
