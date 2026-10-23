@@ -1,142 +1,158 @@
-/* Diagrams drawn from each project's documented architecture. No screenshots or sample data are invented. */
+/* Diagrams drawn from each project's documented architecture or published results.
+ * No screenshots, sample records, or numbers beyond those in the project materials. */
 import type { FlagshipProject } from "@/lib/portfolioData";
 
-interface Step {
+interface RailStep {
   label: string;
   detail: string;
-  mine?: boolean;
-  branch?: boolean;
+  tag?: "mine" | "team";
+  branch?: string;
 }
 
-function Pipeline({ steps, caption }: { steps: Step[]; caption: string }) {
+function Rail({ steps }: { steps: RailStep[] }) {
   return (
-    <figure className="diagram">
-      <ol className="diagram__steps">
-        {steps.map((step, index) => (
-          <li key={step.label} className={[step.mine ? "is-mine" : "", step.branch ? "is-branch" : ""].join(" ").trim() || undefined}>
-            <span className="diagram__index">{String(index + 1).padStart(2, "0")}</span>
-            <span className="diagram__label">{step.label}</span>
-            <span className="diagram__detail">{step.detail}</span>
-          </li>
-        ))}
-      </ol>
-      <figcaption>{caption}</figcaption>
+    <ol className="rail">
+      {steps.map((step) => (
+        <li key={step.label} className={step.tag === "mine" ? "is-mine" : undefined}>
+          <span className="rail__label">
+            {step.label}
+            {step.tag ? <span className={`owner-tag owner-tag--${step.tag}`}>{step.tag === "mine" ? "Mine" : "Team"}</span> : null}
+          </span>
+          <span className="rail__detail">{step.detail}</span>
+          {step.branch ? <span className="rail__branch">{step.branch}</span> : null}
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+function HierarchyVisual() {
+  const networkAgents = ["Forecast", "Incidents", "Rerouting", "Emergency route", "Corridor", "Transit", "Weather", "Notification"];
+  const priority = ["Safety", "Emergency", "Directive", "Transit", "Pedestrian", "Normal"];
+  return (
+    <figure className="visual">
+      <p className="visual__title">Control hierarchy</p>
+      <div className="tiers">
+        <div className="tier">
+          <p className="tier__level">Network</p>
+          <p className="tier__node">Supermaster</p>
+          <ul className="chip-row" aria-label="Network agents">
+            {networkAgents.map((agent) => (
+              <li key={agent}>{agent}</li>
+            ))}
+          </ul>
+        </div>
+        <p className="tier__link">Directives every 5 s · never writes a light</p>
+        <div className="tier tier--key">
+          <p className="tier__level">Junction ×7</p>
+          <p className="tier__node">Master, the only writer of its light</p>
+          <ol className="chip-row chip-row--order" aria-label="Fixed priority order">
+            {priority.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ol>
+          <p className="tier__note">Advised by 5 agents: traffic light, pedestrian, transit, emergency, sensor health</p>
+        </div>
+        <p className="tier__link">Writes</p>
+        <div className="tier">
+          <p className="tier__level">Street</p>
+          <p className="tier__node">Signal in the SUMO simulation</p>
+        </div>
+      </div>
+      <figcaption>Language agents (EN · FR · AR) read the decision log only: they explain with checked citations or abstain.</figcaption>
     </figure>
   );
 }
 
 function RankingVisual() {
+  const metrics = [
+    { label: "Precision@50", baseline: 0.76, model: 0.94 },
+    { label: "R²", baseline: 0.26, model: 0.5 },
+  ];
   return (
-    <div className="visual">
-      <p className="visual__title mono-label">Evaluation design</p>
-      <Pipeline
-        caption="Features are fixed at the decision date; the label is only used after the baseline is set."
-        steps={[
-          { label: "Signals · Mar 31, 2026", detail: "7 same-day GSC, GA4, search-volume and age features" },
-          { label: "Baseline rule", detail: "60% staleness + 40% visibility, fixed before the label" },
-          { label: "Random Forest regressor", detail: "Predicts GSC clicks for Apr 1–7", mine: true },
-          { label: "Ranked review queue", detail: "Top 50 go to a person, with reason codes" },
-        ]}
-      />
-      <div className="holdout" role="img" aria-label="Grouped holdout: 11,802 training rows from 21 clients, 1,583 test rows from 8 unseen clients, zero client overlap.">
-        <div className="holdout__bar">
-          <span className="holdout__train" style={{ flexGrow: 21 }}>
-            Train · 21 clients
-          </span>
-          <span className="holdout__test" style={{ flexGrow: 8 }}>
-            Test · 8 unseen
-          </span>
-        </div>
-        <p className="holdout__note">11,802 train rows · 1,583 test rows · 0 client overlap</p>
+    <figure className="visual">
+      <p className="visual__title">Grouped holdout, 8 unseen clients</p>
+      <div className="bars">
+        {metrics.map((metric) => (
+          <div key={metric.label} className="bars__group">
+            <p className="bars__metric">{metric.label}</p>
+            <p className="bars__row">
+              <span className="bars__name">Baseline</span>
+              <span className="bars__track">
+                <span className="bars__fill bars__fill--baseline" style={{ width: `${metric.baseline * 100}%` }} />
+              </span>
+              <span className="bars__value">{metric.baseline.toFixed(2)}</span>
+            </p>
+            <p className="bars__row">
+              <span className="bars__name">Random Forest</span>
+              <span className="bars__track">
+                <span className="bars__fill" style={{ width: `${metric.model * 100}%` }} />
+              </span>
+              <span className="bars__value">{metric.model.toFixed(2)}</span>
+            </p>
+          </div>
+        ))}
       </div>
-    </div>
+      <div className="timeline-split" aria-label="Time boundary">
+        <span>
+          <strong>Mar 31, 2026</strong> features
+        </span>
+        <span aria-hidden="true">→</span>
+        <span>
+          <strong>Apr 1–7</strong> clicks to predict
+        </span>
+      </div>
+      <figcaption>Train: 11,802 rows from 21 clients. Test: 1,583 rows from 8 other clients, zero overlap.</figcaption>
+    </figure>
   );
 }
 
 function AvatarVisual() {
   return (
-    <div className="visual">
-      <p className="visual__title mono-label">Session flow</p>
-      <Pipeline
-        caption="Highlighted steps are my parts. Other steps were built by the team; speech components are not shown because they are not described in the public case study."
+    <figure className="visual">
+      <p className="visual__title">Training session</p>
+      <Rail
         steps={[
-          { label: "Trainee in the browser", detail: "Practice conversation with the avatar" },
-          { label: "Real-time session", detail: "WebSockets between the browser and the backend" },
-          { label: "Conversation model", detail: "Groq LLM generates the conversation replies" },
-          { label: "Avatar fallback", detail: "TalkingHead.js + Three.js in the browser", mine: true },
-          { label: "Debrief agent", detail: "Turns the finished session into a PowerPoint deck", mine: true },
+          { label: "Trainee in the browser", detail: "Practice conversation", tag: "team" },
+          { label: "Real-time session", detail: "WebSockets to the backend", tag: "team" },
+          { label: "Conversation replies", detail: "Groq-hosted LLM", tag: "team" },
+          { label: "Avatar fallback", detail: "TalkingHead.js + Three.js", tag: "mine" },
+          { label: "Debrief deck", detail: "Agent builds a PowerPoint after the session", tag: "mine" },
         ]}
       />
-      <p className="visual__legend">
-        <span className="legend-swatch is-mine" aria-hidden="true" /> My contribution
-        <span className="legend-swatch" aria-hidden="true" /> Team component
-      </p>
-    </div>
+      <figcaption>
+        Speech components are not shown: the public materials do not document them.
+      </figcaption>
+    </figure>
   );
 }
 
 function DocumentVisual() {
   return (
-    <div className="visual">
-      <p className="visual__title mono-label">Pipeline</p>
-      <Pipeline
-        caption="Every document ends with a status and a human decision; nothing is written to the HR system automatically."
+    <figure className="visual">
+      <p className="visual__title">Document pipeline</p>
+      <Rail
         steps={[
-          { label: "Upload · PDF or image", detail: "Pre-flight: type, size, signature, readability" },
-          { label: "Docling extraction", detail: "Primary local extractor with a confidence score", mine: true },
-          { label: "RapidOCR fallback", detail: "Only when confidence or completeness is low", mine: true, branch: true },
-          { label: "Field validation", detail: "Canonical HR record + format and business rules", mine: true },
-          { label: "Anomaly evidence", detail: "Rule, severity, explanation; sensitive values masked", mine: true },
-          { label: "Human review", detail: "ACCEPTED · REVIEW_REQUIRED · REJECTED · FAILED" },
+          { label: "Ingest", detail: "PDF or image · pre-flight checks" },
+          { label: "Extract", detail: "Docling with a confidence score", branch: "RapidOCR fallback when confidence is low" },
+          { label: "Validate", detail: "Canonical HR record · format and business rules" },
+          { label: "Explain", detail: "Rule, severity, remediation · values masked" },
+          { label: "Human review", detail: "Nothing is written to the HR system automatically" },
         ]}
       />
-      <div className="sample-flag" aria-label="Synthetic example of an anomaly flag">
-        <p className="mono-label">Synthetic example</p>
-        <dl>
-          <div>
-            <dt>Field</dt>
-            <dd>date_embauche</dd>
-          </div>
-          <div>
-            <dt>Rule</dt>
-            <dd>Invalid date ordering</dd>
-          </div>
-          <div>
-            <dt>Value</dt>
-            <dd>••••-••-••</dd>
-          </div>
-          <div>
-            <dt>Status</dt>
-            <dd className="status-amber">REVIEW_REQUIRED</dd>
-          </div>
-        </dl>
-      </div>
-    </div>
-  );
-}
-
-function HierarchyVisual() {
-  return (
-    <div className="visual">
-      <p className="visual__title mono-label">Control hierarchy</p>
-      <Pipeline
-        caption="Safety rules and the priority order are never learned; a script checks that only masters write lights and that agents never read the calendar assumptions."
-        steps={[
-          { label: "Supermaster + 8 network agents", detail: "Forecast, incidents, rerouting, emergency route, corridor, transit, weather, notification" },
-          { label: "Directives, every 5 s", detail: "Advice to the masters; the supermaster never writes a light" },
-          { label: "Master per junction (×7)", detail: "Safety > emergency > directive > transit > pedestrian > normal" },
-          { label: "5 junction agents advise", detail: "Traffic light, pedestrian, transit, emergency, sensor health", branch: true },
-          { label: "Traffic light in SUMO", detail: "Written only by its master" },
-          { label: "Synapse explainer", detail: "Reads the decision log only; cites it or abstains (EN · FR · AR)" },
-        ]}
-      />
-    </div>
+      <ul className="status-row" aria-label="Possible report statuses">
+        <li className="status status--ok">Accepted</li>
+        <li className="status status--warn">Review required</li>
+        <li className="status status--bad">Rejected</li>
+        <li className="status">Failed</li>
+      </ul>
+    </figure>
   );
 }
 
 export default function ProjectVisual({ kind }: { kind: FlagshipProject["visual"] }) {
+  if (kind === "hierarchy") return <HierarchyVisual />;
   if (kind === "ranking") return <RankingVisual />;
   if (kind === "avatar") return <AvatarVisual />;
-  if (kind === "hierarchy") return <HierarchyVisual />;
   return <DocumentVisual />;
 }

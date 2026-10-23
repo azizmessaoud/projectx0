@@ -43,13 +43,9 @@ export interface ProjectLink {
   kind: "paper" | "code" | "demo" | "contact";
 }
 
-export interface Metric {
+export interface ResultFigure {
+  value?: string;
   label: string;
-  baseline: number;
-  model: number;
-  /* Bar scale; defaults to 1 for scores in [0, 1]. */
-  max?: number;
-  decimals?: number;
 }
 
 export interface FlagshipProject {
@@ -57,15 +53,18 @@ export interface FlagshipProject {
   title: string;
   category: string;
   status: string;
+  /* One sentence. */
   problem: string;
-  contribution: string[];
-  outcome: string;
-  outcomeNote?: string;
-  metrics?: Metric[];
-  /* Column names for the metric table; defaults to Baseline / Model. */
-  metricColumns?: [string, string];
-  /* Heading for the contribution list; defaults to "My contribution". */
+  /* The headline evidence, always visible. */
+  result: ResultFigure[];
+  /* One short caveat shown with the result. */
+  resultNote: string;
+  /* Defaults to "My contribution". */
   contributionLabel?: string;
+  contribution: string[];
+  /* Shown inside the expandable "Approach and evaluation" section. */
+  approach: string[];
+  limitations: string[];
   visual: "ranking" | "avatar" | "documents" | "hierarchy";
   tags: string[];
   links: ProjectLink[];
@@ -73,26 +72,66 @@ export interface FlagshipProject {
 
 export const flagshipProjects: FlagshipProject[] = [
   {
+    id: "case-traffix",
+    title: "TraffiX",
+    category: "Agentic AI · Multi-agent control",
+    status: "Team project · simulation",
+    problem:
+      "Traffic lights in central Tunis must serve cars, pedestrians, buses, and ambulances through peaks, Ramadan, and incidents, without a learned model ever overriding safety rules.",
+    result: [
+      { value: "−10%", label: "car waiting vs actuated signals at the morning peak (20.4 s → 18.3 s, significant over 3 seeds)" },
+      { value: "0", label: "pedestrian-clearance truncations, vs 700–1,240 per hour for SUMO's default plans" },
+    ],
+    resultNote: "Simulation on a schematic network; no deployment.",
+    contributionLabel: "What the team built",
+    contribution: [
+      "A control hierarchy over 7 junctions: agents advise, one master per junction is the only writer of its light, and a supermaster coordinates 8 network agents.",
+      "Three light agents compared (max-pressure, predictive / MPC, Fitted Q-Iteration RL) across 12 scenarios × 3 seeds.",
+      "Language agents in English, French, and Arabic that explain decisions from the log with checked citations, or abstain.",
+    ],
+    approach: [
+      "Masters resolve requests in a fixed order: safety > emergency > supermaster directive > transit > pedestrian > normal. Safety rules and this order are never learned.",
+      "Models are trained on 2025 dates and tested on 2026. The demand forecast's Ramadan 2026 error is 0.027, against 0.103 for a same-date-last-year baseline; incident detection reaches F1 0.85 vs 0.56 for the rule it replaces.",
+      "Agents never read the calendar assumptions or the hidden scenario events; a check script enforces this and the hierarchy rules.",
+      "In the Ramadan pre-iftar rush, car waiting is 21.0 s vs 22.3 s for actuated signals.",
+    ],
+    limitations: [
+      "Max-pressure remains the best light agent on this network; the RL agent is close and the predictive agent behind.",
+      "In the combined scenario, junction-only control beats the full hierarchy; with rain and a flooded street every controller congests, and TraffiX is worse than actuated for cars.",
+      "Results above were measured at 2,600 vehicles/h; the current 4,000 vehicles/h configuration has not been re-reported.",
+    ],
+    visual: "hierarchy",
+    tags: ["Python", "SUMO", "scikit-learn", "Fitted Q-Iteration", "FastAPI", "React"],
+    links: [{ label: "View code", href: "https://github.com/aymenhamzik/traffix3", kind: "code" }],
+  },
+  {
     id: "case-flyrank",
     title: "FlyRank Search Intelligence",
     category: "Applied ML · Search ranking",
     status: "Research paper · internship capstone",
-    problem:
-      "An editorial team has more pages than it can review in a week. Which pages should a person look at first, using only signals available at the end of one decision day?",
-    contribution: [
-      "Framed the task as next-7-day Google Search Console clicks, using March 31, 2026 signals as features and April 1–7 as the outcome.",
-      "Fixed a transparent baseline (content age + same-day visibility) before using the label, then trained a Random Forest regressor.",
-      "Validated on a grouped holdout that keeps whole clients out of training (8 unseen clients, zero overlap) and ran leakage checks; a deliberately leaked feature was caught and removed.",
+    problem: "An editorial team can only review some of its pages each week: which ones should a person look at first?",
+    result: [
+      { value: "0.94", label: "Precision@50 for the Random Forest, vs 0.76 for a transparent baseline" },
+      { value: "0.50", label: "R² on 1,583 rows from 8 clients never seen in training (baseline 0.26)" },
     ],
-    outcome: "Precision@50 of 0.94 for the Random Forest vs 0.76 for the baseline on 1,583 held-out rows.",
-    outcomeNote:
-      "Observational, directional evidence for prioritizing human review: one decision date and one outcome week. Not a causal or production result.",
-    metrics: [
-      { label: "Precision@50", baseline: 0.76, model: 0.94 },
-      { label: "R² (grouped holdout)", baseline: 0.26, model: 0.5 },
+    resultNote: "One decision date and one outcome week; observational, not a production result.",
+    contribution: [
+      "Framed the task: March 31, 2026 signals as features, Google Search Console clicks for April 1–7 as the outcome.",
+      "Fixed a readable baseline before touching the label, then trained a Random Forest regressor.",
+      "Validated on a grouped holdout with zero client overlap, and wrote the paper.",
+    ],
+    approach: [
+      "Precision@50 is the share of the 50 top-ranked pages whose next-week clicks reach the training 75th-percentile threshold of 8 clicks. It measures whether the top of the queue is worth a reviewer's time.",
+      "Baseline: 100 × (0.60 × capped content age + 0.40 × capped same-day impressions), set before the label was used.",
+      "Model: Random Forest, 150 trees, depth 14, seed 42, training-median imputation, 7 same-day features from GSC, GA4, search volume, and content age.",
+      "GroupShuffleSplit keeps whole clients out of training: 11,802 rows from 21 clients for training, 1,583 rows from 8 clients for testing. A deliberately leaked feature inflated the score and was removed before the honest run.",
+    ],
+    limitations: [
+      "Observational analysis: it does not show that refreshing a page causes more traffic.",
+      "One decision date and one outcome week; the sealed June 2026 period is still to be validated.",
     ],
     visual: "ranking",
-    tags: ["Python", "scikit-learn", "Random Forest", "Grouped holdout", "Precision@50"],
+    tags: ["Python", "scikit-learn", "Random Forest", "Grouped holdout"],
     links: [
       { label: "Read the paper", href: "https://azizmessaoud.github.io/flyrank/paper/", kind: "paper" },
       { label: "View code", href: "https://github.com/azizmessaoud/flyrank", kind: "code" },
@@ -103,15 +142,22 @@ export const flagshipProjects: FlagshipProject[] = [
     title: "ALIA",
     category: "AI engineering · Conversational avatar",
     status: "Team prototype · NDA",
-    problem:
-      "Medical sales representatives need practice conversations and structured feedback. ALIA is a training tool with a browser avatar and an automatically generated debrief.",
+    problem: "Medical sales representatives need realistic practice conversations and structured feedback afterwards.",
+    result: [{ value: "97–99", label: "out of 100 in our visual checks of the generated debrief decks, on synthetic sessions" }],
+    resultNote: "Not yet tested with real trainers. Source code is under NDA (Vital Laboratories Tunisia).",
     contribution: [
-      "Built the browser avatar fallback with TalkingHead.js and Three.js, needed because browsers did not handle the preferred rendering path consistently.",
+      "Built the in-browser avatar fallback with TalkingHead.js and Three.js.",
       "Built the standalone agent that turns a finished session into a PowerPoint debrief.",
     ],
-    outcome: "On synthetic sessions, the generated debrief decks scored 97–99/100 in our visual checks.",
-    outcomeNote:
-      "Not yet tested with real trainers. Source code is NDA-protected (Vital Laboratories Tunisia); the diagram shows only the parts listed in this case study.",
+    approach: [
+      "The fallback exists because browsers did not handle the preferred avatar rendering path consistently.",
+      "The browser and backend talk over WebSockets; a Groq-hosted LLM generates the conversation replies.",
+      "Debrief decks were checked visually on synthetic sessions and scored 97–99/100.",
+    ],
+    limitations: [
+      "No evaluation with real trainers or representatives yet.",
+      "Speech recognition and synthesis are not described here: the public case study does not document which components the team used.",
+    ],
     visual: "avatar",
     tags: ["Three.js", "TalkingHead.js", "WebSockets", "Python", "Groq LLM"],
     links: [{ label: "Request details", href: "mailto:aziz.messaoud@esprit.tn?subject=ALIA%20case%20study", kind: "contact" }],
@@ -121,44 +167,29 @@ export const flagshipProjects: FlagshipProject[] = [
     title: "HR Document Intelligence",
     category: "Document AI · Data quality",
     status: "Working prototype · synthetic data",
-    problem:
-      "Payroll files, contracts, and employee records arrive as scans and PDFs. Errors should be caught and explained before anything reaches the HR information system.",
-    contribution: [
-      "Built the extraction path: Docling as the primary local extractor, RapidOCR as a fallback when confidence or completeness is low.",
-      "Mapped documents to one canonical HR record and wrote validation rules (required fields, CIN/CNSS/date/salary formats, impossible values).",
-      "Wrapped it in a FastAPI service that returns a status, masked evidence for every flag, and a recommendation, and never writes to the HRIS automatically.",
+    problem: "Scanned payroll files, contracts, and employee records need checking and explaining before anything reaches the HR system.",
+    result: [
+      { label: "An end-to-end FastAPI prototype: every document gets a status and an explanation for each flag, with sensitive values masked." },
     ],
-    outcome: "Runs end to end on synthetic documents, returning ACCEPTED, REVIEW_REQUIRED, REJECTED, or FAILED with an explanation for each flag.",
-    outcomeNote:
-      "Demo mode with in-memory jobs. OCR accuracy on real documents has not been measured; worker queues and a database are planned, not built.",
+    resultNote: "Runs on synthetic documents only; OCR accuracy on real documents has not been measured.",
+    contribution: [
+      "Built extraction with Docling, falling back to RapidOCR when confidence or completeness is low.",
+      "Mapped documents to one canonical HR record and wrote the format and business validation rules.",
+      "Wrapped it in a FastAPI service that never writes to the HR system automatically.",
+    ],
+    approach: [
+      "Pre-flight checks reject bad uploads first: extension, size (10 MiB default), PDF signature, and image readability.",
+      "Payroll fields (name, CIN, CNSS, hire date, gross salary) are checked for missing values, formats, impossible dates, negative salaries, and contradictory statuses; statistical detectors run once a cohort baseline exists.",
+      "Each flag carries a rule, severity, expected condition, explanation, and remediation. The report never returns the original record.",
+      "Tests are deterministic and run locally without network access.",
+    ],
+    limitations: [
+      "Demo mode with in-memory jobs; worker queues (Celery, Redis) and PostgreSQL are planned, not built.",
+      "CSV and Excel inputs are out of scope for the current OCR pipeline.",
+    ],
     visual: "documents",
     tags: ["Python", "FastAPI", "Docling", "RapidOCR", "pytest"],
     links: [{ label: "View code", href: "https://github.com/azizmessaoud/hr-anomaly-scaffold", kind: "code" }],
-  },
-  {
-    id: "case-traffix",
-    title: "TraffiX",
-    category: "Agentic AI · Multi-agent traffic control",
-    status: "Team project · simulation",
-    problem:
-      "Traffic lights in central Tunis have to serve cars, pedestrians, buses, and ambulances through rush hours, Ramadan, rain, and incidents, while safety rules stay out of reach of any learned model.",
-    contributionLabel: "Team contribution",
-    contribution: [
-      "A hierarchy on a simulated network of 7 junctions: per junction, 5 agents advise and a master is the only writer of its light; a supermaster runs 8 network agents and sends directives but never writes a light.",
-      "Three traffic-light agents compared (max-pressure, predictive / MPC, Fitted Q-Iteration RL) over 5 controllers × 12 scenarios × 3 seeds, with models trained on 2025 dates and tested on 2026.",
-      "Synapse language agents in English, French, and Arabic that explain decisions from the log with checked citations or abstain, and an operator copilot whose suggestions are recorded, never applied.",
-    ],
-    outcome: "In the morning-peak scenario, TraffiX cut car waiting by 10% vs actuated control (significant over 3 seeds), with zero pedestrian-clearance truncations vs 700–1,240 per hour for SUMO's plans.",
-    outcomeNote:
-      "Simulation on a schematic network at 2,600 vehicles/h; no deployment. Max-pressure is still the best light agent; junction-only control beat the full hierarchy in the combined scenario, and every controller congests in rain with a flooded street.",
-    metricColumns: ["Actuated", "TraffiX"],
-    metrics: [
-      { label: "Car wait, morning peak (s)", baseline: 20.4, model: 18.3, max: 25, decimals: 1 },
-      { label: "Car wait, Ramadan pre-iftar (s)", baseline: 22.3, model: 21.0, max: 25, decimals: 1 },
-    ],
-    visual: "hierarchy",
-    tags: ["Python", "SUMO", "scikit-learn", "Fitted Q-Iteration", "FastAPI", "React", "Claude / Groq"],
-    links: [{ label: "View code", href: "https://github.com/aymenhamzik/traffix3", kind: "code" }],
   },
 ];
 
@@ -193,9 +224,9 @@ export const supportingProjects: SupportingProject[] = [
 ];
 
 export const proofs = [
-  { label: "Research paper", text: "Ranking webpages for human review", detail: "P@50 0.94 vs 0.76 baseline", anchor: "case-flyrank" },
-  { label: "Internships", text: "Sopra HR Software · FlyRank AI", detail: "AI and ML engineering, 2025–2026", anchor: "experience" },
-  { label: "Prototype", text: "HR document anomaly pipeline", detail: "Docling · RapidOCR · FastAPI", anchor: "case-hr" },
+  { label: "Agentic AI", text: "TraffiX multi-agent traffic control", detail: "Team project, in simulation", anchor: "case-traffix" },
+  { label: "Research paper", text: "Ranking webpages for review", detail: "Precision@50: 0.94 vs 0.76", anchor: "case-flyrank" },
+  { label: "Internships", text: "Sopra HR Software · FlyRank AI", detail: "AI and ML, 2025–2026", anchor: "experience" },
   { label: "Certified", text: "Oracle OCI Data Science Professional", detail: "+ Microsoft AI-901, DP-900", anchor: "certifications" },
 ];
 
@@ -203,7 +234,7 @@ export const workflow = [
   {
     title: "Understand the problem and data",
     body: "Write down the decision the system supports, who acts on it, and what a wrong call costs. Then check where the data comes from and what is missing.",
-    example: "FlyRank: separated unavailable measurements from real zeros before modelling.",
+    example: "FlyRank: missing measurements were excluded, not treated as zeros.",
   },
   {
     title: "Establish a baseline",
@@ -229,7 +260,7 @@ export interface Experience {
   location: string;
   summary: string;
   highlights: string[];
-  link?: { label: string; href: string };
+  links?: { label: string; href: string }[];
 }
 
 export const experiences: Experience[] = [
@@ -238,34 +269,37 @@ export const experiences: Experience[] = [
     company: "Sopra HR Software",
     period: "Jul 2026 – Sep 2026",
     location: "Tunis, Tunisia",
-    summary: "HR document anomaly detection before data reaches the HR system.",
+    summary: "Built a prototype that checks HR documents for anomalies before they reach the HR system.",
     highlights: [
-      "Built an anomaly-detection prototype to validate payroll files, contracts, and employee records before integration.",
-      "Developed a document-processing pipeline with Docling and RapidOCR to extract structured data from scanned HR documents.",
-      "Implemented a FastAPI scaffold combining validation rules and anomaly flags for automated quality checks.",
+      "Document extraction with Docling, with RapidOCR as the fallback for low-confidence scans.",
+      "Validation rules and anomaly flags behind a FastAPI service, with explained, masked evidence for reviewers.",
     ],
+    links: [{ label: "Case study", href: "#case-hr" }],
   },
   {
     role: "Machine Learning Intern",
     company: "FlyRank AI",
     period: "Jul 2026 – Aug 2026",
     location: "Remote",
-    summary: "Applied search-intelligence track ending in a research paper on review prioritization.",
+    summary: "Applied search-intelligence track that ended in a research paper on ranking pages for review.",
     highlights: [
-      "Completed weekly applied-ML assignments on a pseudonymized search-analytics warehouse: framing, data contract, leakage checks, baseline, model, validation audit.",
-      "Wrote the capstone paper and published the notebooks and metrics receipts in a public repository.",
+      "Weekly assignments on a pseudonymized analytics warehouse: framing, data contract, leakage checks, baseline, model, validation.",
+      "Published the capstone paper with its notebooks and metrics receipts.",
     ],
-    link: { label: "Verify internship", href: "https://internship.flyrank.ai/verify/FR-D11-C2CA8-72DBB?first_name=Aziz" },
+    links: [
+      { label: "Case study", href: "#case-flyrank" },
+      { label: "Verify internship", href: "https://internship.flyrank.ai/verify/FR-D11-C2CA8-72DBB?first_name=Aziz" },
+    ],
   },
   {
     role: "AI Intern",
     company: "Sopra HR Software",
     period: "Jul 2025 – Aug 2025",
     location: "Tunis, Tunisia",
-    summary: "First HR document-processing pipeline.",
+    summary: "Built a first HR document-processing pipeline.",
     highlights: [
-      "Built an HR document-processing pipeline with Python, spaCy, and pdfplumber.",
-      "Extracted entities and parsed documents into structured HR fields; automated batch extraction for one template with regular expressions.",
+      "Extracted entities into structured HR fields with Python, spaCy, and pdfplumber.",
+      "Automated batch extraction for one document template with regular expressions.",
     ],
   },
   {
@@ -273,10 +307,8 @@ export const experiences: Experience[] = [
     company: "Banque de Tunisie",
     period: "Jun 2023 – Jul 2023",
     location: "Tunisia",
-    summary: "IT operations and user support.",
-    highlights: [
-      "Installed and configured Windows on company servers under supervision, handled inventory data entry, and troubleshot user incidents.",
-    ],
+    summary: "Server setup under supervision, inventory data entry, and user support.",
+    highlights: [],
   },
 ];
 

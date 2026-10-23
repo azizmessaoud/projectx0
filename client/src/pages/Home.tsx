@@ -45,7 +45,7 @@ export default function Home() {
               index="02"
               label="Selected work"
               title="Selected work"
-              intro="Four systems with the problem, who built what, and the evidence. Limitations are stated where they matter."
+              intro="Four systems, newest first: the problem, who built what, and the evidence. Each card states its limits."
             />
             <div className="case-list">
               {flagshipProjects.map((project, index) => (
@@ -80,15 +80,13 @@ export default function Home() {
               <SectionHeader id="about" index="04" label="About" title="About" />
               <p>
                 I study Data Science Engineering at ESPRIT in Tunisia and graduate in 2027. I am looking for a final-year (PFE)
-                internship where I can work on applied machine learning or AI engineering.
+                internship in applied machine learning or AI engineering.
               </p>
               <p>
-                Most of my recent work sits between an experiment and a working tool: ranking pages for human review, extracting
-                and validating fields from HR documents, and building parts of a conversational training avatar.
-              </p>
-              <p>
-                I try to connect the two halves. An experiment should end with a baseline, a metric, and a stated limit; software
-                should keep the evidence that lets a person check its output.
+                My recent work sits between an experiment and a working tool: ranking pages for human review, checking HR
+                documents before they reach an HR system, and multi-agent traffic control. I try to end every experiment with a
+                baseline, a metric, and a stated limit, and to build software that keeps the evidence a person needs to check
+                its output.
               </p>
             </div>
             <aside className="about__panel" aria-label="Profile summary">

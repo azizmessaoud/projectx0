@@ -1,14 +1,19 @@
-import { ArrowUpRight, FileText, Github, Globe, Mail } from "lucide-react";
-import type { FlagshipProject, Metric, ProjectLink } from "@/lib/portfolioData";
+import { ArrowUpRight, ChevronDown, FileText, Github, Globe, Mail } from "lucide-react";
+import type { FlagshipProject, ProjectLink } from "@/lib/portfolioData";
 import ProjectVisual from "./ProjectVisuals";
 
 const linkIcons = { paper: FileText, code: Github, demo: Globe, contact: Mail } as const;
 
-export function ProjectLinkButton({ link }: { link: ProjectLink }) {
+export function ProjectLinkButton({ link, prominent = false }: { link: ProjectLink; prominent?: boolean }) {
   const Icon = linkIcons[link.kind];
   const external = link.href.startsWith("http");
   return (
-    <a className="text-link" href={link.href} target={external ? "_blank" : undefined} rel={external ? "noreferrer" : undefined}>
+    <a
+      className={prominent ? "button button--secondary button--compact" : "text-link"}
+      href={link.href}
+      target={external ? "_blank" : undefined}
+      rel={external ? "noreferrer" : undefined}
+    >
       <Icon size={16} aria-hidden="true" />
       {link.label}
       {external ? <ArrowUpRight size={14} aria-hidden="true" /> : null}
@@ -16,77 +21,61 @@ export function ProjectLinkButton({ link }: { link: ProjectLink }) {
   );
 }
 
-function MetricBars({ metrics, columns = ["Baseline", "Model"] }: { metrics: Metric[]; columns?: [string, string] }) {
-  return (
-    <table className="metric-table">
-      <caption className="sr-only">
-        {columns[1]} compared with {columns[0]}
-      </caption>
-      <thead>
-        <tr>
-          <th scope="col">Metric</th>
-          <th scope="col">{columns[0]}</th>
-          <th scope="col">{columns[1]}</th>
-        </tr>
-      </thead>
-      <tbody>
-        {metrics.map((metric) => {
-          const scale = metric.max ?? 1;
-          const decimals = metric.decimals ?? 2;
-          return (
-            <tr key={metric.label}>
-              <th scope="row">{metric.label}</th>
-              <td>
-                <span className="metric-bar metric-bar--baseline" style={{ width: `${(metric.baseline / scale) * 100}%` }} />
-                <span className="metric-value">{metric.baseline.toFixed(decimals)}</span>
-              </td>
-              <td>
-                <span className="metric-bar" style={{ width: `${(metric.model / scale) * 100}%` }} />
-                <span className="metric-value">{metric.model.toFixed(decimals)}</span>
-              </td>
-            </tr>
-          );
-        })}
-      </tbody>
-    </table>
-  );
-}
-
 export default function ProjectCaseCard({ project, index }: { project: FlagshipProject; index: number }) {
   return (
     <article id={project.id} className="case-card" aria-labelledby={`${project.id}-title`}>
       <header className="case-card__head">
-        <p className="mono-label case-card__category">
-          <span>{String(index + 1).padStart(2, "0")}</span> {project.category}
+        <p className="case-card__category">
+          <span className="case-card__index">{String(index + 1).padStart(2, "0")}</span>
+          {project.category}
+          <span className="case-card__status">{project.status}</span>
         </p>
         <h3 id={`${project.id}-title`}>{project.title}</h3>
-        <p className="status-tag">{project.status}</p>
+        <p className="case-card__problem">{project.problem}</p>
       </header>
-
-      <div className="case-card__outcome">
-        <p className="mono-label">Verified outcome</p>
-        <p className="case-card__result">{project.outcome}</p>
-        {project.metrics ? <MetricBars metrics={project.metrics} columns={project.metricColumns} /> : null}
-        {project.outcomeNote ? <p className="case-card__caveat">{project.outcomeNote}</p> : null}
-      </div>
 
       <div className="case-card__visual">
         <ProjectVisual kind={project.visual} />
       </div>
 
-      <div className="case-card__problem">
-        <p className="mono-label">Problem</p>
-        <p>{project.problem}</p>
+      <div className="case-card__result">
+        <p className="mono-label">Result</p>
+        <ul className="result-figures">
+          {project.result.map((figure) => (
+            <li key={figure.label} className={figure.value ? undefined : "is-text"}>
+              {figure.value ? <span className="result-figures__value">{figure.value}</span> : null}
+              <span className="result-figures__label">{figure.label}</span>
+            </li>
+          ))}
+        </ul>
+        <p className="case-card__note">{project.resultNote}</p>
       </div>
 
       <div className="case-card__contribution">
         <p className="mono-label">{project.contributionLabel ?? "My contribution"}</p>
-        <ul>
+        <ul className="bullet-list">
           {project.contribution.map((item) => (
             <li key={item}>{item}</li>
           ))}
         </ul>
       </div>
+
+      <details className="case-card__details">
+        <summary>
+          Approach and evaluation <ChevronDown size={16} aria-hidden="true" />
+        </summary>
+        <ul className="bullet-list">
+          {project.approach.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
+        <p className="mono-label case-card__limits-label">Limitations</p>
+        <ul className="bullet-list">
+          {project.limitations.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
+      </details>
 
       <footer className="case-card__foot">
         <ul className="tag-list" aria-label="Technologies">
@@ -96,7 +85,7 @@ export default function ProjectCaseCard({ project, index }: { project: FlagshipP
         </ul>
         <div className="link-row">
           {project.links.map((link) => (
-            <ProjectLinkButton key={link.href} link={link} />
+            <ProjectLinkButton key={link.href} link={link} prominent />
           ))}
         </div>
       </footer>
