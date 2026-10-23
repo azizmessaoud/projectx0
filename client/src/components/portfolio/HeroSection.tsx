@@ -1,10 +1,13 @@
 import { ArrowDown, Download, Mail, Pause, Play } from "lucide-react";
 import { lazy, Suspense, useEffect, useState } from "react";
 import { goToSection } from "@/hooks/useActiveSection";
-import { cvUrl, profile } from "@/lib/portfolioData";
+import { cvUrl, profile, skills } from "@/lib/portfolioData";
 import ProofStrip from "./ProofStrip";
 
 const NeuralField = lazy(() => import("@/components/NeuralField"));
+
+// Skills shown as labelled nodes on the network sphere (desktop only).
+const skillLabels = Object.values(skills).flat();
 
 function useMediaQuery(query: string) {
   const [matches, setMatches] = useState(() => typeof window !== "undefined" && window.matchMedia(query).matches);
@@ -30,7 +33,7 @@ export default function HeroSection() {
     <section id="top" className="hero" aria-labelledby="hero-title" tabIndex={-1}>
       <div className="hero__field" aria-hidden="true">
         <Suspense fallback={null}>
-          <NeuralField paused={paused} />
+          <NeuralField paused={paused} labels={skillLabels} />
         </Suspense>
       </div>
 

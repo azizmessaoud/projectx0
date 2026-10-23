@@ -433,7 +433,7 @@ export const additionalCredentials: Credential[] = [
 
 export const skills: Record<string, string[]> = {
   Languages: ["Python", "SQL", "R"],
-  "ML / AI": ["scikit-learn", "PyTorch", "TensorFlow", "NLP", "LLMs"],
+  "ML / AI": ["scikit-learn", "PyTorch", "TensorFlow", "NLP", "LLMs", "Multi-agent systems"],
   Engineering: ["FastAPI", "Docker", "Git"],
   Data: ["Data visualization", "OCR / document parsing"],
 };
